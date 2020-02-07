@@ -1,8 +1,27 @@
-use std::fmt;
+use std::{collections::BTreeMap, fmt};
 
 use itertools::Itertools;
 
-// ----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+#[macro_export]
+macro_rules! collect {
+    ($($expr: expr),*) => {
+        vec![$($expr),*].into_iter().collect()
+    };
+    ($($expr: expr,)*) => {
+        vec![$($expr),*].into_iter().collect()
+    }
+}
+
+// -----------------------------------------------------------------------------
+
+// TODO: newtypes
+/// Which base vector (e0, e1 or e2?)
+type VecIdx = usize;
+//type BladeIdx = usize;
+
+// -----------------------------------------------------------------------------
 
 /// Definitions of axes: each axis squares to one of these.
 /// The number of axes and their signs define your algebra.
@@ -53,7 +72,37 @@ impl std::ops::MulAssign<Sign> for Sign {
 	}
 }
 
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+
+struct Grammar {
+	/// what you get when you sign the input vectors,
+	/// e.g. 0++ would specify the 2d gpa of e0^2=0  e1^2=1  e2^2=1
+	vectors_squared: Vec<Sign>,
+
+	/// Optionally override the order of the vector bases in a multivector,
+	/// e.g. maybe you prefer the output to use `e20` over `-e02`.
+	blade_version: BTreeMap<Vec<VecIdx>, (Sign, Vec<VecIdx>)>,
+	// TODO: allow changing the order (in multiplication tables, types etc) of e.e. `e20` and `e12`.
+}
+
+impl Grammar {
+	/// Projective Geometric Algebra in 2d.
+	/// e0^2=0  e1^2=1  e2^2=1
+	fn pga_2d() -> Self {
+		Self {
+			vectors_squared: vec![Sign::Zero, Sign::Positive, Sign::Positive],
+			/// TODO: automatically figure out sign!
+			blade_version: collect![(vec![0, 2], (Sign::Negative, vec![2, 0])),],
+		}
+	}
+
+	/// number of vectors, dimensionality of the vector space
+	fn dims(&self) -> usize {
+		self.vectors_squared.len()
+	}
+}
+
+// ---------------------------------------------------------------------------
 
 /// A scalar, vector, bivector, trivector etc.
 /// A blade of grad K is the result of a wedge product of K different vectors
@@ -125,6 +174,105 @@ impl fmt::Display for Blade {
 	}
 }
 
+// // ----------------------------------------------------------------------------
+
+// struct Factor {
+// 	variable: String, // the name of a multivector variable e.g. "a", "b", "point"
+// 	blade: Blade,     // The blade/dimension in the variable
+// }
+
+// // ----------------------------------------------------------------------------
+
+// struct Product(Sign, Vec<Factor>);
+
+// impl Product {
+// 	fn one() -> Self {
+// 		Product(Sign::Positive, vec![])
+// 	}
+// }
+
+// impl fmt::Display for Product {
+// 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+// 		let factors = self.1.iter().map(ToString::to_string).join("·");
+// 		match self.sign {
+// 			Product::Negative => write!(f, "-{}", factors),
+// 			Product::Zero => "0".fmt(f),
+// 			Product::Positive => factors.fmt(f),
+// 		}
+// 	}
+// }
+
+// impl std::ops::Neg for Product {
+// 	type Output = Product;
+// 	fn neg(self) -> Product {
+// 		Product(-self.0, self.1)
+// 	}
+// }
+
+// impl std::ops::Mul for Product {
+// 	type Output = Self;
+
+// 	fn mul(self, rhs: Self) -> Self {
+// 		Product(self.0 * rhs.0, concat(self.1, rhs.1)).simplify()
+// 	}
+// }
+
+// impl std::ops::MulAssign<Product> for Product {
+// 	fn mul_assign(&mut self, rhs: Product) {
+// 		*self = *self * rhs;
+// 	}
+// }
+
+// ----------------------------------------------------------------------------
+
+// struct Sum(Vec<Product>);
+
+// impl Sum {
+// 	fn one() -> Self {
+// 		Sum(vec![Product::one()])
+// 	}
+// }
+
+// impl fmt::Display for Sum {
+// 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+// 		match self {
+// 			Sum::Negative => "-1".fmt(f),
+// 			Sum::Zero => "0".fmt(f),
+// 			Sum::Positive => "+1".fmt(f),
+// 		}
+// 	}
+// }
+
+// impl std::ops::Neg for Sum {
+// 	type Output = Sum;
+// 	fn neg(self) -> Sum {
+// 		match self {
+// 			Sum::Negative => Sum::Positive,
+// 			Sum::Zero => Sum::Zero,
+// 			Sum::Positive => Sum::Negative,
+// 		}
+// 	}
+// }
+
+// impl std::ops::Mul for Sum {
+// 	type Output = Self;
+
+// 	fn mul(self, rhs: Self) -> Self {
+// 		use Sum::*;
+// 		match (self, rhs) {
+// 			(Positive, Positive) | (Negative, Negative) => Positive,
+// 			(Negative, Positive) | (Positive, Negative) => Negative,
+// 			_ => Zero,
+// 		}
+// 	}
+// }
+
+// impl std::ops::MulAssign<Sum> for Sum {
+// 	fn mul_assign(&mut self, rhs: Sum) {
+// 		*self = *self * rhs;
+// 	}
+// }
+
 // ----------------------------------------------------------------------------
 
 // TODO: rename
@@ -171,7 +319,7 @@ impl SignedBlade {
 	}
 
 	/// geometric product (normal multiplication)
-	fn geometric(&self, other: &SignedBlade, vectors_squared: &[Sign]) -> Self {
+	fn geometric(&self, other: &SignedBlade, grammar: &Grammar) -> Self {
 		// each blade is the product of its vectors.
 		// so all we need to do is concatenate the numbers and normalize.
 		let mut numbers: Vec<usize> = self
@@ -198,24 +346,26 @@ impl SignedBlade {
 		let mut bases = vec![];
 		for num in numbers {
 			if bases.last() == Some(&num) {
-				magnitude *= vectors_squared[num];
+				magnitude *= grammar.vectors_squared[num];
 				bases.pop();
 			} else {
 				bases.push(num);
 			}
 		}
 
+		// TODO: make use of grammar.blade_version here!
+
 		Self {
 			magnitude,
-			blade: Blade::from_bases(vectors_squared.len(), &bases),
+			blade: Blade::from_bases(grammar.dims(), &bases),
 		}
 	}
 
-	fn dot(&self, other: &SignedBlade, vectors_squared: &[Sign]) -> Self {
+	fn dot(&self, other: &SignedBlade, grammar: &Grammar) -> Self {
 		// The dot product is the K grade of the geometric product,
 		// where K is the absolute difference in grades between the operands.
 		let k = ((self.grade() as i64) - (other.grade() as i64)).abs() as usize;
-		let mut prod = self.geometric(other, vectors_squared);
+		let mut prod = self.geometric(other, grammar);
 		if prod.blade.grade() > k {
 			prod.magnitude = Sign::Zero;
 		}
@@ -223,17 +373,17 @@ impl SignedBlade {
 	}
 
 	/// outer / wedge
-	fn outer(&self, other: &SignedBlade, vectors_squared: &[Sign]) -> Self {
+	fn outer(&self, other: &SignedBlade, grammar: &Grammar) -> Self {
 		let k = self.grade() + other.grade();
-		let mut prod = self.geometric(other, vectors_squared);
+		let mut prod = self.geometric(other, grammar);
 		if prod.blade.grade() < k {
 			prod.magnitude = Sign::Zero;
 		}
 		prod
 	}
 
-	fn regressive(&self, other: &SignedBlade, vectors_squared: &[Sign]) -> Self {
-		self.dual().outer(&other.dual(), vectors_squared).dual()
+	fn regressive(&self, other: &SignedBlade, grammar: &Grammar) -> Self {
+		self.dual().outer(&other.dual(), grammar).dual()
 	}
 }
 
@@ -249,6 +399,14 @@ impl fmt::Display for SignedBlade {
 
 // ----------------------------------------------------------------------------
 
+// struct Multivector(Vec<FactoredBlade>);
+
+// fn geometric_product(a: &Multivector, b: &Multivector) {
+// 	todo!();
+// }
+
+// ----------------------------------------------------------------------------
+
 /// The standard form is the integers (p, m, z)
 /// where p : number of vectors that square to +1
 /// where m : number of vectors that square to -1
@@ -256,7 +414,7 @@ impl fmt::Display for SignedBlade {
 /// We allow others orders.
 /// (3, 0, 0): 3d euclidean vector space
 /// (3, 0, 1): 3d projective geometric algebra
-fn generate(vectors_squared: &[Sign]) {
+fn generate(grammar: &Grammar) {
 	println!("Notation (following bivector.net):");
 	println!(" !  dual");
 	println!(" *  geometric multiplication");
@@ -271,12 +429,12 @@ fn generate(vectors_squared: &[Sign]) {
 	println!(" R, e0, e1, e2, e01, e02, e12, e123: blades");
 	println!();
 	println!("Basis vectors / generators and algebra definition:");
-	for (i, sign) in vectors_squared.iter().enumerate() {
+	for (i, sign) in grammar.vectors_squared.iter().enumerate() {
 		println!("  e{}² = {:>2}", i, sign);
 	}
 	// Scalars are zero-dimensions, basis vectors are 1-dimensional, bivectors
 
-	let mut blades: Vec<Blade> = (0..vectors_squared.len())
+	let mut blades: Vec<Blade> = (0..grammar.dims())
 		.map(|_| Some(false).into_iter().chain(Some(true)))
 		.multi_cartesian_product()
 		.map(Blade)
@@ -310,7 +468,7 @@ fn generate(vectors_squared: &[Sign]) {
 	for a in &unit_blades {
 		print!("  ");
 		for b in &unit_blades {
-			print!("{:<8}", a.geometric(b, vectors_squared));
+			print!("{:<8}", a.geometric(b, grammar));
 		}
 		println!();
 	}
@@ -320,7 +478,7 @@ fn generate(vectors_squared: &[Sign]) {
 	for a in &unit_blades {
 		print!("  ");
 		for b in &unit_blades {
-			print!("{:<8}", a.dot(b, vectors_squared));
+			print!("{:<8}", a.dot(b, grammar));
 		}
 		println!();
 	}
@@ -330,7 +488,7 @@ fn generate(vectors_squared: &[Sign]) {
 	for a in &unit_blades {
 		print!("  ");
 		for b in &unit_blades {
-			print!("{:<8}", a.outer(b, vectors_squared));
+			print!("{:<8}", a.outer(b, grammar));
 		}
 		println!();
 	}
@@ -340,7 +498,7 @@ fn generate(vectors_squared: &[Sign]) {
 	for a in &unit_blades {
 		print!("  ");
 		for b in &unit_blades {
-			print!("{:<8}", a.regressive(b, vectors_squared));
+			print!("{:<8}", a.regressive(b, grammar));
 		}
 		println!();
 	}
@@ -348,5 +506,5 @@ fn generate(vectors_squared: &[Sign]) {
 
 fn main() {
 	// 2D PGA
-	generate(&[Sign::Zero, Sign::Positive, Sign::Positive]);
+	generate(&Grammar::pga_2d());
 }

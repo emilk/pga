@@ -119,11 +119,18 @@ fn generate(grammar: &Grammar) {
 
 	let a = MultiVec::instance("a", &line_type);
 	let b = MultiVec::instance("b", &line_type);
+	println!();
 	println!("line a * line b = {}", (&a * &b).simplify(grammar));
 
 	let t = MultiVec::instance("t", &transform_type);
 	let p = MultiVec::instance("p", &point_type);
+	println!();
 	println!("transform t sandwich point p = {}", (t.sandwich(&p)).simplify(grammar));
+
+	// let t = MultiVec::instance("t", &point_type);
+	// let p = MultiVec::instance("p", &point_type);
+	// println!();
+	// println!("point t sandwich point p = {}", (t.sandwich(&p)).simplify(grammar));
 }
 
 fn main() {

@@ -1,10 +1,21 @@
 /// Definitions of axes: each axis squares to one of these.
 /// The number of axes and their signs define your algebra.
+/// TODO: replace with i32 ?
 #[derive(Copy, Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Sign {
 	Negative,
 	Zero,
 	Positive,
+}
+
+impl Sign {
+	pub fn into_i32(self) -> i32 {
+		match self {
+			Sign::Negative => -1,
+			Sign::Zero => 0,
+			Sign::Positive => 1,
+		}
+	}
 }
 
 impl std::fmt::Debug for Sign {

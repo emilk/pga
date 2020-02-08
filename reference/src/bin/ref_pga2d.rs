@@ -448,58 +448,72 @@ impl PGA2D {
 }
 
 fn main() {
-    // dot_product_table();
+    let l1 = 0.0 * e0 + 1.0 * e1 + 0.0 * e2; // x=0
+    let l2 = 0.0 * e0 + -0.5f64.sqrt() * e1 + 0.5f64.sqrt() * e2; // x-y=0
+    let t = l1 * l2;
+    let p = 3.0 * e01 + 2.0 * e20 + e12; // x=2, y=3
+    dbg!(&t);
+    dbg!(&p);
+    dbg!(t * p * t.Reverse());
+
+    // let t = (2.0 * e12 + 3.0 * e20 + 5.0 * e01);
+    // let p = (2.0 * e12 + 3.0 * e20 + 5.0 * e01);
+
+    // dbg! | (7.0 * e0 + 11.0 * e1 + 13.0 * e2));
+
     // dbg!((2.0 * e12 + 3.0 * e20 + 5.0 * e01) | (7.0 * e0 + 11.0 * e1 + 13.0 * e2));
 
-    let s = PGA2D::new(1.0, 0);
-    let blades = vec![
-        s,
-        e0.clone(),
-        e1.clone(),
-        e2.clone(),
-        e01.clone(),
-        e20.clone(),
-        e12.clone(),
-        e012.clone(),
-    ];
+    // dbg!(e12 * e12);
 
-    println!();
-    println!("Geometric product multiplication table (left side * top row):");
-    for &a in &blades {
-        print!("  ");
-        for &b in &blades {
-            print!("{:<8}", (a * b).to_string());
-        }
-        println!();
-    }
+    // let s = PGA2D::new(1.0, 0);
+    // let blades = vec![
+    //     s,
+    //     e0.clone(),
+    //     e1.clone(),
+    //     e2.clone(),
+    //     e01.clone(),
+    //     e20.clone(),
+    //     e12.clone(),
+    //     e012.clone(),
+    // ];
 
-    println!();
-    println!("Inner / dot product multiplication table (left side | top row):");
-    for &a in &blades {
-        print!("  ");
-        for &b in &blades {
-            print!("{:<8}", (a | b).to_string());
-        }
-        println!();
-    }
+    // println!();
+    // println!("Geometric product multiplication table (left side * top row):");
+    // for &a in &blades {
+    //     print!("  ");
+    //     for &b in &blades {
+    //         print!("{:<8}", (a * b).to_string());
+    //     }
+    //     println!();
+    // }
 
-    println!();
-    println!("Outer product multiplication table (left side ^ top row):");
-    for &a in &blades {
-        print!("  ");
-        for &b in &blades {
-            print!("{:<8}", (a ^ b).to_string());
-        }
-        println!();
-    }
+    // println!();
+    // println!("Inner / dot product multiplication table (left side | top row):");
+    // for &a in &blades {
+    //     print!("  ");
+    //     for &b in &blades {
+    //         print!("{:<8}", (a | b).to_string());
+    //     }
+    //     println!();
+    // }
 
-    println!();
-    println!("Regressive product multiplication table (left side & top row):");
-    for &a in &blades {
-        print!("  ");
-        for &b in &blades {
-            print!("{:<8}", (a & b).to_string());
-        }
-        println!();
-    }
+    // println!();
+    // println!("Outer product multiplication table (left side ^ top row):");
+    // for &a in &blades {
+    //     print!("  ");
+    //     for &b in &blades {
+    //         print!("{:<8}", (a ^ b).to_string());
+    //     }
+    //     println!();
+    // }
+
+    // println!();
+    // println!("Regressive product multiplication table (left side & top row):");
+    // for &a in &blades {
+    //     print!("  ");
+    //     for &b in &blades {
+    //         print!("{:<8}", (a & b).to_string());
+    //     }
+    //     println!();
+    // }
 }

@@ -150,9 +150,9 @@ macro_rules! impl_dot {
 
 // The basis vector types:
 
-/// The scalar type.
+/// The scalar type / Real.
 #[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub)]
-pub struct Scalar(pub f64);
+pub struct S(pub f64);
 
 /// Projective axis.
 /// Squares to 0
@@ -192,16 +192,16 @@ pub struct E012(pub f64);
 // -----------------------------------
 
 // TODO: generate this code from the definitions of e0,e1,e2
-impl_dual!(Scalar, E012);
+impl_dual!(S, E012);
 impl_dual!(E0, E12);
 impl_dual!(E1, -E20);
 impl_dual!(E2, E01);
 impl_dual!(E01, E2);
 impl_dual!(E20, -E1);
 impl_dual!(E12, E0);
-impl_dual!(E012, Scalar);
+impl_dual!(E012, S);
 
-impl_reverse!(Scalar, +);
+impl_reverse!(S, +);
 impl_reverse!(E0,     +);
 impl_reverse!(E1,     +);
 impl_reverse!(E2,     +);
@@ -212,16 +212,16 @@ impl_reverse!(E012,   -);
 
 // -----------------------------------
 
-impl_mul!(Scalar, Scalar, Scalar);
-impl_mul!(Scalar, E0, E0);
-impl_mul!(Scalar, E1, E1);
-impl_mul!(Scalar, E2, E2);
-impl_mul!(Scalar, E01, E01);
-impl_mul!(Scalar, E20, E20);
-impl_mul!(Scalar, E12, E12);
-impl_mul!(Scalar, E012, E012);
+impl_mul!(S, S, S);
+impl_mul!(S, E0, E0);
+impl_mul!(S, E1, E1);
+impl_mul!(S, E2, E2);
+impl_mul!(S, E01, E01);
+impl_mul!(S, E20, E20);
+impl_mul!(S, E12, E12);
+impl_mul!(S, E012, E012);
 
-impl_mul!(E0, Scalar, E0);
+impl_mul!(E0, S, E0);
 impl_mul!(E0, E0, Zero); // By definition in 2D PGA
 impl_mul!(E0, E1, E01);
 impl_mul!(E0, E2, -E20);
@@ -230,25 +230,25 @@ impl_mul!(E0, E20, Zero);
 impl_mul!(E0, E12, E012);
 impl_mul!(E0, E012, Zero);
 
-impl_mul!(E1, Scalar, E1);
+impl_mul!(E1, S, E1);
 impl_mul!(E1, E0, -E01);
-impl_mul!(E1, E1, Scalar); // By definition in 2D PGA
+impl_mul!(E1, E1, S); // By definition in 2D PGA
 impl_mul!(E1, E2, E12);
 impl_mul!(E1, E01, -E0);
 impl_mul!(E1, E20, E012);
 impl_mul!(E1, E12, E2);
 impl_mul!(E1, E012, E20);
 
-impl_mul!(E2, Scalar, E2);
+impl_mul!(E2, S, E2);
 impl_mul!(E2, E0, E20);
 impl_mul!(E2, E1, -E12);
-impl_mul!(E2, E2, Scalar); // By definition in 2D PGA
+impl_mul!(E2, E2, S); // By definition in 2D PGA
 impl_mul!(E2, E01, E012);
 impl_mul!(E2, E20, E0);
 impl_mul!(E2, E12, -E1);
 impl_mul!(E2, E012, E01);
 
-impl_mul!(E01, Scalar, E01);
+impl_mul!(E01, S, E01);
 impl_mul!(E01, E0, Zero);
 impl_mul!(E01, E1, E0);
 impl_mul!(E01, E2, E012);
@@ -257,7 +257,7 @@ impl_mul!(E01, E20, Zero);
 impl_mul!(E01, E12, -E20);
 impl_mul!(E01, E012, Zero);
 
-impl_mul!(E20, Scalar, E20);
+impl_mul!(E20, S, E20);
 impl_mul!(E20, E0, Zero);
 impl_mul!(E20, E1, E012);
 impl_mul!(E20, E2, -E0);
@@ -266,16 +266,16 @@ impl_mul!(E20, E20, Zero);
 impl_mul!(E20, E12, E01);
 impl_mul!(E20, E012, Zero);
 
-impl_mul!(E12, Scalar, E12);
+impl_mul!(E12, S, E12);
 impl_mul!(E12, E0, E012);
 impl_mul!(E12, E1, -E2);
 impl_mul!(E12, E2, E1);
 impl_mul!(E12, E01, E20);
 impl_mul!(E12, E20, -E01);
-impl_mul!(E12, E12, -Scalar);
+impl_mul!(E12, E12, -S);
 impl_mul!(E12, E012, -E0);
 
-impl_mul!(E012, Scalar, E012);
+impl_mul!(E012, S, E012);
 impl_mul!(E012, E0, Zero);
 impl_mul!(E012, E1, E20);
 impl_mul!(E012, E2, E01);
@@ -286,16 +286,16 @@ impl_mul!(E012, E012, Zero);
 
 // -----------------------------------
 
-impl_dot!(Scalar, Scalar, Scalar);
-impl_dot!(Scalar, E0, E0);
-impl_dot!(Scalar, E1, E1);
-impl_dot!(Scalar, E2, E2);
-impl_dot!(Scalar, E01, E01);
-impl_dot!(Scalar, E20, E20);
-impl_dot!(Scalar, E12, E12);
-impl_dot!(Scalar, E012, E012);
+impl_dot!(S, S, S);
+impl_dot!(S, E0, E0);
+impl_dot!(S, E1, E1);
+impl_dot!(S, E2, E2);
+impl_dot!(S, E01, E01);
+impl_dot!(S, E20, E20);
+impl_dot!(S, E12, E12);
+impl_dot!(S, E012, E012);
 
-impl_dot!(E0, Scalar, E0);
+impl_dot!(E0, S, E0);
 impl_dot!(E0, E0, Zero); // By definition in 2D PGA
 impl_dot!(E0, E1, Zero);
 impl_dot!(E0, E2, Zero);
@@ -304,25 +304,25 @@ impl_dot!(E0, E20, Zero);
 impl_dot!(E0, E12, Zero);
 impl_dot!(E0, E012, Zero);
 
-impl_dot!(E1, Scalar, E1);
+impl_dot!(E1, S, E1);
 impl_dot!(E1, E0, Zero);
-impl_dot!(E1, E1, Scalar); // By definition in 2D PGA
+impl_dot!(E1, E1, S); // By definition in 2D PGA
 impl_dot!(E1, E2, Zero);
 impl_dot!(E1, E01, -E0);
 impl_dot!(E1, E20, Zero);
 impl_dot!(E1, E12, E2);
 impl_dot!(E1, E012, E20);
 
-impl_dot!(E2, Scalar, E2);
+impl_dot!(E2, S, E2);
 impl_dot!(E2, E0, Zero);
 impl_dot!(E2, E1, Zero);
-impl_dot!(E2, E2, Scalar); // By definition in 2D PGA
+impl_dot!(E2, E2, S); // By definition in 2D PGA
 impl_dot!(E2, E01, Zero);
 impl_dot!(E2, E20, E0);
 impl_dot!(E2, E12, -E1);
 impl_dot!(E2, E012, E01);
 
-impl_dot!(E01, Scalar, E01);
+impl_dot!(E01, S, E01);
 impl_dot!(E01, E0, Zero);
 impl_dot!(E01, E1, E0);
 impl_dot!(E01, E2, Zero);
@@ -331,7 +331,7 @@ impl_dot!(E01, E20, Zero);
 impl_dot!(E01, E12, Zero);
 impl_dot!(E01, E012, Zero);
 
-impl_dot!(E20, Scalar, E20);
+impl_dot!(E20, S, E20);
 impl_dot!(E20, E0, Zero);
 impl_dot!(E20, E1, Zero);
 impl_dot!(E20, E2, -E0);
@@ -340,16 +340,16 @@ impl_dot!(E20, E20, Zero);
 impl_dot!(E20, E12, Zero);
 impl_dot!(E20, E012, Zero);
 
-impl_dot!(E12, Scalar, E12);
+impl_dot!(E12, S, E12);
 impl_dot!(E12, E0, Zero);
 impl_dot!(E12, E1, -E2);
 impl_dot!(E12, E2, E1);
 impl_dot!(E12, E01, Zero);
 impl_dot!(E12, E20, Zero);
-impl_dot!(E12, E12, -Scalar);
+impl_dot!(E12, E12, -S);
 impl_dot!(E12, E012, -E0);
 
-impl_dot!(E012, Scalar, E012);
+impl_dot!(E012, S, E012);
 impl_dot!(E012, E0, Zero);
 impl_dot!(E012, E1, E20);
 impl_dot!(E012, E2, E01);
@@ -362,8 +362,11 @@ impl_dot!(E012, E012, Zero);
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Line {
+	/// w
 	pub e0: E0,
+	/// x
 	pub e1: E1,
+	/// y
 	pub e2: E2,
 }
 
@@ -379,7 +382,7 @@ impl Dual for Line {
 }
 
 impl Dot<Line> for Line {
-	type Output = Scalar;
+	type Output = S;
 	fn dot(&self, other: &Line) -> Self::Output {
 		// NOTE: e0.dot(&e0) is always zero
 		self.e1.dot(&other.e1) + self.e2.dot(&other.e2)
@@ -497,7 +500,7 @@ impl Point {
 
 	// /// if this is a euclidean point, you will get the rotation around it.
 	// /// if this is an infinite point you will get a translation that direction.
-	// pub exp(self, val: Scalar) -> Transform {
+	// pub exp(self, val: S) -> Transform {
 	// }
 }
 
@@ -506,13 +509,15 @@ impl Point {
 /// translation + rotation + uniform scale
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Transform {
-	pub s: Scalar,
+	pub s: S,
 
-	pub e12: E12,
-
+	/// x
 	pub e20: E20,
 
+	/// y
 	pub e01: E01,
+
+	pub e12: E12,
 }
 
 impl Reverse for Transform {
@@ -548,7 +553,7 @@ impl Sandwich<Point> for Transform {
 		let t = self;
 
 		// tp = t * p:
-		// let tp_s: Scalar = t.e12 * p.e12;
+		// let tp_s: S = t.e12 * p.e12;
 		// let tp_e12: E12 = t.s * p.e12;
 		// let tp_e20: E20 = t.s * p.e20 + t.e12 * p.e01 + t.e01 * p.e12;
 		// let tp_e01: E01 = t.s * p.e01 + t.e12 * p.e20 + t.e20 * p.e12;
@@ -600,24 +605,15 @@ impl Sandwich<Point> for Transform {
 		// 		+ t.e20 * p.e12 * t.s,
 		// }
 
+		// GENERATED:
 		Point {
-			e12: t.s * p.e12 * t.s - t.e12 * p.e12 * t.e12,
-			e20: -t.e12 * p.e12 * t.e20
-				- p.e12 * t.e01 * t.s
-				- p.e01 * t.e12 * t.s
-				- t.e12 * p.e20 * t.e12
-				- t.e20 * p.e12 * t.e12
-				+ p.e20 * t.s * t.s
-				+ t.e12 * p.e01 * t.s
-				+ t.e01 * p.e12 * t.s,
-			e01: -t.e12 * p.e12 * t.e01
-				- p.e12 * t.e20 * t.s
-				- p.e20 * t.e12 * t.s
-				- t.e12 * p.e01 * t.e12
-				- t.e01 * p.e12 * t.e12
-				+ p.e01 * t.s * t.s
-				+ t.e12 * p.e20 * t.s
-				+ t.e20 * p.e12 * t.s,
+			e01: p.e01 * t.e12 * t.e12 + p.e01 * t.s * t.s + S(2.0) * p.e12 * t.e01 * t.e12
+				- S(2.0) * p.e12 * t.e20 * t.s
+				- S(2.0) * p.e20 * t.e12 * t.s,
+			e20: -S(2.0) * p.e01 * t.e12 * t.s - S(2.0) * p.e12 * t.e01 * t.s - S(2.0) * p.e12 * t.e12 * t.e20
+				+ p.e20 * t.e12 * t.e12
+				+ p.e20 * t.s * t.s,
+			e12: -p.e12 * t.e12 * t.e12 + p.e12 * t.s * t.s,
 		}
 	}
 }

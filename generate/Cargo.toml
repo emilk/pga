@@ -9,3 +9,5 @@ edition = "2018"
 [dependencies]
 derive_more = "0.99"
 itertools = "0.8"
+strum = "0.17"
+strum_macros = "0.17"

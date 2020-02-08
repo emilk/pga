@@ -273,7 +273,7 @@ impl std::ops::MulAssign<Sum> for Sum {
 
 /// A linear combination of blades.
 #[must_use]
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Eq, PartialEq)]
 pub struct MultiVec(Vec<(Blade, Sum)>);
 
 impl MultiVec {
@@ -292,6 +292,18 @@ impl MultiVec {
 				})
 				.collect(),
 		)
+	}
+
+	/// Project onto the given blade
+	pub fn project(&self, needle: &Blade) -> Sum {
+		self.0
+			.iter()
+			.find_map(|(blade, sum)| if blade == needle { Some(sum.clone()) } else { None })
+			.unwrap_or_default()
+	}
+
+	pub fn blades(&self) -> impl Iterator<Item = &Blade> {
+		self.0.iter().map(|(blade, _)| blade)
 	}
 
 	pub fn simplify(self, grammar: &Grammar) -> Self {
@@ -340,6 +352,16 @@ impl MultiVec {
 				})
 				.collect(),
 		)
+	}
+
+	pub fn dual(&self, grammar: &Grammar) -> Self {
+		Self(
+			self.0
+				.iter()
+				.map(|(blade, sum)| (blade.dual(grammar), sum.clone())) // TODO: sum.dual()
+				.collect(),
+		)
+		.simplify(grammar)
 	}
 
 	/// The sandwich operator

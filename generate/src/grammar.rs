@@ -7,11 +7,18 @@ use crate::{Blade, SignedBlade, VecIdx};
 pub struct GrammarBuilder {
 	/// what you get when you sign the input vectors,
 	/// e.g. 0++ would specify the 2d gpa of e0^2=0  e1^2=1  e2^2=1
+	/// The standard form is the integers (p, m, z)
+	/// where p : number of vectors that square to +1
+	/// where m : number of vectors that square to -1
+	/// where z : number of vectors that square to 0
+	/// We allow others orders.
+	/// (3, 0, 0): 3d euclidean vector space
+	/// (3, 0, 1): 3d projective geometric algebra
 	pub vectors_squared: Vec<i32>,
 
 	/// Optionally specify preferred order of the vector bases in a multivector,
 	/// e.g. maybe you prefer to use `e20` as a base rather than `e02`.
-	blade_version: Vec<Blade>,
+	blade_conventions: Vec<Blade>,
 	// TODO: allow changing the order (in multiplication tables, types etc) of e.e. `e20` and `e12`?
 }
 
@@ -22,7 +29,7 @@ pub struct Grammar {
 
 	/// Optionally override the order of the vector bases in a multivector,
 	/// e.g. maybe you prefer the output to use `e20` over `-e02`.
-	blade_version: BTreeMap<Blade, SignedBlade>,
+	blade_conventions: BTreeMap<Blade, SignedBlade>,
 }
 
 impl GrammarBuilder {
@@ -31,7 +38,7 @@ impl GrammarBuilder {
 	pub fn pga_2d() -> Self {
 		Self {
 			vectors_squared: vec![0, 1, 1],
-			blade_version: vec![Blade::from_indices(vec![VecIdx(2), VecIdx(0)])],
+			blade_conventions: vec![Blade::from_indices(vec![VecIdx(2), VecIdx(0)])],
 			// TODO:
 			// line:      {e0,  e1,  e2},
 			// point:     {e01, e20, e12},
@@ -40,25 +47,26 @@ impl GrammarBuilder {
 	}
 
 	pub fn build(self) -> Grammar {
-		let mut blade_version = BTreeMap::new();
-		for canonical in self.blade_version {
-			for permutation in canonical
+		// Generate translations for e.g. e02 -> e20
+		let mut blade_conventions = BTreeMap::new();
+		for convention in self.blade_conventions {
+			for permutation in convention
 				.indices()
 				.iter()
 				.copied()
-				.permutations(canonical.indices().len())
+				.permutations(convention.indices().len())
 				.map(Blade::from_indices)
 			{
-				let (canonical_sign, canonical_sorted) = canonical.sorted();
+				let (canonical_sign, canonical_sorted) = convention.sorted();
 				let (permutation_sign, permutation_sorted) = permutation.sorted();
 				assert_eq!(canonical_sorted, permutation_sorted);
 
-				if permutation != canonical {
-					blade_version.insert(
+				if permutation != convention {
+					blade_conventions.insert(
 						permutation,
 						SignedBlade {
 							sign: canonical_sign * permutation_sign,
-							blade: canonical.clone(),
+							blade: convention.clone(),
 						},
 					);
 				}
@@ -67,7 +75,7 @@ impl GrammarBuilder {
 
 		Grammar {
 			vectors_squared: self.vectors_squared,
-			blade_version,
+			blade_conventions,
 		}
 	}
 }
@@ -89,7 +97,7 @@ impl Grammar {
 
 	pub fn simplify(&self, mut value: SignedBlade) -> SignedBlade {
 		value.sign *= value.blade.simplify(self);
-		if let Some(preferred) = self.blade_version.get(&value.blade) {
+		if let Some(preferred) = self.blade_conventions.get(&value.blade) {
 			value.sign * preferred.clone()
 		} else {
 			value

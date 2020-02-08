@@ -1,6 +1,6 @@
-use std::{collections::BTreeMap, fmt};
+use std::{collections::BTreeMap, fmt, ops::Mul};
 
-use itertools::Itertools;
+use {derive_more::Display, itertools::Itertools};
 
 // -----------------------------------------------------------------------------
 
@@ -16,10 +16,112 @@ macro_rules! collect {
 
 // -----------------------------------------------------------------------------
 
-// TODO: newtypes
 /// Which base vector (e0, e1 or e2?)
-type VecIdx = usize;
+#[derive(Copy, Clone, Debug, Display, Eq, Ord, PartialEq, PartialOrd)]
+struct VecIdx(usize);
 //type BladeIdx = usize;
+
+// -----------------------------------------------------------------------------
+
+/// Represents the geometric product of some vectors in the given order.
+/// The empty blade is the real dimensions.
+#[derive(Clone, Eq, PartialEq)]
+struct Blade(Vec<VecIdx>);
+
+impl Blade {
+	// Is this
+	fn from_bools(bools: &[bool]) -> Self {
+		Self(
+			bools
+				.iter()
+				.enumerate()
+				.filter_map(|(i, &set)| if set { Some(VecIdx(i)) } else { None })
+				.collect(),
+		)
+	}
+
+	fn as_bools(&self, grammar: &Grammar) -> Vec<bool> {
+		assert!(self.is_simple());
+		(0..grammar.dims()).map(|i| self.0.contains(&VecIdx(i))).collect()
+	}
+
+	// Is this blade as simple (short) as possible?
+	// NOTE: may still not be normalized (canonical order, as specified by grammar)
+	fn is_simple(&self) -> bool {
+		for i in 0..self.0.len() {
+			for j in i + 1..self.0.len() {
+				if self.0[i] == self.0[j] {
+					return false; // Duplicate
+				}
+			}
+		}
+		true
+	}
+
+	// // does not mean sorted according to grammar! TODO
+	// fn is_sorted(&self) -> bool {
+	// 	// self.0.is_sorted() // TODO
+	// 	let mut sorted = self.0.clone();
+	// 	sorted.sort();
+	// 	self.0 == sorted
+	// }
+
+	/// 0 for scalar, 1 for vector, 2 for multivector etc.
+	/// Only trustworthy for normalized / simplified blades!
+	fn grade(&self) -> usize {
+		assert!(self.is_simple());
+		self.0.len()
+	}
+
+	/// TODO: store dimensionality in blade so we don't need to pass in the grammar here!
+	fn dual(&self, grammar: &Grammar) -> Blade {
+		// Blade(self.0.iter().map(|v| grammar.dual(*v)).collect())
+		let bools: Vec<bool> = self.as_bools(grammar).into_iter().map(|s| !s).collect();
+		Blade::from_bools(&bools)
+	}
+
+	/// geometric multiplication, produces the geometric product
+	fn geometric(&self, other: &Blade) -> Self {
+		// each blade is the product of its vectors so all we need to do is concatenate the numbers!
+		Blade(self.0.iter().copied().chain(other.0.iter().copied()).collect())
+	}
+}
+
+// TODO: use grammar for this instead of overriding Ord
+impl Ord for Blade {
+	fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+		if self.0.len() != other.0.len() {
+			// Short blades first
+			self.0.len().cmp(&other.0.len())
+		} else {
+			// TODO: remove this HACK for e12 vs e20 order
+			let self_sorted: Vec<VecIdx> = self.0.iter().copied().sorted().collect();
+			let other_sorted: Vec<VecIdx> = other.0.iter().copied().sorted().collect();
+			if self_sorted != other_sorted {
+				self_sorted.cmp(&other_sorted)
+			} else {
+				self.0.cmp(&other.0)
+			}
+		}
+	}
+}
+
+impl PartialOrd for Blade {
+	fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+		Some(self.cmp(other))
+	}
+}
+
+impl fmt::Display for Blade {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		if self.0.is_empty() {
+			// Real/Scalar
+			"1".fmt(f)
+		} else {
+			format!("e{}", self.0.iter().join("")).fmt(f)
+		}
+	}
+}
 
 // -----------------------------------------------------------------------------
 
@@ -81,7 +183,7 @@ struct Grammar {
 
 	/// Optionally override the order of the vector bases in a multivector,
 	/// e.g. maybe you prefer the output to use `e20` over `-e02`.
-	blade_version: BTreeMap<Vec<VecIdx>, (Sign, Vec<VecIdx>)>,
+	blade_version: BTreeMap<Blade, SignedBlade>,
 	// TODO: allow changing the order (in multiplication tables, types etc) of e.e. `e20` and `e12`.
 }
 
@@ -91,8 +193,15 @@ impl Grammar {
 	fn pga_2d() -> Self {
 		Self {
 			vectors_squared: vec![Sign::Zero, Sign::Positive, Sign::Positive],
-			/// TODO: automatically figure out sign!
-			blade_version: collect![(vec![0, 2], (Sign::Negative, vec![2, 0])),],
+			// TODO: automatically figure out sign!
+			blade_version: collect![(
+				Blade(vec![VecIdx(0), VecIdx(2)]),
+				SignedBlade {
+					sign: Sign::Negative,
+					blade: Blade(vec![VecIdx(2), VecIdx(0)])
+				}
+			)],
+			// blade_version: collect![], //TODO
 		}
 	}
 
@@ -100,76 +209,42 @@ impl Grammar {
 	fn dims(&self) -> usize {
 		self.vectors_squared.len()
 	}
-}
 
-// ---------------------------------------------------------------------------
+	// fn dual(&self, v: VecIdx) -> VecIdx {
+	// 	assert!(v.0 < self.dims());
+	// 	VecIdx(self.dims() - v.0 - 1)
+	// }
 
-/// A scalar, vector, bivector, trivector etc.
-/// A blade of grad K is the result of a wedge product of K different vectors
-/// A set of integers
-/// 1:   [false, false, false]
-/// e0:  [true,  false, false]
-/// e12: [false, true,  true]
-#[derive(Clone, Eq, PartialEq)]
-struct Blade(Vec<bool>);
-
-impl Blade {
-	fn from_bases(dimensionality: usize, set: &[usize]) -> Self {
-		let mut v = vec![false; dimensionality];
-		for b in set {
-			v[*b] = true;
+	fn simplify(&self, mut value: SignedBlade) -> SignedBlade {
+		// We want to sort the basis numbers.
+		// Multiplication is anti-commutative so each time we swap we need to flip the sign.
+		// So bubble-sort!
+		for _ in 0..value.blade.0.len() {
+			for i in 0..value.blade.0.len() - 1 {
+				if value.blade.0[i] > value.blade.0[i + 1] {
+					value.blade.0.swap(i, i + 1);
+					value.sign = -value.sign;
+				}
+			}
 		}
-		Blade(v)
-	}
 
-	/// Returns the basis vectors of this blade
-	fn bases(&self) -> Vec<usize> {
-		self.0
-			.iter()
-			.enumerate()
-			.flat_map(|(i, set)| if *set { Some(i) } else { None })
-			.collect()
-	}
-
-	// 0 for scalar, 1 for vector, 2 for multivector etc
-	fn grade(&self) -> usize {
-		self.0.iter().filter(|s| **s).count()
-	}
-
-	fn dual(&self) -> Blade {
-		Blade(self.0.iter().map(|s| !s).collect())
-	}
-}
-
-impl Ord for Blade {
-	fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-		if self.grade() != other.grade() {
-			self.grade().cmp(&other.grade())
-		} else {
-			self.0.cmp(&other.0).reverse()
+		// Now we collapse adjacent basis vectors (squaring them):
+		let mut sign = value.sign;
+		let mut bases = vec![];
+		for num in value.blade.0 {
+			if bases.last() == Some(&num) {
+				sign *= self.vectors_squared[num.0];
+				bases.pop();
+			} else {
+				bases.push(num);
+			}
 		}
-	}
-}
+		let blade = Blade(bases);
 
-impl PartialOrd for Blade {
-	fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-		Some(self.cmp(other))
-	}
-}
-
-impl fmt::Display for Blade {
-	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-		let numbers: Vec<String> = self
-			.0
-			.iter()
-			.enumerate()
-			.flat_map(|(i, set)| if *set { Some(i.to_string()) } else { None })
-			.collect();
-		if numbers.is_empty() {
-			// Real/Scalar
-			"1".fmt(f)
+		if let Some(prefered) = self.blade_version.get(&blade) {
+			sign * prefered.clone()
 		} else {
-			format!("e{}", numbers.iter().join("")).fmt(f)
+			SignedBlade { sign, blade }
 		}
 	}
 }
@@ -276,10 +351,10 @@ impl fmt::Display for Blade {
 // ----------------------------------------------------------------------------
 
 // TODO: rename
-// A blade with a magnitude (e.g 42 * e2)
+// A blade with a sign (e.g 42 * e2)
 #[derive(Clone)]
 struct SignedBlade {
-	magnitude: Sign,
+	sign: Sign,
 	blade: Blade,
 }
 
@@ -287,7 +362,7 @@ impl SignedBlade {
 	/// One times the given blade
 	fn unit(blade: &Blade) -> Self {
 		Self {
-			magnitude: Sign::Positive,
+			sign: Sign::Positive,
 			blade: blade.clone(),
 		}
 	}
@@ -296,10 +371,10 @@ impl SignedBlade {
 		self.blade.grade()
 	}
 
-	fn dual(&self) -> SignedBlade {
+	fn dual(&self, grammar: &Grammar) -> SignedBlade {
 		Self {
-			magnitude: self.magnitude,
-			blade: self.blade.dual(),
+			sign: self.sign,
+			blade: self.blade.dual(grammar),
 		}
 	}
 
@@ -312,7 +387,7 @@ impl SignedBlade {
 			let num_swaps = r * (r - 1) / 2;
 			if num_swaps % 2 == 1 {
 				// Odd number of swaps => sign change
-				b.magnitude = -b.magnitude;
+				b.sign = -b.sign;
 			}
 		}
 		b
@@ -320,45 +395,10 @@ impl SignedBlade {
 
 	/// geometric product (normal multiplication)
 	fn geometric(&self, other: &SignedBlade, grammar: &Grammar) -> Self {
-		// each blade is the product of its vectors.
-		// so all we need to do is concatenate the numbers and normalize.
-		let mut numbers: Vec<usize> = self
-			.blade
-			.bases()
-			.into_iter()
-			.chain(other.blade.bases().into_iter())
-			.collect();
-
-		// We want to sort the basis numbers.
-		// Multiplication is anti-commutative so each time we swap we need to flip the sign.
-		// So bubble-sort!
-		let mut magnitude = self.magnitude * other.magnitude;
-		for _ in 0..numbers.len() {
-			for i in 0..numbers.len() - 1 {
-				if numbers[i] > numbers[i + 1] {
-					numbers.swap(i, i + 1);
-					magnitude = -magnitude;
-				}
-			}
-		}
-
-		// Now we collapse adjacent basis vectors (squaring them):
-		let mut bases = vec![];
-		for num in numbers {
-			if bases.last() == Some(&num) {
-				magnitude *= grammar.vectors_squared[num];
-				bases.pop();
-			} else {
-				bases.push(num);
-			}
-		}
-
-		// TODO: make use of grammar.blade_version here!
-
-		Self {
-			magnitude,
-			blade: Blade::from_bases(grammar.dims(), &bases),
-		}
+		grammar.simplify(Self {
+			sign: self.sign * other.sign,
+			blade: self.blade.geometric(&other.blade),
+		})
 	}
 
 	fn dot(&self, other: &SignedBlade, grammar: &Grammar) -> Self {
@@ -367,7 +407,7 @@ impl SignedBlade {
 		let k = ((self.grade() as i64) - (other.grade() as i64)).abs() as usize;
 		let mut prod = self.geometric(other, grammar);
 		if prod.blade.grade() > k {
-			prod.magnitude = Sign::Zero;
+			prod.sign = Sign::Zero;
 		}
 		prod
 	}
@@ -377,22 +417,33 @@ impl SignedBlade {
 		let k = self.grade() + other.grade();
 		let mut prod = self.geometric(other, grammar);
 		if prod.blade.grade() < k {
-			prod.magnitude = Sign::Zero;
+			prod.sign = Sign::Zero;
 		}
 		prod
 	}
 
 	fn regressive(&self, other: &SignedBlade, grammar: &Grammar) -> Self {
-		self.dual().outer(&other.dual(), grammar).dual()
+		self.dual(grammar).outer(&other.dual(grammar), grammar).dual(grammar)
 	}
 }
 
 impl fmt::Display for SignedBlade {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-		match self.magnitude {
+		match self.sign {
 			Sign::Positive => self.blade.fmt(f),
 			Sign::Zero => "0".fmt(f),
 			Sign::Negative => format!("-{}", self.blade).fmt(f),
+		}
+	}
+}
+
+impl Mul<SignedBlade> for Sign {
+	type Output = SignedBlade;
+	#[inline(always)]
+	fn mul(self, right: SignedBlade) -> Self::Output {
+		SignedBlade {
+			sign: self * right.sign,
+			blade: right.blade,
 		}
 	}
 }
@@ -437,7 +488,15 @@ fn generate(grammar: &Grammar) {
 	let mut blades: Vec<Blade> = (0..grammar.dims())
 		.map(|_| Some(false).into_iter().chain(Some(true)))
 		.multi_cartesian_product()
-		.map(Blade)
+		.map(|bools| Blade::from_bools(&bools))
+		.map(|blade| {
+			grammar
+				.simplify(SignedBlade {
+					sign: Sign::Positive,
+					blade,
+				})
+				.blade
+		})
 		.collect();
 	blades.sort();
 	let blades = blades;
@@ -454,7 +513,7 @@ fn generate(grammar: &Grammar) {
 	println!();
 	println!("Duals:");
 	for base in &unit_blades {
-		println!("  !{:<5} = {}", base, base.dual());
+		println!("  !{:<5} = {}", base, base.dual(grammar));
 	}
 
 	println!();

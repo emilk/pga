@@ -1,7 +1,7 @@
 ///! Handcrafted
 use std::ops::Mul;
 
-use derive_more::{Add, Sub};
+use derive_more::{Add, Neg, Sub};
 
 // ----------------------------------------------------------------------------
 // Geometric Algebra definition helpers:
@@ -14,6 +14,20 @@ pub struct Zero {}
 pub trait Dual {
 	type Output;
 	fn dual(self) -> Self::Output;
+}
+
+/// e1.reverse()   = e1
+/// e12.reverse()  = e21  = -e12
+/// e012.reverse() = e210 = -e012
+/// Used for sandwich product t * x * rev(t)
+pub trait Reverse {
+	fn reverse(self) -> Self;
+}
+
+/// The sandwich transform.
+/// t.sandwich(e) = t · e · t.reverse()
+pub trait Sandwich<Rhs> {
+	fn sandwich(self, e: Rhs) -> Rhs;
 }
 
 macro_rules! impl_dual {
@@ -33,6 +47,26 @@ macro_rules! impl_dual {
 			#[inline(always)]
 			fn dual(self) -> Self::Output {
 				$O(-self.0)
+			}
+		}
+	};
+}
+
+macro_rules! impl_reverse {
+	($T: path, +) => {
+		impl Reverse for $T {
+			#[inline(always)]
+			fn reverse(self) -> Self {
+				Self(self.0)
+			}
+		}
+	};
+
+	($T: path, -) => {
+		impl Reverse for $T {
+			#[inline(always)]
+			fn reverse(self) -> Self {
+				Self(-self.0)
 			}
 		}
 	};
@@ -116,42 +150,42 @@ macro_rules! impl_dot {
 // The basis vector types:
 
 /// The scalar type.
-#[derive(Copy, Clone, Debug, PartialEq, Add, Sub)]
+#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub)]
 pub struct Scalar(pub f64);
 
 /// Projective axis.
 /// Squares to 0
-#[derive(Copy, Clone, Debug, PartialEq, Add, Sub)]
+#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub)]
 pub struct E0(pub f64);
 
 /// X axis
 /// Squares to 1
-#[derive(Copy, Clone, Debug, PartialEq, Add, Sub)]
+#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub)]
 pub struct E1(pub f64);
 
 /// Y axis
 /// Squares to 1
-#[derive(Copy, Clone, Debug, PartialEq, Add, Sub)]
+#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub)]
 pub struct E2(pub f64);
 
 /// Squares to 0 (translation)
-#[derive(Copy, Clone, Debug, PartialEq, Add, Sub)]
+#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub)]
 pub struct E01(pub f64);
 
 /// Squares to 0 (translation)
 /// NOTE: E20 = -E02.
 /// I picked E20 over E02 just so that we don't need to flip the sign
 /// of Y coordinates when converting to/from euclidean coordinates.
-#[derive(Copy, Clone, Debug, PartialEq, Add, Sub)]
+#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub)]
 pub struct E20(pub f64);
 
 /// Squares to -1 (rotation)
-#[derive(Copy, Clone, Debug, PartialEq, Add, Sub)]
+#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub)]
 pub struct E12(pub f64);
 
 /// Pseudo-scalar.
 /// Squares to 0.
-#[derive(Copy, Clone, Debug, PartialEq, Add, Sub)]
+#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub)]
 pub struct E012(pub f64);
 
 // -----------------------------------
@@ -165,6 +199,15 @@ impl_dual!(E01, E2);
 impl_dual!(E20, -E1);
 impl_dual!(E12, E0);
 impl_dual!(E012, Scalar);
+
+impl_reverse!(Scalar, +);
+impl_reverse!(E0,     +);
+impl_reverse!(E1,     +);
+impl_reverse!(E2,     +);
+impl_reverse!(E01,    -);
+impl_reverse!(E20,    -);
+impl_reverse!(E12,    -);
+impl_reverse!(E012,   -);
 
 // -----------------------------------
 
@@ -315,64 +358,6 @@ impl_dot!(E012, E12, -E0);
 impl_dot!(E012, E012, Zero);
 
 // ----------------------------------------------------------------------------
-// From here on out we just define useful helpers using the types above.
-
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub struct Point {
-	/// 1 for euclidean points, 0 for direction / ideal points
-	pub e12: E12,
-
-	/// positive X
-	pub e20: E20,
-
-	/// positive Y
-	pub e01: E01,
-}
-
-impl Dual for Point {
-	type Output = Line;
-	fn dual(self) -> Line {
-		Line {
-			e0: self.e12.dual(),
-			e1: self.e20.dual(),
-			e2: self.e01.dual(),
-		}
-	}
-}
-
-impl Point {
-	pub fn from_euclidean(x: f64, y: f64) -> Point {
-		Point {
-			e12: E12(1.0),
-			e20: E20(x),
-			e01: E01(y),
-		}
-	}
-
-	/// direction, point at infinity, ideal point
-	pub fn from_direction(x: f64, y: f64) -> Point {
-		Point {
-			e12: E12(0.0),
-			e20: E20(x),
-			e01: E01(y),
-		}
-	}
-
-	/// V / regressive product / join
-	pub fn join(&self, other: Point) -> Line {
-		(self.dual().wedge(&other.dual())).dual()
-	}
-
-	pub fn into_euclidean(&self) -> Option<(f64, f64)> {
-		if self.e12.0 == 0.0 {
-			None
-		} else {
-			Some((self.e20.0 / self.e12.0, self.e01.0 / self.e12.0))
-		}
-	}
-}
-
-// ----------------------------------------------------------------------------
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Line {
@@ -437,6 +422,174 @@ impl Line {
 	// /// Reflect the point over the line
 	// pub fn reflect(&self, p: &Point) -> Point {
 	// }
+}
+
+/// Multiplying two lines generate the transformation for reflecting over one line and then the other
+impl Mul<Line> for Line {
+	type Output = Transform;
+	fn mul(self, r: Line) -> Transform {
+		Transform {
+			s: self.e1 * r.e1 + self.e2 * r.e2,
+			e12: self.e2 * r.e1 + self.e1 * r.e2,
+			e20: self.e0 * r.e2 + self.e2 * r.e0,
+			e01: self.e0 * r.e1 + self.e1 * r.e0,
+		}
+	}
+}
+
+// ----------------------------------------------------------------------------
+// From here on out we just define useful helpers using the types above.
+
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub struct Point {
+	/// 1 for euclidean points, 0 for direction / ideal points
+	pub e12: E12,
+
+	/// positive X
+	pub e20: E20,
+
+	/// positive Y
+	pub e01: E01,
+}
+
+impl Dual for Point {
+	type Output = Line;
+	fn dual(self) -> Line {
+		Line {
+			e0: self.e12.dual(),
+			e1: self.e20.dual(),
+			e2: self.e01.dual(),
+		}
+	}
+}
+
+impl Point {
+	pub fn from_euclidean(x: f64, y: f64) -> Point {
+		Point {
+			e12: E12(1.0),
+			e20: E20(x),
+			e01: E01(y),
+		}
+	}
+
+	/// direction, point at infinity, ideal point
+	pub fn from_direction(x: f64, y: f64) -> Point {
+		Point {
+			e12: E12(0.0),
+			e20: E20(x),
+			e01: E01(y),
+		}
+	}
+
+	/// V / regressive product / join
+	pub fn join(&self, other: Point) -> Line {
+		(self.dual().wedge(&other.dual())).dual()
+	}
+
+	pub fn into_euclidean(&self) -> Option<(f64, f64)> {
+		if self.e12.0 == 0.0 {
+			None
+		} else {
+			Some((self.e20.0 / self.e12.0, self.e01.0 / self.e12.0))
+		}
+	}
+
+	// /// if this is a euclidean point, you will get the rotation around it.
+	// /// if this is an infinite point you will get a translation that direction.
+	// pub exp(self, val: Scalar) -> Transform {
+	// }
+}
+
+// ----------------------------------------------------------------------------
+
+/// translation + rotation + uniform scale
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub struct Transform {
+	pub s: Scalar,
+
+	pub e12: E12,
+
+	pub e20: E20,
+
+	pub e01: E01,
+}
+
+impl Reverse for Transform {
+	fn reverse(self) -> Transform {
+		Transform {
+			s: self.s.reverse(), // A scalar is its own reverse
+			e12: self.e12.reverse(),
+			e20: self.e20.reverse(),
+			e01: self.e01.reverse(),
+		}
+	}
+}
+
+impl Mul<Point> for Transform {
+	type Output = Transform;
+	fn mul(self, p: Point) -> Transform {
+		Transform {
+			s: self.e12 * p.e12,
+			e12: self.s * p.e12,
+			e20: self.s * p.e20 + self.e12 * p.e01 + self.e01 * p.e12,
+			e01: self.s * p.e01 + self.e12 * p.e20 + self.e20 * p.e12,
+		}
+	}
+}
+
+impl Sandwich<Point> for Transform {
+	// self * p * self.reverse()
+	// NOTE: Transform * Point                       -> Transform
+	// BUT:  Transform * Point * Transform.reverse() -> Point
+	// This is because the scalar part cancels out.
+	// This is why the sandwich transform is so interesting, as it keeps dimensionality
+	fn sandwich(self, p: Point) -> Point {
+		// self * p:
+		// let t_s: Scalar = self.e12 * p.e12;
+		// let t_e12: E12 = self.s * p.e12;
+		// let t_e20: E20 = self.s * p.e20 + self.e12 * p.e01 + self.e01 * p.e12;
+		// let t_e01: E01 = self.s * p.e01 + self.e12 * p.e20 + self.e20 * p.e12;
+
+		// t_ * self.reverse():
+
+		// Point {
+		// 	e12: t_s * -self.e12 + t_e12 * self.s,
+		// 	e20: t_s * -self.e20 + t_e12 * -self.e01 + t_e01 * -self.e12 + t_e20 * self.s,
+		// 	e01: t_s * -self.e01 + t_e12 * -self.e20 + t_e20 * -self.e12 + t_e01 * self.s,
+		// }
+
+		// Point {
+		// 	e12: self.e12 * p.e12 * -self.e12 + self.s * p.e12 * self.s,
+		// 	e20: self.e12 * p.e12 * -self.e20
+		// 		+ self.s * p.e12 * -self.e01
+		// 		+ (self.s * p.e01 + self.e12 * p.e20 + self.e20 * p.e12) * -self.e12
+		// 		+ (self.s * p.e20 + self.e12 * p.e01 + self.e01 * p.e12) * self.s,
+		// 	e01: self.e12 * p.e12 * -self.e01
+		// 		+ self.s * p.e12 * -self.e20
+		// 		+ (self.s * p.e20 + self.e12 * p.e01 + self.e01 * p.e12) * -self.e12
+		// 		+ (self.s * p.e01 + self.e12 * p.e20 + self.e20 * p.e12) * self.s,
+		// }
+
+		Point {
+			e12: self.e12 * p.e12 * -self.e12 + self.s * p.e12 * self.s,
+			e20: self.e12 * p.e12 * -self.e20
+				+ self.s * p.e12 * -self.e01
+				+ self.s * p.e01 * -self.e12
+				+ self.e12 * p.e20 * -self.e12
+				+ self.e20 * p.e12 * -self.e12
+				+ self.s * p.e20 * self.s
+				+ self.e12 * p.e01 * self.s
+				+ self.e01 * p.e12 * self.s,
+			e01: self.e12 * p.e12 * -self.e01
+				+ self.s * p.e12 * -self.e20
+				+ self.s * p.e20 * -self.e12
+				+ self.e12 * p.e01 * -self.e12
+				+ self.e01 * p.e12 * -self.e12
+				+ self.s * p.e01 * self.s
+				+ self.e12 * p.e20 * self.s
+				+ self.e20 * p.e12 * self.s,
+		}
+	}
 }
 
 // ----------------------------------------------------------------------------

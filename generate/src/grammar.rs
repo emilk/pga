@@ -31,8 +31,11 @@ impl GrammarBuilder {
 	pub fn pga_2d() -> Self {
 		Self {
 			vectors_squared: vec![Sign::Zero, Sign::Positive, Sign::Positive],
-			// TODO: automatically figure out sign!
-			blade_version: vec![Blade::from_indices(vec![VecIdx(0), VecIdx(2)])],
+			blade_version: vec![Blade::from_indices(vec![VecIdx(2), VecIdx(0)])],
+			// TODO:
+			// line:      {e0,  e1,  e2},
+			// point:     {e01, e20, e12},
+			// transform: {s, e01, e20, e12},
 		}
 	}
 
@@ -91,5 +94,10 @@ impl Grammar {
 		} else {
 			value
 		}
+	}
+
+	/// What is the sign change from (a * b) to (b * a) ?
+	pub fn commute_sign(&self, a: &Blade, b: &Blade) -> Sign {
+		(a * b).simplify(self) * (b * a).simplify(self)
 	}
 }

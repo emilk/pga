@@ -60,12 +60,6 @@ impl Blade {
 		Blade::from_bools(&bools)
 	}
 
-	/// geometric multiplication, produces the geometric product
-	pub fn geometric(&self, other: &Blade) -> Self {
-		// each blade is the product of its vectors so all we need to do is concatenate the numbers
-		Blade(self.0.iter().copied().chain(other.0.iter().copied()).collect())
-	}
-
 	// Simplify to sorted, collapsed form without duplicate vector indices.
 	#[must_use]
 	pub fn simplify(&mut self, grammar: &Grammar) -> Sign {
@@ -143,7 +137,7 @@ impl std::fmt::Debug for Blade {
 	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
 		if self.0.is_empty() {
 			// Real/Scalar
-			"1".fmt(f)
+			"s".fmt(f)
 		} else {
 			format!("e{}", self.0.iter().join("")).fmt(f)
 		}
@@ -154,9 +148,18 @@ impl std::fmt::Display for Blade {
 	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
 		if self.0.is_empty() {
 			// Real/Scalar
-			"1".fmt(f)
+			"s".fmt(f)
 		} else {
 			format!("e{}", self.0.iter().join("")).fmt(f)
 		}
+	}
+}
+
+/// geometric multiplication, produces the geometric product
+impl std::ops::Mul<&Blade> for &Blade {
+	type Output = Blade;
+	fn mul(self, rhs: &Blade) -> Self::Output {
+		// each blade is the product of its vectors so all we need to do is concatenate the numbers:
+		Blade(self.0.iter().copied().chain(rhs.0.iter().copied()).collect())
 	}
 }

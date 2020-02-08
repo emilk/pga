@@ -1,18 +1,28 @@
 /// Definitions of axes: each axis squares to one of these.
 /// The number of axes and their signs define your algebra.
-#[derive(Copy, Clone, Eq, PartialEq)]
+#[derive(Copy, Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Sign {
 	Negative,
 	Zero,
 	Positive,
 }
 
+impl std::fmt::Debug for Sign {
+	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+		match self {
+			Sign::Negative => "-".fmt(f),
+			Sign::Zero => "0".fmt(f),
+			Sign::Positive => "+".fmt(f),
+		}
+	}
+}
+
 impl std::fmt::Display for Sign {
 	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
 		match self {
-			Sign::Negative => "-1".fmt(f),
+			Sign::Negative => "-".fmt(f),
 			Sign::Zero => "0".fmt(f),
-			Sign::Positive => "+1".fmt(f),
+			Sign::Positive => "+".fmt(f),
 		}
 	}
 }

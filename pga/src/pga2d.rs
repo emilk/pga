@@ -20,6 +20,7 @@ pub trait Dual {
 /// e12.reverse()  = e21  = -e12
 /// e012.reverse() = e210 = -e012
 /// Used for sandwich product t * x * rev(t)
+/// a * b = (b * a).reverse()
 pub trait Reverse {
 	fn reverse(self) -> Self;
 }
@@ -442,14 +443,14 @@ impl Mul<Line> for Line {
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Point {
-	/// 1 for euclidean points, 0 for direction / ideal points
-	pub e12: E12,
-
 	/// positive X
 	pub e20: E20,
 
 	/// positive Y
 	pub e01: E01,
+
+	/// 1 for euclidean points, 0 for direction / ideal points
+	pub e12: E12,
 }
 
 impl Dual for Point {
@@ -544,50 +545,79 @@ impl Sandwich<Point> for Transform {
 	// This is because the scalar part cancels out.
 	// This is why the sandwich transform is so interesting, as it keeps dimensionality
 	fn sandwich(self, p: Point) -> Point {
-		// self * p:
-		// let t_s: Scalar = self.e12 * p.e12;
-		// let t_e12: E12 = self.s * p.e12;
-		// let t_e20: E20 = self.s * p.e20 + self.e12 * p.e01 + self.e01 * p.e12;
-		// let t_e01: E01 = self.s * p.e01 + self.e12 * p.e20 + self.e20 * p.e12;
+		let t = self;
 
-		// t_ * self.reverse():
+		// tp = t * p:
+		// let tp_s: Scalar = t.e12 * p.e12;
+		// let tp_e12: E12 = t.s * p.e12;
+		// let tp_e20: E20 = t.s * p.e20 + t.e12 * p.e01 + t.e01 * p.e12;
+		// let tp_e01: E01 = t.s * p.e01 + t.e12 * p.e20 + t.e20 * p.e12;
+
+		// now lets do tp_ * t.reverse():
+
+		// The scalar cancels out as such:
+		// s = tp_s * t.s + tp_e12 * -t.e12;
+		// s = t.e12 * p.e12 * t.s + t.s * p.e12 * -t.e12;
+		// s = t.s * t.e12 * p.e12 - t.s * p.e12 * t.e12;
+		// s = t.s * t.e12 * p.e12 - t.s * t.e12 * p.e12;
+		// s = 0;
 
 		// Point {
-		// 	e12: t_s * -self.e12 + t_e12 * self.s,
-		// 	e20: t_s * -self.e20 + t_e12 * -self.e01 + t_e01 * -self.e12 + t_e20 * self.s,
-		// 	e01: t_s * -self.e01 + t_e12 * -self.e20 + t_e20 * -self.e12 + t_e01 * self.s,
+		// 	e12: tp_s * -t.e12 + tp_e12 * t.s,
+		// 	e20: tp_s * -t.e20 + tp_e12 * -t.e01 + tp_e01 * -t.e12 + tp_e20 * t.s,
+		// 	e01: tp_s * -t.e01 + tp_e12 * -t.e20 + tp_e20 * -t.e12 + tp_e01 * t.s,
 		// }
 
 		// Point {
-		// 	e12: self.e12 * p.e12 * -self.e12 + self.s * p.e12 * self.s,
-		// 	e20: self.e12 * p.e12 * -self.e20
-		// 		+ self.s * p.e12 * -self.e01
-		// 		+ (self.s * p.e01 + self.e12 * p.e20 + self.e20 * p.e12) * -self.e12
-		// 		+ (self.s * p.e20 + self.e12 * p.e01 + self.e01 * p.e12) * self.s,
-		// 	e01: self.e12 * p.e12 * -self.e01
-		// 		+ self.s * p.e12 * -self.e20
-		// 		+ (self.s * p.e20 + self.e12 * p.e01 + self.e01 * p.e12) * -self.e12
-		// 		+ (self.s * p.e01 + self.e12 * p.e20 + self.e20 * p.e12) * self.s,
+		// 	e12: t.e12 * p.e12 * -t.e12 + t.s * p.e12 * t.s,
+		// 	e20: t.e12 * p.e12 * -t.e20
+		// 		+ t.s * p.e12 * -t.e01
+		// 		+ (t.s * p.e01 + t.e12 * p.e20 + t.e20 * p.e12) * -t.e12
+		// 		+ (t.s * p.e20 + t.e12 * p.e01 + t.e01 * p.e12) * t.s,
+		// 	e01: t.e12 * p.e12 * -t.e01
+		// 		+ t.s * p.e12 * -t.e20
+		// 		+ (t.s * p.e20 + t.e12 * p.e01 + t.e01 * p.e12) * -t.e12
+		// 		+ (t.s * p.e01 + t.e12 * p.e20 + t.e20 * p.e12) * t.s,
+		// }
+
+		// Point {
+		// 	e12: t.e12 * p.e12 * -t.e12 + t.s * p.e12 * t.s,
+		// 	e20: t.e12 * p.e12 * -t.e20
+		// 		+ t.s * p.e12 * -t.e01
+		// 		+ t.s * p.e01 * -t.e12
+		// 		+ t.e12 * p.e20 * -t.e12
+		// 		+ t.e20 * p.e12 * -t.e12
+		// 		+ t.s * p.e20 * t.s
+		// 		+ t.e12 * p.e01 * t.s
+		// 		+ t.e01 * p.e12 * t.s,
+		// 	e01: t.e12 * p.e12 * -t.e01
+		// 		+ t.s * p.e12 * -t.e20
+		// 		+ t.s * p.e20 * -t.e12
+		// 		+ t.e12 * p.e01 * -t.e12
+		// 		+ t.e01 * p.e12 * -t.e12
+		// 		+ t.s * p.e01 * t.s
+		// 		+ t.e12 * p.e20 * t.s
+		// 		+ t.e20 * p.e12 * t.s,
 		// }
 
 		Point {
-			e12: self.e12 * p.e12 * -self.e12 + self.s * p.e12 * self.s,
-			e20: self.e12 * p.e12 * -self.e20
-				+ self.s * p.e12 * -self.e01
-				+ self.s * p.e01 * -self.e12
-				+ self.e12 * p.e20 * -self.e12
-				+ self.e20 * p.e12 * -self.e12
-				+ self.s * p.e20 * self.s
-				+ self.e12 * p.e01 * self.s
-				+ self.e01 * p.e12 * self.s,
-			e01: self.e12 * p.e12 * -self.e01
-				+ self.s * p.e12 * -self.e20
-				+ self.s * p.e20 * -self.e12
-				+ self.e12 * p.e01 * -self.e12
-				+ self.e01 * p.e12 * -self.e12
-				+ self.s * p.e01 * self.s
-				+ self.e12 * p.e20 * self.s
-				+ self.e20 * p.e12 * self.s,
+			e12: t.s * p.e12 * t.s - t.e12 * p.e12 * t.e12,
+			e20: -t.e12 * p.e12 * t.e20
+				- p.e12 * t.e01 * t.s
+				- p.e01 * t.e12 * t.s
+				- t.e12 * p.e20 * t.e12
+				- t.e20 * p.e12 * t.e12
+				+ p.e20 * t.s * t.s
+				+ t.e12 * p.e01 * t.s
+				+ t.e01 * p.e12 * t.s,
+			e01: -t.e12 * p.e12 * t.e01
+				- p.e12 * t.e20 * t.s
+				- p.e20 * t.e12 * t.s
+				- t.e12 * p.e01 * t.e12
+				- t.e01 * p.e12 * t.e12
+				+ p.e01 * t.s * t.s
+				+ t.e12 * p.e20 * t.s
+				+ t.e20 * p.e12 * t.s,
 		}
 	}
 }

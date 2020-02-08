@@ -2,14 +2,16 @@ use derive_more::Display;
 
 mod blade;
 mod grammar;
+mod multivec;
 mod sign;
 mod signed_blade;
 
 pub use {
-	blade::Blade,
-	grammar::{Grammar, GrammarBuilder},
-	sign::Sign,
-	signed_blade::SignedBlade,
+    blade::Blade,
+    grammar::{Grammar, GrammarBuilder},
+    multivec::*,
+    sign::Sign,
+    signed_blade::SignedBlade,
 };
 
 #[macro_export]
@@ -27,3 +29,16 @@ macro_rules! collect {
 pub struct VecIdx(pub usize);
 
 //type BladeIdx = usize;
+
+// ----------------------------------------------------------------------------
+
+/// e.g. { "x": e20, "y": e01, "w": e12 }
+#[derive(Clone)]
+pub struct Type(Vec<(String, Blade)>);
+
+impl Type {
+    /// Auto-name keys
+    pub fn from_blades(blades: Vec<Blade>) -> Self {
+        Self(blades.into_iter().map(|b| (b.to_string(), b)).collect())
+    }
+}

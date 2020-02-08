@@ -17,6 +17,10 @@ impl SignedBlade {
 		}
 	}
 
+	pub fn simplify(self, grammar: &Grammar) -> Self {
+		grammar.simplify(self)
+	}
+
 	pub fn grade(&self) -> usize {
 		self.blade.grade()
 	}
@@ -45,10 +49,7 @@ impl SignedBlade {
 
 	/// geometric product (normal multiplication)
 	pub fn geometric(&self, other: &SignedBlade, grammar: &Grammar) -> Self {
-		grammar.simplify(Self {
-			sign: self.sign * other.sign,
-			blade: self.blade.geometric(&other.blade),
-		})
+		grammar.simplify(self * other)
 	}
 
 	pub fn dot(&self, other: &SignedBlade, grammar: &Grammar) -> Self {
@@ -77,12 +78,32 @@ impl SignedBlade {
 	}
 }
 
+impl std::fmt::Debug for SignedBlade {
+	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+		match self.sign {
+			Sign::Positive => self.blade.fmt(f),
+			Sign::Zero => "0".fmt(f),
+			Sign::Negative => format!("-{}", self.blade).fmt(f),
+		}
+	}
+}
+
 impl std::fmt::Display for SignedBlade {
 	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
 		match self.sign {
 			Sign::Positive => self.blade.fmt(f),
 			Sign::Zero => "0".fmt(f),
 			Sign::Negative => format!("-{}", self.blade).fmt(f),
+		}
+	}
+}
+
+impl std::ops::Mul<&SignedBlade> for &SignedBlade {
+	type Output = SignedBlade;
+	fn mul(self, rhs: &SignedBlade) -> Self::Output {
+		SignedBlade {
+			sign: self.sign * rhs.sign,
+			blade: &self.blade * &rhs.blade,
 		}
 	}
 }

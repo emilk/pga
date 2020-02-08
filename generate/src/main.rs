@@ -2,113 +2,6 @@ use itertools::Itertools;
 
 use generate::*;
 
-// struct Factor {
-// 	variable: String, // the name of a multivector variable e.g. "a", "b", "point"
-// 	blade: Blade,     // The blade/dimension in the variable
-// }
-
-// // ----------------------------------------------------------------------------
-
-// struct Product(Sign, Vec<Factor>);
-
-// impl Product {
-// 	fn one() -> Self {
-// 		Product(Sign::Positive, vec![])
-// 	}
-// }
-
-// impl fmt::Display for Product {
-// 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-// 		let factors = self.1.iter().map(ToString::to_string).join("·");
-// 		match self.sign {
-// 			Product::Negative => write!(f, "-{}", factors),
-// 			Product::Zero => "0".fmt(f),
-// 			Product::Positive => factors.fmt(f),
-// 		}
-// 	}
-// }
-
-// impl std::ops::Neg for Product {
-// 	type Output = Product;
-// 	fn neg(self) -> Product {
-// 		Product(-self.0, self.1)
-// 	}
-// }
-
-// impl std::ops::Mul for Product {
-// 	type Output = Self;
-
-// 	fn mul(self, rhs: Self) -> Self {
-// 		Product(self.0 * rhs.0, concat(self.1, rhs.1)).simplify()
-// 	}
-// }
-
-// impl std::ops::MulAssign<Product> for Product {
-// 	fn mul_assign(&mut self, rhs: Product) {
-// 		*self = *self * rhs;
-// 	}
-// }
-
-// ----------------------------------------------------------------------------
-
-// struct Sum(Vec<Product>);
-
-// impl Sum {
-// 	fn one() -> Self {
-// 		Sum(vec![Product::one()])
-// 	}
-// }
-
-// impl fmt::Display for Sum {
-// 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-// 		match self {
-// 			Sum::Negative => "-1".fmt(f),
-// 			Sum::Zero => "0".fmt(f),
-// 			Sum::Positive => "+1".fmt(f),
-// 		}
-// 	}
-// }
-
-// impl std::ops::Neg for Sum {
-// 	type Output = Sum;
-// 	fn neg(self) -> Sum {
-// 		match self {
-// 			Sum::Negative => Sum::Positive,
-// 			Sum::Zero => Sum::Zero,
-// 			Sum::Positive => Sum::Negative,
-// 		}
-// 	}
-// }
-
-// impl std::ops::Mul for Sum {
-// 	type Output = Self;
-
-// 	fn mul(self, rhs: Self) -> Self {
-// 		use Sum::*;
-// 		match (self, rhs) {
-// 			(Positive, Positive) | (Negative, Negative) => Positive,
-// 			(Negative, Positive) | (Positive, Negative) => Negative,
-// 			_ => Zero,
-// 		}
-// 	}
-// }
-
-// impl std::ops::MulAssign<Sum> for Sum {
-// 	fn mul_assign(&mut self, rhs: Sum) {
-// 		*self = *self * rhs;
-// 	}
-// }
-
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-
-// struct Multivector(Vec<FactoredBlade>);
-
-// fn geometric_product(a: &Multivector, b: &Multivector) {
-// 	todo!();
-// }
-
 // ----------------------------------------------------------------------------
 
 /// The standard form is the integers (p, m, z)
@@ -214,6 +107,23 @@ fn generate(grammar: &Grammar) {
 		}
 		println!();
 	}
+
+	let line_type = Type::from_blades(vec![blades[1].clone(), blades[2].clone(), blades[3].clone()]);
+	let point_type = Type::from_blades(vec![blades[4].clone(), blades[5].clone(), blades[6].clone()]);
+	let transform_type = Type::from_blades(vec![
+		blades[0].clone(),
+		blades[4].clone(),
+		blades[5].clone(),
+		blades[6].clone(),
+	]);
+
+	let a = MultiVec::instance("a", &line_type);
+	let b = MultiVec::instance("b", &line_type);
+	println!("line a * line b = {}", (&a * &b).simplify(grammar));
+
+	let t = MultiVec::instance("t", &transform_type);
+	let p = MultiVec::instance("p", &point_type);
+	println!("transform t sandwich point p = {}", (t.sandwich(&p)).simplify(grammar));
 }
 
 fn main() {

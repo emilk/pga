@@ -3,14 +3,12 @@ use derive_more::Display;
 mod blade;
 mod grammar;
 mod multivec;
-mod sign;
 mod signed_blade;
 
 pub use {
     blade::Blade,
     grammar::{Grammar, GrammarBuilder},
     multivec::*,
-    sign::Sign,
     signed_blade::SignedBlade,
 };
 

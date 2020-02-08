@@ -57,9 +57,7 @@ impl Product {
 		for _ in 0..self.factors.len() {
 			for i in 0..self.factors.len() - 1 {
 				if self.factors[i].name > self.factors[i + 1].name {
-					self.multiplier *= grammar
-						.commute_sign(&self.factors[i].blade, &self.factors[i + 1].blade)
-						.into_i32();
+					self.multiplier *= grammar.commute_sign(&self.factors[i].blade, &self.factors[i + 1].blade);
 					self.factors.swap(i, i + 1);
 				}
 			}
@@ -310,7 +308,7 @@ impl MultiVec {
 			// This can make for surprising reading of the code, which is not ideal.
 
 			let canonical_blade = grammar.simplify(SignedBlade::unit(&blade));
-			let is_zero_basis = canonical_blade.sign == Sign::Zero;
+			let is_zero_basis = canonical_blade.sign == 0;
 			if !is_zero_basis {
 				let basis = canonical_blade.blade;
 				*blades.entry(basis).or_default() += sum;
@@ -338,7 +336,7 @@ impl MultiVec {
 				.iter()
 				.map(|(blade, sum)| {
 					let SignedBlade { sign, blade } = SignedBlade::unit(blade).reverse();
-					(blade, sign.into_i32() * sum)
+					(blade, sign * sum)
 				})
 				.collect(),
 		)
@@ -359,10 +357,9 @@ impl std::ops::Mul<&MultiVec> for &MultiVec {
 		for l in &self.0 {
 			for r in &rhs.0 {
 				let signed_blade = &SignedBlade::unit(&l.0) * &SignedBlade::unit(&r.0);
-				result.0.push((
-					signed_blade.blade,
-					signed_blade.sign.into_i32() * l.1.clone() * r.1.clone(),
-				));
+				result
+					.0
+					.push((signed_blade.blade, signed_blade.sign * l.1.clone() * r.1.clone()));
 			}
 		}
 		result

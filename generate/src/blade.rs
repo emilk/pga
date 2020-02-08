@@ -1,4 +1,4 @@
-use crate::{Grammar, Sign, VecIdx};
+use crate::{Grammar, VecIdx};
 
 use itertools::Itertools;
 
@@ -62,16 +62,16 @@ impl Blade {
 
 	// Simplify to sorted, collapsed form without duplicate vector indices.
 	#[must_use]
-	pub fn simplify(&mut self, grammar: &Grammar) -> Sign {
+	pub fn simplify(&mut self, grammar: &Grammar) -> i32 {
 		self.sort() * self.collapse_adjacent(grammar)
 	}
 
 	// Sort the vector indices, keeping track of all sign changes.
 	#[must_use]
-	pub fn sort(&mut self) -> Sign {
+	pub fn sort(&mut self) -> i32 {
 		// Multiplication is anti-commutative so each time we swap we need to flip the sign.
 		// So bubble-sort!
-		let mut sign = Sign::Positive;
+		let mut sign = 1;
 		for _ in 0..self.0.len() {
 			for i in 0..self.0.len() - 1 {
 				if self.0[i] > self.0[i + 1] {
@@ -84,7 +84,7 @@ impl Blade {
 	}
 
 	#[must_use]
-	pub fn sorted(&self) -> (Sign, Self) {
+	pub fn sorted(&self) -> (i32, Self) {
 		let mut blade = self.clone();
 		let sign = blade.sort();
 		(sign, blade)
@@ -92,8 +92,8 @@ impl Blade {
 
 	// Collapse adjacent identical vector indices using the given grammar
 	#[must_use]
-	pub fn collapse_adjacent(&mut self, grammar: &Grammar) -> Sign {
-		let mut sign = Sign::Positive;
+	pub fn collapse_adjacent(&mut self, grammar: &Grammar) -> i32 {
+		let mut sign = 1;
 		let mut new_bases = vec![];
 		for &num in &self.0 {
 			if new_bases.last() == Some(&num) {

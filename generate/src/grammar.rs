@@ -2,12 +2,12 @@ use std::collections::BTreeMap;
 
 use itertools::Itertools;
 
-use crate::{Blade, Sign, SignedBlade, VecIdx};
+use crate::{Blade, SignedBlade, VecIdx};
 
 pub struct GrammarBuilder {
 	/// what you get when you sign the input vectors,
 	/// e.g. 0++ would specify the 2d gpa of e0^2=0  e1^2=1  e2^2=1
-	pub vectors_squared: Vec<Sign>,
+	pub vectors_squared: Vec<i32>,
 
 	/// Optionally specify preferred order of the vector bases in a multivector,
 	/// e.g. maybe you prefer to use `e20` as a base rather than `e02`.
@@ -18,7 +18,7 @@ pub struct GrammarBuilder {
 pub struct Grammar {
 	/// what you get when you sign the input vectors,
 	/// e.g. 0++ would specify the 2d gpa of e0^2=0  e1^2=1  e2^2=1
-	vectors_squared: Vec<Sign>,
+	vectors_squared: Vec<i32>,
 
 	/// Optionally override the order of the vector bases in a multivector,
 	/// e.g. maybe you prefer the output to use `e20` over `-e02`.
@@ -30,7 +30,7 @@ impl GrammarBuilder {
 	/// e0^2=0  e1^2=1  e2^2=1
 	pub fn pga_2d() -> Self {
 		Self {
-			vectors_squared: vec![Sign::Zero, Sign::Positive, Sign::Positive],
+			vectors_squared: vec![0, 1, 1],
 			blade_version: vec![Blade::from_indices(vec![VecIdx(2), VecIdx(0)])],
 			// TODO:
 			// line:      {e0,  e1,  e2},
@@ -83,7 +83,7 @@ impl Grammar {
 		VecIdx(self.dims() - v.0 - 1)
 	}
 
-	pub fn square(&self, v: VecIdx) -> Sign {
+	pub fn square(&self, v: VecIdx) -> i32 {
 		self.vectors_squared[v.0]
 	}
 
@@ -97,7 +97,7 @@ impl Grammar {
 	}
 
 	/// What is the sign change from (a * b) to (b * a) ?
-	pub fn commute_sign(&self, a: &Blade, b: &Blade) -> Sign {
+	pub fn commute_sign(&self, a: &Blade, b: &Blade) -> i32 {
 		(a * b).simplify(self) * (b * a).simplify(self)
 	}
 }

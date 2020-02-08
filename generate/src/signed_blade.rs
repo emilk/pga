@@ -4,7 +4,7 @@ use crate::*;
 // A blade with a sign (e.g 42 * e2)
 #[derive(Clone)]
 pub struct SignedBlade {
-	pub sign: Sign,
+	pub sign: i32,
 	pub blade: Blade,
 }
 
@@ -12,7 +12,7 @@ impl SignedBlade {
 	/// One times the given blade
 	pub fn unit(blade: &Blade) -> Self {
 		Self {
-			sign: Sign::Positive,
+			sign: 1,
 			blade: blade.clone(),
 		}
 	}
@@ -58,7 +58,7 @@ impl SignedBlade {
 		let k = ((self.grade() as i64) - (other.grade() as i64)).abs() as usize;
 		let mut prod = self.geometric(other, grammar);
 		if prod.blade.grade() > k {
-			prod.sign = Sign::Zero;
+			prod.sign = 0;
 		}
 		prod
 	}
@@ -68,7 +68,7 @@ impl SignedBlade {
 		let k = self.grade() + other.grade();
 		let mut prod = self.geometric(other, grammar);
 		if prod.blade.grade() < k {
-			prod.sign = Sign::Zero;
+			prod.sign = 0;
 		}
 		prod
 	}
@@ -81,9 +81,10 @@ impl SignedBlade {
 impl std::fmt::Debug for SignedBlade {
 	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
 		match self.sign {
-			Sign::Positive => self.blade.fmt(f),
-			Sign::Zero => "0".fmt(f),
-			Sign::Negative => format!("-{}", self.blade).fmt(f),
+			1 => format!(" {}", self.blade).fmt(f),
+			0 => " 0".fmt(f),
+			-1 => format!("-{}", self.blade).fmt(f),
+			sign => format!("{}*{}", sign, self.blade).fmt(f),
 		}
 	}
 }
@@ -91,9 +92,10 @@ impl std::fmt::Debug for SignedBlade {
 impl std::fmt::Display for SignedBlade {
 	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
 		match self.sign {
-			Sign::Positive => self.blade.fmt(f),
-			Sign::Zero => "0".fmt(f),
-			Sign::Negative => format!("-{}", self.blade).fmt(f),
+			1 => format!(" {}", self.blade).fmt(f),
+			0 => " 0".fmt(f),
+			-1 => format!("-{}", self.blade).fmt(f),
+			sign => format!("{}*{}", sign, self.blade).fmt(f),
 		}
 	}
 }
@@ -108,7 +110,7 @@ impl std::ops::Mul<&SignedBlade> for &SignedBlade {
 	}
 }
 
-impl std::ops::Mul<SignedBlade> for Sign {
+impl std::ops::Mul<SignedBlade> for i32 {
 	type Output = SignedBlade;
 	#[inline(always)]
 	fn mul(self, right: SignedBlade) -> Self::Output {

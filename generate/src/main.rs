@@ -35,14 +35,7 @@ fn generate(grammar: &Grammar) {
 		.map(|_| Some(false).into_iter().chain(Some(true)))
 		.multi_cartesian_product()
 		.map(|bools| Blade::from_bools(&bools))
-		.map(|blade| {
-			grammar
-				.simplify(SignedBlade {
-					sign: Sign::Positive,
-					blade,
-				})
-				.blade
-		})
+		.map(|blade| grammar.simplify(SignedBlade::unit(&blade)).blade)
 		.collect();
 	blades.sort();
 	let blades = blades;

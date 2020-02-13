@@ -417,9 +417,9 @@ impl Line {
 	/// ^ / wedge/ outer product / meet
 	pub fn wedge(&self, other: &Line) -> Point {
 		Point {
-			e12: self.e1 * other.e2 + self.e2 * other.e1,
 			e20: self.e2 * other.e0 + self.e0 * other.e2,
 			e01: self.e0 * other.e1 + self.e1 * other.e0,
+			e12: self.e1 * other.e2 + self.e2 * other.e1,
 		}
 	}
 
@@ -434,9 +434,9 @@ impl Mul<Line> for Line {
 	fn mul(self, r: Line) -> Transform {
 		Transform {
 			s: self.e1 * r.e1 + self.e2 * r.e2,
-			e12: self.e2 * r.e1 + self.e1 * r.e2,
 			e20: self.e0 * r.e2 + self.e2 * r.e0,
 			e01: self.e0 * r.e1 + self.e1 * r.e0,
+			e12: self.e2 * r.e1 + self.e1 * r.e2,
 		}
 	}
 }

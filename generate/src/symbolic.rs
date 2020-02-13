@@ -1,5 +1,3 @@
-use std::collections::BTreeMap;
-
 use itertools::{chain, Itertools};
 
 use crate::*;
@@ -38,6 +36,11 @@ impl Product {
 		}
 	}
 
+	pub fn is_zero(&self) -> bool {
+		// only valid if simplified
+		self.multiplier == 0
+	}
+
 	pub fn one() -> Self {
 		Product {
 			multiplier: 1,
@@ -52,6 +55,19 @@ impl Product {
 		}
 	}
 
+	/// The dimensionality of this product
+	pub fn blade(&self, grammar: &Grammar) -> SignedBlade {
+		if self.multiplier == 0 || self.factors.is_empty() {
+			SignedBlade::zero()
+		} else {
+			let mut blade = SignedBlade::unit(&Blade::scalar());
+			for f in &self.factors {
+				blade *= SignedBlade::unit(&f.blade);
+			}
+			grammar.simplify(blade)
+		}
+	}
+
 	pub fn simplify(mut self, grammar: &Grammar) -> Self {
 		// sort factors respecting commute rules, using bubble sort:
 		for _ in 0..self.factors.len() {
@@ -63,11 +79,18 @@ impl Product {
 			}
 		}
 
-		if self.multiplier == 0 {
+		if self.blade(grammar).is_zero() {
 			Self::zero()
 		} else {
 			self
 		}
+	}
+
+	pub fn reverse(mut self) -> Self {
+		for factor in &mut self.factors {
+			self.multiplier *= factor.blade.reverse_sign();
+		}
+		self
 	}
 }
 
@@ -109,6 +132,13 @@ impl std::ops::Neg for Product {
 	}
 }
 
+impl std::ops::Mul<&Product> for &Product {
+	type Output = Sum;
+	fn mul(self, p: &Product) -> Self::Output {
+		Sum(vec![self.clone(), p.clone()])
+	}
+}
+
 impl std::ops::Mul<Product> for i32 {
 	type Output = Product;
 	fn mul(self, p: Product) -> Self::Output {
@@ -142,35 +172,65 @@ impl std::ops::Mul for Product {
 
 // ----------------------------------------------------------------------------
 
-/// A sum-of-products type, used in symbolic calculations
+/// A sum-of-products type, used in symbolic calculations.
 /// Empty sum = 0
 #[derive(Clone, Default, Eq, Ord, PartialEq, PartialOrd)]
 pub struct Sum(Vec<Product>);
 
 impl Sum {
-	pub fn zero() -> Self {
-		Sum(vec![])
-	}
-
 	pub fn one() -> Self {
 		Sum(vec![Product::one()])
+	}
+
+	pub fn is_zero(&self) -> bool {
+		self.0.is_empty() || self.0.iter().all(|p| p.is_zero())
 	}
 
 	pub fn from_factor(factor: Factor) -> Self {
 		Sum(vec![Product::from_factor(factor)])
 	}
 
+	pub fn instance(variable: &str, typ: &Type) -> Self {
+		Self(
+			typ.0
+				.iter()
+				.map(|(member, blade)| {
+					Product::from_factor(Factor {
+						name: format!("{}.{}", variable, member),
+						blade: blade.clone(),
+					})
+				})
+				.collect(),
+		)
+	}
+
+	/// Project onto the given blade.
+	/// TODO: actually not a projection, but a selection if a specific dimension.
+	pub fn project(&self, needle: &Blade, grammar: &Grammar) -> Sum {
+		Sum(self
+			.0
+			.iter()
+			.filter(|term| &term.blade(grammar).blade == needle)
+			.cloned()
+			.collect())
+	}
+
+	pub fn blades(&self, grammar: &Grammar) -> Vec<SignedBlade> {
+		self.0.iter().map(|term| term.blade(grammar)).collect()
+	}
+
 	pub fn simplify(mut self, grammar: &Grammar) -> Self {
 		for p in &mut self.0 {
 			*p = p.clone().simplify(grammar);
 		}
-		self.0.retain(|p| *p != Product::zero());
+		self.0.retain(|p| !p.is_zero());
 		self.0.sort();
 
 		// Add together terms with same factors
 		let mut collapsed_terms: Vec<Product> = vec![];
 		for new_term in self.0 {
 			if let Some(last_term) = collapsed_terms.last_mut() {
+				// NOTE: Same terms also means same dimensionality / blade
 				if last_term.factors == new_term.factors {
 					// Add them!
 					last_term.multiplier += new_term.multiplier;
@@ -187,6 +247,21 @@ impl Sum {
 		}
 
 		Sum(collapsed_terms)
+	}
+
+	pub fn reverse(&self) -> Self {
+		Self(self.0.iter().map(|sum| sum.clone().reverse()).collect())
+	}
+
+	// pub fn dual(&self, grammar: &Grammar) -> Self {
+	// 	Self(self.0.iter().map(|sum| sum.dual(grammar)).collect()).simplify(grammar)
+	// }
+
+	/// The sandwich operator
+	/// self * other * self.reverse()
+	pub fn sandwich(&self, other: &Self) -> Self {
+		self.clone() * other.clone() * self.reverse()
+		// self * &(other * &self.reverse())
 	}
 }
 
@@ -271,136 +346,35 @@ impl std::ops::MulAssign<Sum> for Sum {
 
 // ----------------------------------------------------------------------------
 
-/// A linear combination of blades.
-#[must_use]
-#[derive(Clone, Default, Eq, PartialEq)]
-pub struct MultiVec(Vec<(Blade, Sum)>);
+// impl std::ops::Mul<&MultiVec> for &MultiVec {
+// 	type Output = MultiVec;
+// 	fn mul(self, rhs: &MultiVec) -> MultiVec {
+// 		let mut result = MultiVec::default();
+// 		for l in &self.0 {
+// 			for r in &rhs.0 {
+// 				let signed_blade = &SignedBlade::unit(&l.0) * &SignedBlade::unit(&r.0);
+// 				result
+// 					.0
+// 					.push((signed_blade.blade, signed_blade.sign * l.1.clone() * r.1.clone()));
+// 			}
+// 		}
+// 		result
+// 	}
+// }
 
-impl MultiVec {
-	pub fn instance(variable: &str, typ: &Type) -> Self {
-		Self(
-			typ.0
-				.iter()
-				.map(|(member, blade)| {
-					(
-						blade.clone(),
-						Sum::from_factor(Factor {
-							name: format!("{}.{}", variable, member),
-							blade: blade.clone(),
-						}),
-					)
-				})
-				.collect(),
-		)
-	}
-
-	/// Project onto the given blade
-	pub fn project(&self, needle: &Blade) -> Sum {
-		self.0
-			.iter()
-			.find_map(|(blade, sum)| if blade == needle { Some(sum.clone()) } else { None })
-			.unwrap_or_default()
-	}
-
-	pub fn blades(&self) -> impl Iterator<Item = &Blade> {
-		self.0.iter().map(|(blade, _)| blade)
-	}
-
-	pub fn simplify(self, grammar: &Grammar) -> Self {
-		let mut blades: BTreeMap<Blade, Sum> = BTreeMap::default();
-		for (blade, sum) in self.0 {
-			// We simplify the blade to select the destination type
-			// so that e20 and e02 goes into the same place.
-			// BUT, we should NOT care about the sing here,
-			// because that is built-in to the individual blade types.
-			// So e1 * e2 and e2 * e1 can both be assigned to e12 without flipping signs here!
-			// Still, we need to check for the Zero sign to discard useless dimensions.
-			// This is a bit ugly, and the generated code has hidden sign-flips
-			// due to those sign-flips being built-in to the actual types.
-			// This can make for surprising reading of the code, which is not ideal.
-
-			let canonical_blade = grammar.simplify(SignedBlade::unit(&blade));
-			let is_zero_basis = canonical_blade.sign == 0;
-			if !is_zero_basis {
-				let basis = canonical_blade.blade;
-				*blades.entry(basis).or_default() += sum;
-			}
-		}
-
-		MultiVec(
-			blades
-				.into_iter()
-				.filter_map(|(blade, sum)| {
-					let sum = sum.simplify(grammar);
-					if sum == Sum::zero() {
-						None
-					} else {
-						Some((blade, sum.simplify(grammar)))
-					}
-				})
-				.collect(),
-		)
-	}
-
-	pub fn reverse(&self) -> Self {
-		Self(
-			self.0
-				.iter()
-				.map(|(blade, sum)| {
-					let SignedBlade { sign, blade } = SignedBlade::unit(blade).reverse();
-					(blade, sign * sum)
-				})
-				.collect(),
-		)
-	}
-
-	pub fn dual(&self, grammar: &Grammar) -> Self {
-		Self(
-			self.0
-				.iter()
-				.map(|(blade, sum)| (blade.dual(grammar), sum.clone())) // TODO: sum.dual()
-				.collect(),
-		)
-		.simplify(grammar)
-	}
-
-	/// The sandwich operator
-	/// self * other * self.reverse()
-	pub fn sandwich(&self, other: &Self) -> Self {
-		// &(self * other) * &self.reverse()
-		self * &(other * &self.reverse())
-	}
-}
-
-impl std::ops::Mul<&MultiVec> for &MultiVec {
-	type Output = MultiVec;
-	fn mul(self, rhs: &MultiVec) -> MultiVec {
-		let mut result = MultiVec::default();
-		for l in &self.0 {
-			for r in &rhs.0 {
-				let signed_blade = &SignedBlade::unit(&l.0) * &SignedBlade::unit(&r.0);
-				result
-					.0
-					.push((signed_blade.blade, signed_blade.sign * l.1.clone() * r.1.clone()));
-			}
-		}
-		result
-	}
-}
-
-impl std::fmt::Display for MultiVec {
-	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-		if self.0.is_empty() {
-			"0".fmt(f)
-		} else {
-			write!(
-				f,
-				"{{\n{}\n}}",
-				self.0
-					.iter()
-					.map(|(blade, sum)| format!("  {:6} {},", format!("{}:", blade), sum))
-					.format("\n")
-			)
-		}
-	}
-}
+// impl std::fmt::Display for MultiVec {
+// 	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+// 		if self.0.is_empty() {
+// 			"0".fmt(f)
+// 		} else {
+// 			write!(
+// 				f,
+// 				"{{\n{}\n}}",
+// 				self.0
+// 					.iter()
+// 					.map(|(blade, sum)| format!("  {:6} {},", format!("{}:", blade), sum))
+// 					.format("\n")
+// 			)
+// 		}
+// 	}
+// }

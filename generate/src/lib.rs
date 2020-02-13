@@ -3,15 +3,15 @@ use derive_more::Display;
 mod blade;
 mod generator;
 mod grammar;
-mod multivec;
 mod signed_blade;
+mod symbolic;
 
 pub use {
     blade::Blade,
     generator::*,
     grammar::{Grammar, GrammarBuilder},
-    multivec::*,
     signed_blade::SignedBlade,
+    symbolic::*,
 };
 
 #[macro_export]

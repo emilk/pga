@@ -3,11 +3,15 @@ use crate::{Grammar, VecIdx};
 use itertools::Itertools;
 
 /// Represents the geometric product of some vectors in the given order.
-/// The empty blade is the real dimensions.
+/// The empty blade is the real/scalar dimensions.
 #[derive(Clone, Eq, PartialEq)]
 pub struct Blade(Vec<VecIdx>);
 
 impl Blade {
+	pub fn scalar() -> Self {
+		Blade(vec![])
+	}
+
 	pub fn from_indices(indices: Vec<VecIdx>) -> Self {
 		Self(indices)
 	}
@@ -58,6 +62,22 @@ impl Blade {
 		// Blade(self.0.iter().map(|v| grammar.dual(*v)).collect())
 		let bools: Vec<bool> = self.as_bools(grammar).into_iter().map(|s| !s).collect();
 		Blade::from_bools(&bools)
+	}
+
+	/// A reverse is when you reverse the order of the vector factors in this blade.
+	/// Returns the sign change that would occur in this case.
+	pub fn reverse_sign(&self) -> i32 {
+		let mut sign = 1;
+		let r = self.grade();
+		if r > 1 {
+			// After reversing the order, we want to sort again.
+			let num_swaps = r * (r - 1) / 2;
+			if num_swaps % 2 == 1 {
+				// Odd number of swaps => sign change
+				sign = -sign;
+			}
+		}
+		sign
 	}
 
 	// Simplify to sorted, collapsed form without duplicate vector indices.

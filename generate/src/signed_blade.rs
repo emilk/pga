@@ -1,7 +1,7 @@
 use crate::*;
 
 // TODO: rename
-// A blade with a sign (e.g 42 * e2)
+// A blade dimension with magnitude (e.g 42 * e2)
 #[derive(Clone)]
 pub struct SignedBlade {
 	pub sign: i32,
@@ -9,6 +9,13 @@ pub struct SignedBlade {
 }
 
 impl SignedBlade {
+	pub fn zero() -> Self {
+		SignedBlade {
+			sign: 0,
+			blade: Blade::scalar(), // could be any blade really
+		}
+	}
+
 	/// One times the given blade
 	pub fn unit(blade: &Blade) -> Self {
 		Self {
@@ -19,6 +26,10 @@ impl SignedBlade {
 
 	pub fn simplify(self, grammar: &Grammar) -> Self {
 		grammar.simplify(self)
+	}
+
+	pub fn is_zero(&self) -> bool {
+		self.sign == 0
 	}
 
 	pub fn grade(&self) -> usize {
@@ -35,15 +46,7 @@ impl SignedBlade {
 	/// Reverse the order of the vector factors in this blade
 	pub fn reverse(&self) -> Self {
 		let mut b = self.clone();
-		let r = b.grade();
-		if r > 1 {
-			// After reversing the order, we want to sort again.
-			let num_swaps = r * (r - 1) / 2;
-			if num_swaps % 2 == 1 {
-				// Odd number of swaps => sign change
-				b.sign = -b.sign;
-			}
-		}
+		b.sign *= b.blade.reverse_sign();
 		b
 	}
 
@@ -100,6 +103,16 @@ impl std::fmt::Display for SignedBlade {
 	}
 }
 
+impl std::ops::Mul<SignedBlade> for SignedBlade {
+	type Output = SignedBlade;
+	fn mul(self, rhs: SignedBlade) -> Self::Output {
+		SignedBlade {
+			sign: self.sign * rhs.sign,
+			blade: &self.blade * &rhs.blade,
+		}
+	}
+}
+
 impl std::ops::Mul<&SignedBlade> for &SignedBlade {
 	type Output = SignedBlade;
 	fn mul(self, rhs: &SignedBlade) -> Self::Output {
@@ -118,5 +131,11 @@ impl std::ops::Mul<SignedBlade> for i32 {
 			sign: self * right.sign,
 			blade: right.blade,
 		}
+	}
+}
+
+impl std::ops::MulAssign<SignedBlade> for SignedBlade {
+	fn mul_assign(&mut self, rhs: SignedBlade) {
+		*self = self.clone() * rhs;
 	}
 }

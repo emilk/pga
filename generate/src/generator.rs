@@ -17,21 +17,21 @@ impl Type {
 	/// Is the given value an instance of this type?
 	/// i.e., does it only have blades that are part of this type?
 	/// The given value should be simplified / normalized
-	pub fn is_value(&self, value: &MultiVec) -> bool {
-		value.blades().all(|blade| self.has_blade(blade))
+	pub fn is_value(&self, value: &Sum, grammar: &Grammar) -> bool {
+		value.blades(grammar).iter().all(|blade| self.has_blade(blade))
 	}
 
-	pub fn has_blade(&self, blade: &Blade) -> bool {
-		self.0.iter().any(|(_, b)| b == blade)
+	pub fn has_blade(&self, blade: &SignedBlade) -> bool {
+		blade.is_zero() || self.0.iter().any(|(_, b)| b == &blade.blade)
 	}
 
 	/// Project the given value onto this type,
 	/// returning a value containing only the blades of this type.
-	pub fn project(&self, value: &MultiVec) -> TypeInstance {
+	pub fn project(&self, value: &Sum, grammar: &Grammar) -> TypeInstance {
 		TypeInstance(
 			self.0
 				.iter()
-				.map(|(name, blade)| (name.clone(), value.project(blade)))
+				.map(|(name, blade)| (name.clone(), value.project(blade, grammar)))
 				.collect(),
 		)
 	}
@@ -70,6 +70,7 @@ impl std::fmt::Display for TypeInstance {
 
 // ----------------------------------------------------------------------------
 
+/// A structure type with a name. TODO: RENAME
 #[derive(Clone, Eq, PartialEq)]
 pub struct NominalType {
 	/// e.g. "Point"
@@ -255,22 +256,22 @@ impl Generator {
 			println!("{} {}", t.name, t.members);
 		}
 
-		println!();
-		println!("DUALS:");
-		for t in &self.nominal_types {
-			let name = &t.example_instance_name;
-			let value = MultiVec::instance(name, &t.members);
-			let result = value.dual(grammar);
-			if let Some(result_type) = self.find_type(&result) {
-				let result = result_type.members.project(&result);
-				// TODO: print this correctly
-				println!();
-				println!("dual({}: {}) -> {} {}", name, t.name, result_type.name, result);
-			} else {
-				// println!();
-				// println!("dual({}: {}) -> {}", name, t.name, result);
-			}
-		}
+		// println!();
+		// println!("DUALS:");
+		// for t in &self.nominal_types {
+		// 	let name = &t.example_instance_name;
+		// 	let value = Sum::instance(name, &t.members);
+		// 	let result = value.dual(grammar);
+		// 	if let Some(result_type) = self.find_type(&result) {
+		// 		let result = result_type.members.project(&result);
+		// 		// TODO: print this correctly
+		// 		println!();
+		// 		println!("dual({}: {}) -> {} {}", name, t.name, result_type.name, result);
+		// 	} else {
+		// 		// println!();
+		// 		// println!("dual({}: {}) -> {}", name, t.name, result);
+		// 	}
+		// }
 
 		println!();
 		println!("OPERATIONS:");
@@ -285,17 +286,23 @@ impl Generator {
 						right.example_instance_name.as_str(),
 					)
 				};
-				let l_value = MultiVec::instance(l_name, &left.members);
-				let r_value = MultiVec::instance(r_name, &right.members);
+				let l_value = Sum::instance(l_name, &left.members);
+				let r_value = Sum::instance(r_name, &right.members);
 
-				let result = (&l_value * &r_value).simplify(grammar);
+				let result = (l_value * r_value).simplify(grammar);
 				if let Some(typ) = self.find_type(&result) {
-					let result = typ.members.project(&result);
+					let result = typ.members.project(&result, grammar);
 					println!();
 					println!(
 						"({}: {}) * ({}: {}) -> {} {}",
 						l_name, left.name, r_name, right.name, typ.name, result
 					);
+				} else {
+					// println!();
+					// println!(
+					// 	"({}: {}) * ({}: {}) -> {}",
+					// 	l_name, left.name, r_name, right.name, result
+					// );
 				}
 
 				// let product = (l_value.sandwich(&r_value)).simplify(grammar);
@@ -310,11 +317,13 @@ impl Generator {
 		// TODO: do the same with unary operations
 	}
 
-	fn find_type(&self, value: &MultiVec) -> Option<&NominalType> {
-		if *value == MultiVec::default() {
+	fn find_type(&self, value: &Sum) -> Option<&NominalType> {
+		if value.is_zero() {
 			None
 		} else {
-			self.nominal_types.iter().find(|t| t.members.is_value(value))
+			self.nominal_types
+				.iter()
+				.find(|t| t.members.is_value(value, &self.grammar))
 		}
 	}
 }

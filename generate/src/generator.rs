@@ -18,7 +18,7 @@ impl Type {
 	/// i.e., does it only have blades that are part of this type?
 	/// The given value should be simplified / normalized
 	pub fn is_value(&self, value: &Sum, grammar: &Grammar) -> bool {
-		value.blades(grammar).iter().all(|blade| self.has_blade(blade))
+		value.sblades(grammar).iter().all(|blade| self.has_blade(blade))
 	}
 
 	pub fn has_blade(&self, blade: &SignedBlade) -> bool {
@@ -27,11 +27,11 @@ impl Type {
 
 	/// Project the given value onto this type,
 	/// returning a value containing only the blades of this type.
-	pub fn project(&self, value: &Sum, grammar: &Grammar) -> TypeInstance {
+	pub fn select(&self, value: &Sum, grammar: &Grammar) -> TypeInstance {
 		TypeInstance(
 			self.0
 				.iter()
-				.map(|(name, blade)| (name.clone(), value.project(blade, grammar)))
+				.map(|(name, blade)| (name.clone(), value.select(blade, grammar)))
 				.collect(),
 		)
 	}
@@ -256,60 +256,120 @@ impl Generator {
 			println!("{} {}", t.name, t.members);
 		}
 
-		// println!();
-		// println!("DUALS:");
-		// for t in &self.nominal_types {
-		// 	let name = &t.example_instance_name;
-		// 	let value = Sum::instance(name, &t.members);
-		// 	let result = value.dual(grammar);
-		// 	if let Some(result_type) = self.find_type(&result) {
-		// 		let result = result_type.members.project(&result);
-		// 		// TODO: print this correctly
-		// 		println!();
-		// 		println!("dual({}: {}) -> {} {}", name, t.name, result_type.name, result);
-		// 	} else {
-		// 		// println!();
-		// 		// println!("dual({}: {}) -> {}", name, t.name, result);
-		// 	}
-		// }
+		println!();
+		println!("DUALS:");
+		for t in &self.nominal_types {
+			let name = &t.example_instance_name;
+			let value = Sum::instance(name, &t.members);
+			let out = value.dual(grammar);
+			if let Some(out_type) = self.find_type(&out) {
+				let out = out_type.members.select(&out, grammar);
+				// TODO: print this correctly
+				println!();
+				println!("dual({}: {}) -> {} {}", name, t.name, out_type.name, out);
+			} else {
+				// println!();
+				// println!("dual({}: {}) -> {}", name, t.name, out);
+			}
+		}
 
 		println!();
-		println!("OPERATIONS:");
+		println!("REVERSE:");
+		for t in &self.nominal_types {
+			let name = &t.example_instance_name;
+			let value = Sum::instance(name, &t.members);
+			let out = value.reverse(grammar);
+			if let Some(out_type) = self.find_type(&out) {
+				let out = out_type.members.select(&out, grammar);
+				// TODO: print this correctly
+				println!();
+				println!("reverse({}: {}) -> {} {}", name, t.name, out_type.name, out);
+			} else {
+				// println!();
+				// println!("reverse({}: {}) -> {}", name, t.name, out);
+			}
+		}
 
-		for left in &self.nominal_types {
-			for right in &self.nominal_types {
-				let (l_name, r_name) = if left == right {
+		println!();
+		println!("MULTIPLICATION:");
+
+		for l_type in &self.nominal_types {
+			for r_type in &self.nominal_types {
+				let (l_name, r_name) = if l_type == r_type {
 					("l", "r")
 				} else {
 					(
-						left.example_instance_name.as_str(),
-						right.example_instance_name.as_str(),
+						l_type.example_instance_name.as_str(),
+						r_type.example_instance_name.as_str(),
 					)
 				};
-				let l_value = Sum::instance(l_name, &left.members);
-				let r_value = Sum::instance(r_name, &right.members);
+				let l_value = Sum::instance(l_name, &l_type.members);
+				let r_value = Sum::instance(r_name, &r_type.members);
 
-				let result = (l_value * r_value).simplify(grammar);
-				if let Some(typ) = self.find_type(&result) {
-					let result = typ.members.project(&result, grammar);
+				let out = (l_value * r_value).simplify(grammar);
+				if let Some(typ) = self.find_type(&out) {
+					let out = typ.members.select(&out, grammar);
 					println!();
 					println!(
 						"({}: {}) * ({}: {}) -> {} {}",
-						l_name, left.name, r_name, right.name, typ.name, result
+						l_name, l_type.name, r_name, r_type.name, typ.name, out
 					);
 				} else {
 					// println!();
 					// println!(
 					// 	"({}: {}) * ({}: {}) -> {}",
-					// 	l_name, left.name, r_name, right.name, result
+					// 	l_name, l_type.name, r_name, r_type.name, out
 					// );
 				}
 
 				// let product = (l_value.sandwich(&r_value)).simplify(grammar);
 				// println!();
 				// println!(
-				// 	"{} {} SANDWICHED_BY {} {} = {}",
-				// 	left.name, l_name, right.name, r_name, product
+				// 	"{} {} SANDWICHED_BY {} {} -> {}",
+				// 	l_type.name, l_name, r_type.name, r_name, product
+				// );
+			}
+		}
+
+		println!();
+		println!("OPERATIONS:");
+
+		for l_type in &self.nominal_types {
+			for r_type in &self.nominal_types {
+				let (l_name, r_name) = if l_type == r_type {
+					("l", "r")
+				} else {
+					(
+						l_type.example_instance_name.as_str(),
+						r_type.example_instance_name.as_str(),
+					)
+				};
+				let l_value = Sum::instance(l_name, &l_type.members);
+				let r_value = Sum::instance(r_name, &r_type.members);
+
+				let out = l_value.sandwich(&r_value, grammar);
+				if let Some(out_type) = self.find_type(&out) {
+					if out_type == r_type {
+						let out = out_type.members.select(&out, grammar);
+						println!();
+						println!(
+							"({}: {}) SANDWICHING ({}: {}) -> {} {}",
+							l_name, l_type.name, r_name, r_type.name, out_type.name, out
+						);
+					}
+				} else {
+					// println!();
+					// println!(
+					// 	"({}: {}) * ({}: {}) -> {}",
+					// 	l_name, l_type.name, r_name, r_type.name, result
+					// );
+				}
+
+				// let product = (l_value.sandwich(&r_value)).simplify(grammar);
+				// println!();
+				// println!(
+				// 	"{} {} SANDWICHING {} {} -> {}",
+				// 	l_type.name, l_name, r_type.name, r_name, product
 				// );
 			}
 		}

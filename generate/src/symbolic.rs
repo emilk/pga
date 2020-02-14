@@ -8,14 +8,60 @@ use crate::*;
 /// The blade is the type of this Factor.
 /// NOTE: names MUST be unique!
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
-pub struct Factor {
+pub struct Symbol {
 	name: String,
 	blade: Blade,
 }
 
-impl std::fmt::Display for Factor {
+impl std::fmt::Display for Symbol {
 	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
 		self.name.fmt(f)
+	}
+}
+
+// ----------------------------------------------------------------------------
+
+/// Either 'x' or 'x.dual()'
+#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub enum Factor {
+	Normal(Symbol),
+	Dual(Symbol),
+}
+
+impl Factor {
+	// fn symbol(&self) -> &Symbol {
+	// 	match self {
+	// 		Factor::Normal(x) => x,
+	// 		Factor::Dual(x) => x,
+	// 	}
+	// }
+
+	fn blade(&self, grammar: &Grammar) -> Blade {
+		// &self.symbol().blade
+		self.sblade(grammar).blade
+	}
+
+	fn sblade(&self, grammar: &Grammar) -> SignedBlade {
+		match self {
+			Factor::Normal(x) => SignedBlade::unit(&x.blade),
+			Factor::Dual(x) => SignedBlade::unit(&x.blade).dual(grammar),
+		}
+	}
+
+	pub fn dual(self) -> Self {
+		match self {
+			Factor::Normal(x) => Factor::Dual(x),
+			Factor::Dual(x) => Factor::Normal(x),
+		}
+	}
+}
+
+impl std::fmt::Display for Factor {
+	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+		match self {
+			Factor::Normal(x) => x.fmt(f),
+			Factor::Dual(x) => write!(f, "!{}", x),
+		}
 	}
 }
 
@@ -56,13 +102,13 @@ impl Product {
 	}
 
 	/// The dimensionality of this product
-	pub fn blade(&self, grammar: &Grammar) -> SignedBlade {
+	pub fn sblade(&self, grammar: &Grammar) -> SignedBlade {
 		if self.multiplier == 0 || self.factors.is_empty() {
 			SignedBlade::zero()
 		} else {
 			let mut blade = SignedBlade::unit(&Blade::scalar());
 			for f in &self.factors {
-				blade *= SignedBlade::unit(&f.blade);
+				blade *= f.sblade(grammar);
 			}
 			grammar.simplify(blade)
 		}
@@ -72,23 +118,33 @@ impl Product {
 		// sort factors respecting commute rules, using bubble sort:
 		for _ in 0..self.factors.len() {
 			for i in 0..self.factors.len() - 1 {
-				if self.factors[i].name > self.factors[i + 1].name {
-					self.multiplier *= grammar.commute_sign(&self.factors[i].blade, &self.factors[i + 1].blade);
+				if self.factors[i] > self.factors[i + 1] {
+					self.multiplier *= grammar.commute_sign(
+						&self.factors[i].sblade(grammar).blade,
+						&self.factors[i + 1].sblade(grammar).blade,
+					);
 					self.factors.swap(i, i + 1);
 				}
 			}
 		}
 
-		if self.blade(grammar).is_zero() {
+		if self.sblade(grammar).is_zero() {
 			Self::zero()
 		} else {
 			self
 		}
 	}
 
-	pub fn reverse(mut self) -> Self {
+	pub fn reverse(mut self, grammar: &Grammar) -> Self {
 		for factor in &mut self.factors {
-			self.multiplier *= factor.blade.reverse_sign();
+			self.multiplier *= factor.blade(grammar).reverse_sign();
+		}
+		self
+	}
+
+	pub fn dual(mut self) -> Self {
+		for factor in &mut self.factors {
+			*factor = factor.clone().dual();
 		}
 		self
 	}
@@ -195,28 +251,30 @@ impl Sum {
 			typ.0
 				.iter()
 				.map(|(member, blade)| {
-					Product::from_factor(Factor {
+					Product::from_factor(Factor::Normal(Symbol {
 						name: format!("{}.{}", variable, member),
 						blade: blade.clone(),
-					})
+					}))
 				})
 				.collect(),
 		)
 	}
 
-	/// Project onto the given blade.
-	/// TODO: actually not a projection, but a selection if a specific dimension.
-	pub fn project(&self, needle: &Blade, grammar: &Grammar) -> Sum {
+	/// Select the terms of the given blade
+	pub fn select(&self, needle: &Blade, grammar: &Grammar) -> Sum {
 		Sum(self
 			.0
 			.iter()
-			.filter(|term| &term.blade(grammar).blade == needle)
+			.filter(|term| {
+				let term_sblade = term.sblade(grammar);
+				!term_sblade.is_zero() && &term_sblade.blade == needle
+			})
 			.cloned()
 			.collect())
 	}
 
-	pub fn blades(&self, grammar: &Grammar) -> Vec<SignedBlade> {
-		self.0.iter().map(|term| term.blade(grammar)).collect()
+	pub fn sblades(&self, grammar: &Grammar) -> Vec<SignedBlade> {
+		self.0.iter().map(|term| term.sblade(grammar)).collect()
 	}
 
 	pub fn simplify(mut self, grammar: &Grammar) -> Self {
@@ -249,20 +307,44 @@ impl Sum {
 		Sum(collapsed_terms)
 	}
 
-	pub fn reverse(&self) -> Self {
-		Self(self.0.iter().map(|sum| sum.clone().reverse()).collect())
+	pub fn reverse(&self, grammar: &Grammar) -> Self {
+		Self(self.0.iter().map(|sum| sum.clone().reverse(grammar)).collect())
 	}
 
-	// pub fn dual(&self, grammar: &Grammar) -> Self {
-	// 	Self(self.0.iter().map(|sum| sum.dual(grammar)).collect()).simplify(grammar)
+	pub fn dual(&self, grammar: &Grammar) -> Self {
+		Self(self.0.iter().map(|sum| sum.clone().dual()).collect()).simplify(grammar)
+	}
+
+	pub fn mul(self, rhs: Self) -> Self {
+		Sum(self
+			.0
+			.into_iter()
+			.cartesian_product(rhs.0)
+			.map(|(a, b)| a * b)
+			.collect())
+	}
+
+	// pub fn outer(self, rhs: Self) -> Self {
+	// 	Sum(self
+	// 		.0
+	// 		.into_iter()
+	// 		.cartesian_product(rhs.0)
+	// 		.map(|(a, b)| a.outher(b))
+	// 		.collect())
 	// }
 
 	/// The sandwich operator
 	/// self * other * self.reverse()
-	pub fn sandwich(&self, other: &Self) -> Self {
-		self.clone() * other.clone() * self.reverse()
-		// self * &(other * &self.reverse())
+	pub fn sandwich(&self, other: &Self, grammar: &Grammar) -> Self {
+		(self.clone() * other.clone() * self.reverse(grammar)).simplify(grammar)
 	}
+
+	// pub fn regressive(&self, other: &Sum, grammar: &Grammar) -> Self {
+	// 	self.dual(grammar)
+	// 		.outer(&other.dual(grammar), grammar)
+	// 		.dual(grammar)
+	// 		.simplify(grammar)
+	// }
 }
 
 impl std::fmt::Display for Sum {

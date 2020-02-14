@@ -554,9 +554,9 @@ impl Sandwich<Point> for Transform {
 
 		// tp = t * p:
 		// let tp_s: S = t.e12 * p.e12;
-		// let tp_e12: E12 = t.s * p.e12;
 		// let tp_e20: E20 = t.s * p.e20 + t.e12 * p.e01 + t.e01 * p.e12;
 		// let tp_e01: E01 = t.s * p.e01 + t.e12 * p.e20 + t.e20 * p.e12;
+		// let tp_e12: E12 = t.s * p.e12;
 
 		// now lets do tp_ * t.reverse():
 
@@ -568,13 +568,12 @@ impl Sandwich<Point> for Transform {
 		// s = 0;
 
 		// Point {
-		// 	e12: tp_s * -t.e12 + tp_e12 * t.s,
 		// 	e20: tp_s * -t.e20 + tp_e12 * -t.e01 + tp_e01 * -t.e12 + tp_e20 * t.s,
 		// 	e01: tp_s * -t.e01 + tp_e12 * -t.e20 + tp_e20 * -t.e12 + tp_e01 * t.s,
+		// 	e12: tp_s * -t.e12 + tp_e12 * t.s,
 		// }
 
 		// Point {
-		// 	e12: t.e12 * p.e12 * -t.e12 + t.s * p.e12 * t.s,
 		// 	e20: t.e12 * p.e12 * -t.e20
 		// 		+ t.s * p.e12 * -t.e01
 		// 		+ (t.s * p.e01 + t.e12 * p.e20 + t.e20 * p.e12) * -t.e12
@@ -583,10 +582,10 @@ impl Sandwich<Point> for Transform {
 		// 		+ t.s * p.e12 * -t.e20
 		// 		+ (t.s * p.e20 + t.e12 * p.e01 + t.e01 * p.e12) * -t.e12
 		// 		+ (t.s * p.e01 + t.e12 * p.e20 + t.e20 * p.e12) * t.s,
+		// 	e12: t.e12 * p.e12 * -t.e12 + t.s * p.e12 * t.s,
 		// }
 
 		// Point {
-		// 	e12: t.e12 * p.e12 * -t.e12 + t.s * p.e12 * t.s,
 		// 	e20: t.e12 * p.e12 * -t.e20
 		// 		+ t.s * p.e12 * -t.e01
 		// 		+ t.s * p.e01 * -t.e12
@@ -603,16 +602,17 @@ impl Sandwich<Point> for Transform {
 		// 		+ t.s * p.e01 * t.s
 		// 		+ t.e12 * p.e20 * t.s
 		// 		+ t.e20 * p.e12 * t.s,
+		// 	e12: t.e12 * p.e12 * -t.e12 + t.s * p.e12 * t.s,
 		// }
 
 		// GENERATED:
 		Point {
-			e01: p.e01 * t.e12 * t.e12 + p.e01 * t.s * t.s + S(2.0) * p.e12 * t.e01 * t.e12
-				- S(2.0) * p.e12 * t.e20 * t.s
-				- S(2.0) * p.e20 * t.e12 * t.s,
 			e20: -S(2.0) * p.e01 * t.e12 * t.s - S(2.0) * p.e12 * t.e01 * t.s - S(2.0) * p.e12 * t.e12 * t.e20
 				+ p.e20 * t.e12 * t.e12
 				+ p.e20 * t.s * t.s,
+			e01: p.e01 * t.e12 * t.e12 + p.e01 * t.s * t.s + S(2.0) * p.e12 * t.e01 * t.e12
+				- S(2.0) * p.e12 * t.e20 * t.s
+				- S(2.0) * p.e20 * t.e12 * t.s,
 			e12: -p.e12 * t.e12 * t.e12 + p.e12 * t.s * t.s,
 		}
 	}

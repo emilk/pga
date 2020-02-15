@@ -340,7 +340,7 @@ impl Generator {
 				let l_value = Sum::instance(l_name, &l_type.members);
 				let r_value = Sum::instance(r_name, &r_type.members);
 
-				let out = (l_value * r_value).simplify(grammar);
+				let out = l_value.mul(r_value, grammar);
 				if let Some(typ) = self.find_type(&out) {
 					let out = typ.members.select(&out, grammar);
 					println!();
@@ -480,7 +480,7 @@ impl Generator {
 				let l_value = Sum::instance(l_name, &l_type.members);
 				let r_value = Sum::instance(r_name, &r_type.members);
 
-				let out = l_value.sandwich(&r_value, grammar);
+				let out = l_value.sandwich(r_value, grammar);
 				if let Some(out_type) = self.find_type(&out) {
 					if out_type == r_type {
 						let out = out_type.members.select(&out, grammar);

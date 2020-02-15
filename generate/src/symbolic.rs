@@ -29,13 +29,6 @@ pub enum Factor {
 }
 
 impl Factor {
-	// fn symbol(&self) -> &Symbol {
-	// 	match self {
-	// 		Factor::Normal(x) => x,
-	// 		Factor::Dual(x) => x,
-	// 	}
-	// }
-
 	fn blade(&self, grammar: &Grammar) -> Blade {
 		// &self.symbol().blade
 		self.sblade(grammar).blade
@@ -85,6 +78,10 @@ impl Product {
 	pub fn is_zero(&self) -> bool {
 		// only valid if simplified
 		self.multiplier == 0
+	}
+
+	pub fn is_negative(&self) -> bool {
+		self.multiplier < 0
 	}
 
 	pub fn one() -> Self {
@@ -142,17 +139,17 @@ impl Product {
 		self
 	}
 
-	pub fn dual(mut self) -> Self {
+	pub fn try_dual(&self) -> Option<Self> {
+		// Consider  !(!l.e01 * !r.e20): this cannot be simplified!
 		if self.factors.len() > 1 {
-			// Consider  !(!l.e01 * !r.e20)
-			// this cannot be simplified!
-			panic!("Cannot take the dual of a complex product like this");
+			None
+		} else {
+			let mut p = self.clone();
+			for factor in &mut p.factors {
+				*factor = factor.clone().dual();
+			}
+			Some(p)
 		}
-		for factor in &mut self.factors {
-			*factor = factor.clone().dual();
-		}
-		self
-		// unimplemented!();
 	}
 
 	/// Geometric multiplication:
@@ -188,8 +185,21 @@ impl Product {
 		}
 	}
 
-	pub fn regressive(self, rhs: Product, grammar: &Grammar) -> Self {
-		self.dual().outer(rhs.dual(), grammar).dual().simplify(grammar)
+	pub fn try_add(&self, rhs: &Self) -> Option<Self> {
+		if self.is_zero() {
+			Some(rhs.clone())
+		} else if rhs.is_zero() {
+			Some(self.clone())
+		} else {
+			// NOTE: Same terms also means same dimensionality / blade
+			if self.factors == rhs.factors {
+				let mut sum = self.clone();
+				sum.multiplier += rhs.multiplier;
+				Some(sum)
+			} else {
+				None
+			}
+		}
 	}
 }
 
@@ -231,61 +241,168 @@ impl std::ops::Neg for Product {
 	}
 }
 
-impl std::ops::Mul<&Product> for &Product {
-	type Output = Sum;
-	fn mul(self, p: &Product) -> Self::Output {
-		Sum(vec![self.clone(), p.clone()])
-	}
-}
-
-impl std::ops::Mul<Product> for i32 {
-	type Output = Product;
-	fn mul(self, p: Product) -> Self::Output {
-		Product {
-			multiplier: self * p.multiplier,
-			factors: p.factors,
-		}
-	}
-}
-
-impl std::ops::Mul<&Product> for i32 {
-	type Output = Product;
-	fn mul(self, p: &Product) -> Self::Output {
-		Product {
-			multiplier: self * p.multiplier,
-			factors: p.factors.clone(),
-		}
-	}
-}
-
-impl std::ops::Mul for Product {
-	type Output = Self;
-
-	fn mul(self, rhs: Self) -> Self::Output {
-		Product {
-			multiplier: self.multiplier * rhs.multiplier,
-			factors: chain(self.factors, rhs.factors).collect(),
-		}
-	}
-}
-
 // ----------------------------------------------------------------------------
 
-// TODO
-// #[derive(Clone, Default, Eq, Ord, PartialEq, PartialOrd)]
-// pub enum Term{
-// 	Normal(Vec<Product>), Dual(Vec<Product>)};
+#[derive(Clone, Eq, Ord, PartialEq, PartialOrd)]
+pub enum Term {
+	Normal(Product),
+	Dual(Product),
+}
+
+impl Term {
+	pub fn zero() -> Self {
+		Term::Normal(Product::zero())
+	}
+
+	pub fn one() -> Self {
+		Term::Normal(Product::one())
+	}
+
+	pub fn is_zero(&self) -> bool {
+		match self {
+			Term::Normal(p) => p.is_zero(),
+			Term::Dual(p) => p.is_zero(),
+		}
+	}
+
+	pub fn is_negative(&self) -> bool {
+		match self {
+			Term::Normal(p) => p.is_negative(),
+			Term::Dual(p) => p.is_negative(),
+		}
+	}
+
+	pub fn from_factor(factor: Factor) -> Self {
+		Term::Normal(Product::from_factor(factor))
+	}
+
+	// fn blade(&self, grammar: &Grammar) -> Blade {
+	// 	self.sblade(grammar).blade
+	// }
+
+	fn sblade(&self, grammar: &Grammar) -> SignedBlade {
+		match self {
+			Term::Normal(p) => p.sblade(grammar),
+			Term::Dual(p) => p.sblade(grammar).dual(grammar),
+		}
+	}
+
+	pub fn simplify(self, grammar: &Grammar) -> Self {
+		match self {
+			Term::Normal(p) => Term::Normal(p.simplify(grammar)),
+			Term::Dual(p) => Term::Dual(p.simplify(grammar)),
+		}
+	}
+
+	pub fn dual(self) -> Self {
+		match self {
+			Term::Normal(p) => {
+				if let Some(pd) = p.try_dual() {
+					Term::Normal(pd)
+				} else {
+					Term::Dual(p)
+				}
+			}
+			Term::Dual(p) => Term::Normal(p),
+		}
+	}
+
+	pub fn reverse(self, grammar: &Grammar) -> Self {
+		match self {
+			Term::Normal(p) => Term::Normal(p.reverse(grammar)),
+			Term::Dual(p) => Term::Dual(p.reverse(grammar)),
+		}
+	}
+
+	pub fn try_add(&self, rhs: &Term) -> Option<Term> {
+		if self.is_zero() {
+			Some(rhs.clone())
+		} else if rhs.is_zero() {
+			Some(self.clone())
+		} else {
+			match (self, rhs) {
+				(Term::Normal(l), Term::Normal(r)) => l.try_add(r).map(Term::Normal),
+				(Term::Dual(l), Term::Dual(r)) => l.try_add(r).map(Term::Dual),
+				_ => None,
+			}
+		}
+	}
+
+	/// Geometric multiplication:
+	pub fn mul(self, rhs: Self, grammar: &Grammar) -> Self {
+		if self.is_zero() || rhs.is_zero() {
+			Self::zero()
+		} else {
+			match (self, rhs) {
+				(Term::Normal(l), Term::Normal(r)) => Term::Normal(l.mul(r, grammar)),
+				(Term::Dual(l), Term::Dual(r)) => Term::Dual(l.mul(r, grammar)),
+				_ => panic!("Cannot multiply duals and non-duals"),
+			}
+		}
+	}
+
+	/// inner / dot product
+	pub fn inner(self, rhs: Self, grammar: &Grammar) -> Self {
+		if self.is_zero() || rhs.is_zero() {
+			Self::zero()
+		} else {
+			match (self, rhs) {
+				(Term::Normal(l), Term::Normal(r)) => Term::Normal(l.inner(r, grammar)),
+				(Term::Dual(l), Term::Dual(r)) => Term::Dual(l.inner(r, grammar)),
+				_ => panic!("Cannot multiply duals and non-duals"),
+			}
+		}
+	}
+
+	/// outer / wedge product
+	pub fn outer(self, rhs: Self, grammar: &Grammar) -> Self {
+		if self.is_zero() || rhs.is_zero() {
+			Self::zero()
+		} else {
+			match (self, rhs) {
+				(Term::Normal(l), Term::Normal(r)) => Term::Normal(l.outer(r, grammar)),
+				(Term::Dual(l), Term::Dual(r)) => Term::Dual(l.outer(r, grammar)),
+				_ => panic!("Cannot multiply duals and non-duals"),
+			}
+		}
+	}
+}
+
+impl std::fmt::Display for Term {
+	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+		match self {
+			Term::Normal(p) => p.fmt(f),
+			Term::Dual(p) => {
+				if p.is_negative() {
+					format!("-!({})", -p.clone()).fmt(f)
+				} else {
+					format!("!({})", p).fmt(f)
+				}
+			}
+		}
+	}
+}
+
+impl std::ops::Neg for Term {
+	type Output = Term;
+	fn neg(self) -> Self::Output {
+		match self {
+			Term::Normal(p) => Term::Normal(-p),
+			Term::Dual(p) => Term::Dual(-p),
+		}
+	}
+}
 
 // ----------------------------------------------------------------------------
 
 /// A sum-of-products type, used in symbolic calculations.
 /// Empty sum = 0
 #[derive(Clone, Default, Eq, Ord, PartialEq, PartialOrd)]
-pub struct Sum(Vec<Product>);
+pub struct Sum(Vec<Term>);
 
 impl Sum {
 	pub fn one() -> Self {
-		Sum(vec![Product::one()])
+		Sum(vec![Term::one()])
 	}
 
 	pub fn is_zero(&self) -> bool {
@@ -293,7 +410,7 @@ impl Sum {
 	}
 
 	pub fn from_factor(factor: Factor) -> Self {
-		Sum(vec![Product::from_factor(factor)])
+		Sum(vec![Term::from_factor(factor)])
 	}
 
 	pub fn instance(variable: &str, typ: &Type) -> Self {
@@ -301,7 +418,7 @@ impl Sum {
 			typ.0
 				.iter()
 				.map(|(member, blade)| {
-					Product::from_factor(Factor::Normal(Symbol {
+					Term::from_factor(Factor::Normal(Symbol {
 						name: format!("{}.{}", variable, member),
 						blade: blade.clone(),
 					}))
@@ -335,18 +452,15 @@ impl Sum {
 		self.0.sort();
 
 		// Add together terms with same factors
-		let mut collapsed_terms: Vec<Product> = vec![];
+		let mut collapsed_terms: Vec<Term> = vec![];
 		for new_term in self.0 {
 			if let Some(last_term) = collapsed_terms.last_mut() {
-				// NOTE: Same terms also means same dimensionality / blade
-				if last_term.factors == new_term.factors {
-					// Add them!
-					last_term.multiplier += new_term.multiplier;
-
-					if last_term.multiplier == 0 {
+				if let Some(sum) = last_term.try_add(&new_term) {
+					if sum.is_zero() {
 						collapsed_terms.pop();
+					} else {
+						*last_term = sum;
 					}
-
 					continue;
 				}
 			}
@@ -365,13 +479,14 @@ impl Sum {
 		Self(self.0.iter().map(|sum| sum.clone().dual()).collect()).simplify(grammar)
 	}
 
-	pub fn mul(self, rhs: Self) -> Self {
+	pub fn mul(self, rhs: Self, grammar: &Grammar) -> Self {
 		Sum(self
 			.0
 			.into_iter()
 			.cartesian_product(rhs.0)
-			.map(|(a, b)| a * b)
+			.map(|(a, b)| a.mul(b, grammar))
 			.collect())
+		.simplify(grammar)
 	}
 
 	/// inner / dot product
@@ -405,21 +520,19 @@ impl Sum {
 
 	/// The sandwich operator
 	/// self * rhs * self.reverse()
-	pub fn sandwich(&self, rhs: &Self, grammar: &Grammar) -> Self {
-		(self.clone() * rhs.clone() * self.reverse(grammar)).simplify(grammar)
+	pub fn sandwich(self, rhs: Self, grammar: &Grammar) -> Self {
+		self.clone().mul(rhs, grammar).mul(self.reverse(grammar), grammar)
 	}
 }
 
 impl std::fmt::Display for Sum {
 	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-		// write!(f, "{}", self.0.iter().format(" + "))
-
-		if self.0.is_empty() {
+		if self.is_zero() {
 			"0".fmt(f)
 		} else {
 			write!(f, "{}", self.0[0])?;
 			for term in self.0.iter().skip(1) {
-				if term.multiplier < 0 {
+				if term.is_negative() {
 					write!(f, " - {}", -term.clone())?;
 				} else {
 					write!(f, " + {}", term)?;
@@ -429,97 +542,3 @@ impl std::fmt::Display for Sum {
 		}
 	}
 }
-
-impl std::ops::Neg for Sum {
-	type Output = Sum;
-	fn neg(self) -> Sum {
-		Sum(self.0.into_iter().map(|p| -p).collect())
-	}
-}
-
-impl std::ops::Add for Sum {
-	type Output = Self;
-	fn add(self, rhs: Self) -> Self::Output {
-		Sum(chain(self.0, rhs.0).collect())
-	}
-}
-
-impl std::ops::Mul<Sum> for i32 {
-	type Output = Sum;
-	fn mul(self, sum: Sum) -> Self::Output {
-		Sum(sum.0.into_iter().map(|p| self * p).collect())
-	}
-}
-
-impl std::ops::Mul<&Sum> for i32 {
-	type Output = Sum;
-	fn mul(self, sum: &Sum) -> Self::Output {
-		Sum(sum.0.iter().map(|p| self * p).collect())
-	}
-}
-
-impl std::ops::Mul<Product> for Sum {
-	type Output = Self;
-	fn mul(self, rhs: Product) -> Self::Output {
-		Sum(self.0.into_iter().map(|p| p * rhs.clone()).collect())
-	}
-}
-
-impl std::ops::Mul<Sum> for Sum {
-	type Output = Self;
-	fn mul(self, rhs: Sum) -> Self::Output {
-		Sum(self
-			.0
-			.into_iter()
-			.cartesian_product(rhs.0)
-			.map(|(a, b)| a * b)
-			.collect())
-	}
-}
-
-impl std::ops::AddAssign<Sum> for Sum {
-	fn add_assign(&mut self, rhs: Sum) {
-		*self = self.clone() + rhs;
-	}
-}
-
-impl std::ops::MulAssign<Sum> for Sum {
-	fn mul_assign(&mut self, rhs: Sum) {
-		*self = self.clone() * rhs;
-	}
-}
-
-// ----------------------------------------------------------------------------
-
-// impl std::ops::Mul<&MultiVec> for &MultiVec {
-// 	type Output = MultiVec;
-// 	fn mul(self, rhs: &MultiVec) -> MultiVec {
-// 		let mut result = MultiVec::default();
-// 		for l in &self.0 {
-// 			for r in &rhs.0 {
-// 				let signed_blade = &SignedBlade::unit(&l.0) * &SignedBlade::unit(&r.0);
-// 				result
-// 					.0
-// 					.push((signed_blade.blade, signed_blade.sign * l.1.clone() * r.1.clone()));
-// 			}
-// 		}
-// 		result
-// 	}
-// }
-
-// impl std::fmt::Display for MultiVec {
-// 	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-// 		if self.0.is_empty() {
-// 			"0".fmt(f)
-// 		} else {
-// 			write!(
-// 				f,
-// 				"{{\n{}\n}}",
-// 				self.0
-// 					.iter()
-// 					.map(|(blade, sum)| format!("  {:6} {},", format!("{}:", blade), sum))
-// 					.format("\n")
-// 			)
-// 		}
-// 	}
-// }

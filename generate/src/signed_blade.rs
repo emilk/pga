@@ -55,7 +55,8 @@ impl SignedBlade {
 		grammar.simplify(self * other)
 	}
 
-	pub fn dot(&self, other: &SignedBlade, grammar: &Grammar) -> Self {
+	/// inner / dot
+	pub fn inner(&self, other: &SignedBlade, grammar: &Grammar) -> Self {
 		// The dot product is the K grade of the geometric product,
 		// where K is the absolute difference in grades between the operands.
 		let k = ((self.grade() as i64) - (other.grade() as i64)).abs() as usize;

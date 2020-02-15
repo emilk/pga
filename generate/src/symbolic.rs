@@ -143,26 +143,69 @@ impl Product {
 	}
 
 	pub fn dual(mut self) -> Self {
+		if self.factors.len() > 1 {
+			// Consider  !(!l.e01 * !r.e20)
+			// this cannot be simplified!
+			panic!("Cannot take the dual of a complex product like this");
+		}
 		for factor in &mut self.factors {
 			*factor = factor.clone().dual();
 		}
 		self
+		// unimplemented!();
+	}
+
+	/// Geometric multiplication:
+	pub fn mul(self, rhs: Product, grammar: &Grammar) -> Self {
+		Product {
+			multiplier: self.multiplier * rhs.multiplier,
+			factors: chain(self.factors, rhs.factors).collect(),
+		}
+		.simplify(grammar)
+	}
+
+	/// inner / dot product
+	/// The dot product either cancels to zero, or is the same as the geometric product
+	pub fn inner(self, rhs: Product, grammar: &Grammar) -> Self {
+		let self_sblade = self.sblade(grammar);
+		let other_sblade = rhs.sblade(grammar);
+		if self_sblade.inner(&other_sblade, grammar).is_zero() {
+			Self::zero()
+		} else {
+			self.mul(rhs, grammar)
+		}
+	}
+
+	/// outer / wedge product
+	/// The outer product either cancels to zero, or is the same as the geometric product
+	pub fn outer(self, rhs: Product, grammar: &Grammar) -> Self {
+		let self_sblade = self.sblade(grammar);
+		let other_sblade = rhs.sblade(grammar);
+		if self_sblade.outer(&other_sblade, grammar).is_zero() {
+			Self::zero()
+		} else {
+			self.mul(rhs, grammar)
+		}
+	}
+
+	pub fn regressive(self, rhs: Product, grammar: &Grammar) -> Self {
+		self.dual().outer(rhs.dual(), grammar).dual().simplify(grammar)
 	}
 }
 
 impl Ord for Product {
-	fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-		if self.factors != other.factors {
-			self.factors.cmp(&other.factors)
+	fn cmp(&self, rhs: &Self) -> std::cmp::Ordering {
+		if self.factors != rhs.factors {
+			self.factors.cmp(&rhs.factors)
 		} else {
-			self.multiplier.cmp(&other.multiplier)
+			self.multiplier.cmp(&rhs.multiplier)
 		}
 	}
 }
 
 impl PartialOrd for Product {
-	fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-		Some(self.cmp(other))
+	fn partial_cmp(&self, rhs: &Self) -> Option<std::cmp::Ordering> {
+		Some(self.cmp(rhs))
 	}
 }
 
@@ -225,6 +268,13 @@ impl std::ops::Mul for Product {
 		}
 	}
 }
+
+// ----------------------------------------------------------------------------
+
+// TODO
+// #[derive(Clone, Default, Eq, Ord, PartialEq, PartialOrd)]
+// pub enum Term{
+// 	Normal(Vec<Product>), Dual(Vec<Product>)};
 
 // ----------------------------------------------------------------------------
 
@@ -324,27 +374,40 @@ impl Sum {
 			.collect())
 	}
 
-	// pub fn outer(self, rhs: Self) -> Self {
-	// 	Sum(self
-	// 		.0
-	// 		.into_iter()
-	// 		.cartesian_product(rhs.0)
-	// 		.map(|(a, b)| a.outher(b))
-	// 		.collect())
-	// }
-
-	/// The sandwich operator
-	/// self * other * self.reverse()
-	pub fn sandwich(&self, other: &Self, grammar: &Grammar) -> Self {
-		(self.clone() * other.clone() * self.reverse(grammar)).simplify(grammar)
+	/// inner / dot product
+	pub fn inner(self, rhs: Self, grammar: &Grammar) -> Self {
+		Sum(self
+			.0
+			.into_iter()
+			.cartesian_product(rhs.0)
+			.map(|(a, b)| a.inner(b, grammar))
+			.collect())
+		.simplify(grammar)
 	}
 
-	// pub fn regressive(&self, other: &Sum, grammar: &Grammar) -> Self {
-	// 	self.dual(grammar)
-	// 		.outer(&other.dual(grammar), grammar)
-	// 		.dual(grammar)
-	// 		.simplify(grammar)
-	// }
+	/// outer / wedge product
+	pub fn outer(self, rhs: Self, grammar: &Grammar) -> Self {
+		Sum(self
+			.0
+			.into_iter()
+			.cartesian_product(rhs.0)
+			.map(|(a, b)| a.outer(b, grammar))
+			.collect())
+		.simplify(grammar)
+	}
+
+	pub fn regressive(&self, rhs: Self, grammar: &Grammar) -> Self {
+		self.dual(grammar)
+			.outer(rhs.dual(grammar), grammar)
+			.dual(grammar)
+			.simplify(grammar)
+	}
+
+	/// The sandwich operator
+	/// self * rhs * self.reverse()
+	pub fn sandwich(&self, rhs: &Self, grammar: &Grammar) -> Self {
+		(self.clone() * rhs.clone() * self.reverse(grammar)).simplify(grammar)
+	}
 }
 
 impl std::fmt::Display for Sum {

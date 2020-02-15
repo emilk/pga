@@ -109,7 +109,7 @@ macro_rules! impl_mul {
 /// Dots each individual elements against each other and sum the results.
 pub trait Dot<Rhs> {
 	type Output;
-	fn dot(&self, other: &Rhs) -> Self::Output;
+	fn inner(&self, other: &Rhs) -> Self::Output;
 }
 
 macro_rules! impl_dot {
@@ -117,7 +117,7 @@ macro_rules! impl_dot {
 		impl Dot<$R> for $L {
 			type Output = Zero;
 			#[inline(always)]
-			fn dot(&self, _: &$R) -> Self::Output {
+			fn inner(&self, _: &$R) -> Self::Output {
 				Zero {}
 			}
 		}
@@ -127,7 +127,7 @@ macro_rules! impl_dot {
 		impl Dot<$R> for $L {
 			type Output = $O;
 			#[inline(always)]
-			fn dot(&self, right: &$R) -> Self::Output {
+			fn inner(&self, right: &$R) -> Self::Output {
 				$O(self.0 * right.0)
 			}
 		}
@@ -137,7 +137,7 @@ macro_rules! impl_dot {
 		impl Dot<$R> for $L {
 			type Output = $O;
 			#[inline(always)]
-			fn dot(&self, right: &$R) -> Self::Output {
+			fn inner(&self, right: &$R) -> Self::Output {
 				$O(-self.0 * right.0)
 			}
 		}
@@ -383,19 +383,19 @@ impl Dual for Line {
 
 impl Dot<Line> for Line {
 	type Output = S;
-	fn dot(&self, other: &Line) -> Self::Output {
-		// NOTE: e0.dot(&e0) is always zero
-		self.e1.dot(&other.e1) + self.e2.dot(&other.e2)
+	fn inner(&self, other: &Line) -> Self::Output {
+		// NOTE: e0.inner(&e0) is always zero
+		self.e1.inner(&other.e1) + self.e2.inner(&other.e2)
 	}
 }
 
 impl Dot<Point> for Line {
 	type Output = Line;
-	fn dot(&self, other: &Point) -> Self::Output {
+	fn inner(&self, other: &Point) -> Self::Output {
 		Line {
-			e0: self.e1.dot(&other.e01) + self.e2.dot(&other.e20),
-			e1: self.e2.dot(&other.e12),
-			e2: self.e1.dot(&other.e12),
+			e0: self.e1.inner(&other.e01) + self.e2.inner(&other.e20),
+			e1: self.e2.inner(&other.e12),
+			e2: self.e1.inner(&other.e12),
 		}
 	}
 }
@@ -470,9 +470,9 @@ impl Dual for Point {
 impl Point {
 	pub fn from_euclidean(x: f64, y: f64) -> Point {
 		Point {
-			e12: E12(1.0),
 			e20: E20(x),
 			e01: E01(y),
+			e12: E12(1.0),
 		}
 	}
 

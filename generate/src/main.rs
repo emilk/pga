@@ -3,9 +3,10 @@ use generate::*;
 // ----------------------------------------------------------------------------
 
 fn main() {
-	let generator = GeneratorBuilder::pga_2d().build();
+	// let generator = GeneratorBuilder::pga_2d().build();
+	let generator = GeneratorBuilder::pga_3d().build();
 	generator.print();
-	generator.print_ops();
+	generator.print_ops(Generate::Signature);
 
 	// 	println!();
 	// 	println!();
@@ -25,4 +26,6 @@ fn main() {
 	// 		"(l.dual() ^ r.dual()).dual(): {}",
 	// 		generator.format_typed_value(&l.dual(grammar).outer(r.dual(grammar), grammar).dual(grammar))
 	// 	);
+
+	// TODO: explore 3d point JOIN point
 }

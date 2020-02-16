@@ -498,6 +498,7 @@ impl Point {
 		}
 	}
 
+	// TODO
 	// /// if this is a euclidean point, you will get the rotation around it.
 	// /// if this is an infinite point you will get a translation that direction.
 	// pub exp(self, val: S) -> Transform {

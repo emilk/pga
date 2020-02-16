@@ -139,6 +139,60 @@ impl GeneratorBuilder {
 		}
 	}
 
+	pub fn pga_3d() -> Self {
+		let grammar = GrammarBuilder::pga_3d().build();
+
+		// let s = Blade::from_indices(vec![]);
+		// Planes:
+		let e0 = Blade::from_indices(vec![VecIdx(0)]);
+		let e1 = Blade::from_indices(vec![VecIdx(1)]);
+		let e2 = Blade::from_indices(vec![VecIdx(2)]);
+		let e3 = Blade::from_indices(vec![VecIdx(3)]);
+		// Translate:
+		let e01 = Blade::from_indices(vec![VecIdx(0), VecIdx(1)]);
+		let e02 = Blade::from_indices(vec![VecIdx(0), VecIdx(2)]);
+		let e03 = Blade::from_indices(vec![VecIdx(0), VecIdx(3)]);
+		// Rotate:
+		let e12 = Blade::from_indices(vec![VecIdx(1), VecIdx(2)]);
+		let e31 = Blade::from_indices(vec![VecIdx(3), VecIdx(1)]);
+		let e23 = Blade::from_indices(vec![VecIdx(2), VecIdx(3)]);
+		// Points:
+		let e021 = Blade::from_indices(vec![VecIdx(0), VecIdx(2), VecIdx(1)]);
+		let e013 = Blade::from_indices(vec![VecIdx(0), VecIdx(1), VecIdx(3)]);
+		let e032 = Blade::from_indices(vec![VecIdx(0), VecIdx(3), VecIdx(2)]);
+		let e123 = Blade::from_indices(vec![VecIdx(1), VecIdx(2), VecIdx(3)]);
+		// Pseduo-scalar;
+		// let e0123 = Blade::from_indices(vec![VecIdx(0), VecIdx(1), VecIdx(2), VecIdx(3)]);
+
+		Self {
+			grammar,
+			nominal_types: vec![
+				NominalType {
+					name: "Plane".to_string(),
+					members: Type::from_blades(vec![e1.clone(), e2.clone(), e3.clone(), e0.clone()]),
+					example_instance_name: "a".to_string(),
+				},
+				NominalType {
+					name: "Line".to_string(),
+					members: Type::from_blades(vec![
+						e01.clone(),
+						e02.clone(),
+						e03.clone(),
+						e12.clone(),
+						e31.clone(),
+						e23.clone(),
+					]),
+					example_instance_name: "l".to_string(),
+				},
+				NominalType {
+					name: "Point".to_string(),
+					members: Type::from_blades(vec![e021.clone(), e013.clone(), e032.clone(), e123.clone()]),
+					example_instance_name: "p".to_string(),
+				},
+			],
+		}
+	}
+
 	pub fn build(self) -> Generator {
 		let GeneratorBuilder { grammar, nominal_types } = self;
 		let mut blades: Vec<Blade> = (0..grammar.dims())
@@ -154,6 +208,14 @@ impl GeneratorBuilder {
 			nominal_types,
 		}
 	}
+}
+
+// ----------------------------------------------------------------------------
+
+#[derive(Clone, Copy)]
+pub enum Generate {
+	Signature,
+	Implementation,
 }
 
 // ----------------------------------------------------------------------------
@@ -284,189 +346,70 @@ impl Generator {
 		}
 	}
 
-	pub fn print_ops(&self) {
+	pub fn print_ops(&self, generate: Generate) {
 		let grammar = &self.grammar;
 
 		println!();
 		println!("--------------------------------------");
 		println!("DUALS:");
-		for t in &self.nominal_types {
-			let name = &t.example_instance_name;
-			let value = Sum::instance(name, &t.members);
-			let out = value.dual(grammar);
-			if let Some(out_type) = self.find_type(&out) {
-				let out = out_type.members.select(&out, grammar);
-				// TODO: print this correctly
-				println!();
-				println!("dual({}: {}) -> {} {}", name, t.name, out_type.name, out);
-			} else {
-				// println!();
-				// println!("dual({}: {}) -> {}", name, t.name, out);
-			}
-		}
+		self.print_unop(generate, "dual", |v| v.dual(grammar));
 
 		println!();
 		println!("--------------------------------------");
 		println!("REVERSE:");
-		for t in &self.nominal_types {
-			let name = &t.example_instance_name;
-			let value = Sum::instance(name, &t.members);
-			let out = value.reverse(grammar);
-			if let Some(out_type) = self.find_type(&out) {
-				let out = out_type.members.select(&out, grammar);
-				// TODO: print this correctly
-				println!();
-				println!("reverse({}: {}) -> {} {}", name, t.name, out_type.name, out);
-			} else {
-				// println!();
-				// println!("reverse({}: {}) -> {}", name, t.name, out);
-			}
-		}
+		self.print_unop(generate, "reverse", |v| v.reverse(grammar));
 
 		println!();
 		println!("--------------------------------------");
 		println!("GEOMETRIC MULTIPLICATION:");
-
-		for l_type in &self.nominal_types {
-			for r_type in &self.nominal_types {
-				let (l_name, r_name) = if l_type == r_type {
-					("l", "r")
-				} else {
-					(
-						l_type.example_instance_name.as_str(),
-						r_type.example_instance_name.as_str(),
-					)
-				};
-				let l_value = Sum::instance(l_name, &l_type.members);
-				let r_value = Sum::instance(r_name, &r_type.members);
-
-				let out = l_value.mul(r_value, grammar);
-				if let Some(typ) = self.find_type(&out) {
-					let out = typ.members.select(&out, grammar);
-					println!();
-					println!(
-						"({}: {}) * ({}: {}) -> {} {}",
-						l_name, l_type.name, r_name, r_type.name, typ.name, out
-					);
-				} else {
-					// println!();
-					// println!(
-					// 	"({}: {}) * ({}: {}) -> {}",
-					// 	l_name, l_type.name, r_name, r_type.name, out
-					// );
-				}
-			}
-		}
+		self.print_binop(generate, "*", |l, r| l.mul(r, grammar));
 
 		println!();
 		println!("--------------------------------------");
 		println!("INNER / DOT PRODUCT:");
-
-		for l_type in &self.nominal_types {
-			for r_type in &self.nominal_types {
-				let (l_name, r_name) = if l_type == r_type {
-					("l", "r")
-				} else {
-					(
-						l_type.example_instance_name.as_str(),
-						r_type.example_instance_name.as_str(),
-					)
-				};
-				let l_value = Sum::instance(l_name, &l_type.members);
-				let r_value = Sum::instance(r_name, &r_type.members);
-
-				let out = l_value.inner(r_value, grammar);
-				if let Some(typ) = self.find_type(&out) {
-					let out = typ.members.select(&out, grammar);
-					println!();
-					println!(
-						"({}: {}) | ({}: {}) -> {} {}",
-						l_name, l_type.name, r_name, r_type.name, typ.name, out
-					);
-				} else {
-					// println!();
-					// println!(
-					// 	"({}: {}) * ({}: {}) -> {}",
-					// 	l_name, l_type.name, r_name, r_type.name, out
-					// );
-				}
-			}
-		}
+		self.print_binop(generate, "|", |l, r| l.inner(r, grammar));
 
 		println!();
 		println!("--------------------------------------");
 		println!("OUTER / WEDGE PRODUCT (MEET):");
-
-		for l_type in &self.nominal_types {
-			for r_type in &self.nominal_types {
-				let (l_name, r_name) = if l_type == r_type {
-					("l", "r")
-				} else {
-					(
-						l_type.example_instance_name.as_str(),
-						r_type.example_instance_name.as_str(),
-					)
-				};
-				let l_value = Sum::instance(l_name, &l_type.members);
-				let r_value = Sum::instance(r_name, &r_type.members);
-
-				let out = l_value.outer(r_value, grammar);
-				if let Some(typ) = self.find_type(&out) {
-					let out = typ.members.select(&out, grammar);
-					println!();
-					println!(
-						"({}: {}) ^ ({}: {}) -> {} {}",
-						l_name, l_type.name, r_name, r_type.name, typ.name, out
-					);
-				} else {
-					// println!();
-					// println!(
-					// 	"({}: {}) ^ ({}: {}) -> {}",
-					// 	l_name, l_type.name, r_name, r_type.name, out
-					// );
-				}
-			}
-		}
+		self.print_binop(generate, "^", |l, r| l.outer(r, grammar));
 
 		println!();
 		println!("--------------------------------------");
 		println!("REGRESSIVE PRODUCT (JOIN):");
-
-		for l_type in &self.nominal_types {
-			for r_type in &self.nominal_types {
-				let (l_name, r_name) = if l_type == r_type {
-					("l", "r")
-				} else {
-					(
-						l_type.example_instance_name.as_str(),
-						r_type.example_instance_name.as_str(),
-					)
-				};
-				let l_value = Sum::instance(l_name, &l_type.members);
-				let r_value = Sum::instance(r_name, &r_type.members);
-
-				let out = l_value.regressive(r_value, grammar);
-				if let Some(typ) = self.find_type(&out) {
-					let out = typ.members.select(&out, grammar);
-					println!();
-					println!(
-						"({}: {}) & ({}: {}) -> {} {}",
-						l_name, l_type.name, r_name, r_type.name, typ.name, out
-					);
-				} else {
-					// println!();
-					// println!(
-					// 	"({}: {}) & ({}: {}) -> {}",
-					// 	l_name, l_type.name, r_name, r_type.name, out
-					// );
-				}
-			}
-		}
+		self.print_binop(generate, "&", |l, r| l.regressive(r, grammar));
 
 		println!();
 		println!("--------------------------------------");
 		println!("SANDWICHING:");
+		self.print_binop(generate, "SANDWICHING", |l, r| l.sandwich(r, grammar));
+	}
 
+	fn print_unop(&self, generate: Generate, op_symbol: &str, f: impl Fn(Sum) -> Sum) {
+		for t in &self.nominal_types {
+			let name = &t.example_instance_name;
+			let value = Sum::instance(name, &t.members);
+			let out = f(value);
+			if let Some(out_type) = self.find_type(&out) {
+				let out = out_type.members.select(&out, &self.grammar);
+				match generate {
+					Generate::Signature => {
+						println!("{}({}) -> {}", op_symbol, t.name, out_type.name);
+					}
+					Generate::Implementation => {
+						println!();
+						println!("{}({}: {}) -> {} {}", op_symbol, name, t.name, out_type.name, out);
+					}
+				}
+			} else {
+				// println!();
+				// println!("{}({}: {}) -> {}", op_symbol, name, t.name, out);
+			}
+		}
+	}
+
+	fn print_binop(&self, generate: Generate, op_symbol: &str, f: impl Fn(Sum, Sum) -> Sum) {
+		let grammar = &self.grammar;
 		for l_type in &self.nominal_types {
 			for r_type in &self.nominal_types {
 				let (l_name, r_name) = if l_type == r_type {
@@ -480,33 +423,32 @@ impl Generator {
 				let l_value = Sum::instance(l_name, &l_type.members);
 				let r_value = Sum::instance(r_name, &r_type.members);
 
-				let out = l_value.sandwich(r_value, grammar);
+				let out = f(l_value, r_value);
 				if let Some(out_type) = self.find_type(&out) {
-					if out_type == r_type {
+					// if out_type == r_type // TODO: for sandwiching ?
+					{
 						let out = out_type.members.select(&out, grammar);
-						println!();
-						println!(
-							"({}: {}) SANDWICHING ({}: {}) -> {} {}",
-							l_name, l_type.name, r_name, r_type.name, out_type.name, out
-						);
+						match generate {
+							Generate::Signature => {
+								println!("{} {} {} -> {}", l_type.name, op_symbol, r_type.name, out_type.name);
+							}
+							Generate::Implementation => {
+								println!();
+								println!(
+									"({}: {}) {} ({}: {}) -> {} {}",
+									l_name, l_type.name, op_symbol, r_name, r_type.name, out_type.name, out
+								);
+							}
+						}
 					}
 				} else {
 					// println!();
 					// println!(
-					// 	"({}: {}) * ({}: {}) -> {}",
-					// 	l_name, l_type.name, r_name, r_type.name, result
+					// 	"({}: {}) {} ({}: {}) -> {}",
+					// 	l_name, l_type.name, op_symbol, r_name, r_type.name, result
 					// );
 				}
-
-				// let product = (l_value.sandwich(&r_value)).simplify(grammar);
-				// println!();
-				// println!(
-				// 	"{} {} SANDWICHING {} {} -> {}",
-				// 	l_type.name, l_name, r_type.name, r_name, product
-				// );
 			}
 		}
-
-		// TODO: do the same with unary operations
 	}
 }

@@ -4,14 +4,27 @@ use crate::*;
 
 // ----------------------------------------------------------------------------
 
-/// e.g. { "x": e20, "y": e01, "w": e12 }
+/// A set of blades, e.g. { "x": e20, "y": e01, "w": e12 }
 #[derive(Clone, Eq, PartialEq)]
-pub struct Type(pub Vec<(String, Blade)>);
+pub struct Type(Vec<(String, Blade)>);
 
 impl Type {
 	/// Auto-name keys
-	pub fn from_blades(blades: Vec<Blade>) -> Self {
-		Self(blades.into_iter().map(|b| (b.to_string(), b)).collect())
+	pub fn auto_named(blades: &[&Blade]) -> Self {
+		Self(blades.iter().map(|&b| (b.to_string(), b.clone())).collect())
+	}
+
+	pub fn named(blades: &[(&str, &Blade)]) -> Self {
+		Self(
+			blades
+				.iter()
+				.map(|(name, blade)| (name.to_string(), (*blade).clone()))
+				.collect(),
+		)
+	}
+
+	pub fn members(&self) -> impl Iterator<Item = &(String, Blade)> {
+		self.0.iter()
 	}
 
 	/// Is the given value an instance of this type?
@@ -35,6 +48,10 @@ impl Type {
 				.collect(),
 		)
 	}
+
+	pub fn instance(&self, name: &str) -> Sum {
+		Sum::instance(name, self)
+	}
 }
 
 impl std::fmt::Display for Type {
@@ -44,7 +61,7 @@ impl std::fmt::Display for Type {
 			"{{\n{}\n}}",
 			self.0
 				.iter()
-				.map(|(name, blade)| format!("  {:5} {},", format!("{}:", name), blade))
+				.map(|(name, blade)| format!("  {:6} {},", format!("{}:", name), blade))
 				.join("\n")
 		)
 	}
@@ -62,7 +79,7 @@ impl std::fmt::Display for TypeInstance {
 			"{{\n{}\n}}",
 			self.0
 				.iter()
-				.map(|(name, value)| format!("  {:5} {},", format!("{}:", name), value))
+				.map(|(name, value)| format!("  {:6} {},", format!("{}:", name), value))
 				.join("\n")
 		)
 	}
@@ -72,129 +89,150 @@ impl std::fmt::Display for TypeInstance {
 
 /// A structure type with a name. TODO: RENAME
 #[derive(Clone, Eq, PartialEq)]
-pub struct NominalType {
+pub struct NamedType {
 	/// e.g. "Point"
 	pub name: String,
-	/// e.g. {e20, e01, e12}
-	pub members: Type,
+	/// The set of blades that defines this type, e.g. {e20, e01, e12}
+	pub typ: Type,
 	/// e.g. "p"
 	pub example_instance_name: String,
 	// TODO: doc-string etc
 }
 
-// ----------------------------------------------------------------------------
-
-// #[derive(strum_macros::EnumIter, Debug)]
-// pub enum UnaryOp {
-// 	Dual,
-// }
-
-#[derive(strum_macros::EnumIter, Debug)]
-pub enum BinaryOp {
-	Product,
-	// Outer,
-	// Inner,
-	// Regressive,
-	Sandwich,
+impl NamedType {
+	pub fn instance(&self, name: &str) -> Sum {
+		Sum::instance(name, &self.typ)
+	}
 }
 
 // ----------------------------------------------------------------------------
 
 pub struct GeneratorBuilder {
 	pub grammar: Grammar,
-	pub nominal_types: Vec<NominalType>,
+	pub named_types: Vec<NamedType>,
 }
 
 impl GeneratorBuilder {
+	/// dual construction, with vectors representing lines, and bivectors points
 	pub fn pga_2d() -> Self {
 		let grammar = GrammarBuilder::pga_2d().build();
 
-		let s = Blade::from_indices(vec![]);
-		let e0 = Blade::from_indices(vec![VecIdx(0)]);
-		let e1 = Blade::from_indices(vec![VecIdx(1)]);
-		let e2 = Blade::from_indices(vec![VecIdx(2)]);
-		let e01 = Blade::from_indices(vec![VecIdx(0), VecIdx(1)]);
-		let e12 = Blade::from_indices(vec![VecIdx(1), VecIdx(2)]);
-		let e20 = Blade::from_indices(vec![VecIdx(2), VecIdx(0)]);
+		let s: Blade = "s".parse().unwrap();
+		let e0: Blade = "e0".parse().unwrap();
+		let e1: Blade = "e1".parse().unwrap();
+		let e2: Blade = "e2".parse().unwrap();
+		let e01: Blade = "e01".parse().unwrap();
+		let e12: Blade = "e12".parse().unwrap();
+		let e20: Blade = "e20".parse().unwrap();
+		// let e012: Blade = "e012".parse().unwrap();
 
 		Self {
 			grammar,
-			nominal_types: vec![
-				NominalType {
+			named_types: vec![
+				NamedType {
 					name: "Line".to_string(),
-					members: Type::from_blades(vec![e1.clone(), e2.clone(), e0.clone()]),
 					example_instance_name: "l".to_string(),
+					// typ: Type::auto_named(&[&e1, &e2, &e0]),
+					typ: Type::named(&[("x", &e1), ("y", &e2), ("w", &e0)]),
 				},
-				NominalType {
+				NamedType {
 					name: "Point".to_string(),
-					members: Type::from_blades(vec![e12.clone(), e20.clone(), e01.clone()]),
 					example_instance_name: "p".to_string(),
+					// typ: Type::auto_named(&[&e12, &e20, &e01]),
+					typ: Type::named(&[("x", &e20), ("y", &e01), ("w", &e12)]),
 				},
-				NominalType {
-					name: "Transform".to_string(),
-					members: Type::from_blades(vec![s.clone(), e20.clone(), e01.clone(), e12.clone()]),
+				NamedType {
+					name: "Rotor".to_string(),
+					example_instance_name: "r".to_string(),
+					typ: Type::auto_named(&[&s, &e12]),
+				},
+				NamedType {
+					name: "Translator".to_string(),
 					example_instance_name: "t".to_string(),
+					typ: Type::auto_named(&[&s, &e20, &e01]),
 				},
+				NamedType {
+					name: "Motor".to_string(),
+					example_instance_name: "m".to_string(),
+					typ: Type::auto_named(&[&s, &e20, &e01, &e12]),
+				},
+				// Is this a Motor? Or a Transform?
+				// NamedType {
+				// 	name: "Transform".to_string(),
+				// 	example_instance_name: "t".to_string(),
+				// 	typ: Type::auto_named(&[&s, &e20, &e01, &e12, &e012]),
+				// },
 			],
 		}
 	}
 
+	/// dual construction, with vectors representing planes, bivectors lines, and trivectors points
 	pub fn pga_3d() -> Self {
 		let grammar = GrammarBuilder::pga_3d().build();
 
-		// let s = Blade::from_indices(vec![]);
+		let s = Blade::from_indices(vec![]);
 		// Planes:
-		let e0 = Blade::from_indices(vec![VecIdx(0)]);
-		let e1 = Blade::from_indices(vec![VecIdx(1)]);
-		let e2 = Blade::from_indices(vec![VecIdx(2)]);
-		let e3 = Blade::from_indices(vec![VecIdx(3)]);
+		let e0: Blade = "e0".parse().unwrap();
+		let e1: Blade = "e1".parse().unwrap();
+		let e2: Blade = "e2".parse().unwrap();
+		let e3: Blade = "e3".parse().unwrap();
 		// Translate:
-		let e01 = Blade::from_indices(vec![VecIdx(0), VecIdx(1)]);
-		let e02 = Blade::from_indices(vec![VecIdx(0), VecIdx(2)]);
-		let e03 = Blade::from_indices(vec![VecIdx(0), VecIdx(3)]);
+		let e01: Blade = "e01".parse().unwrap();
+		let e02: Blade = "e02".parse().unwrap();
+		let e03: Blade = "e03".parse().unwrap();
 		// Rotate:
-		let e12 = Blade::from_indices(vec![VecIdx(1), VecIdx(2)]);
-		let e31 = Blade::from_indices(vec![VecIdx(3), VecIdx(1)]);
-		let e23 = Blade::from_indices(vec![VecIdx(2), VecIdx(3)]);
+		let e12: Blade = "e12".parse().unwrap();
+		let e31: Blade = "e31".parse().unwrap();
+		let e23: Blade = "e23".parse().unwrap();
 		// Points:
-		let e021 = Blade::from_indices(vec![VecIdx(0), VecIdx(2), VecIdx(1)]);
-		let e013 = Blade::from_indices(vec![VecIdx(0), VecIdx(1), VecIdx(3)]);
-		let e032 = Blade::from_indices(vec![VecIdx(0), VecIdx(3), VecIdx(2)]);
-		let e123 = Blade::from_indices(vec![VecIdx(1), VecIdx(2), VecIdx(3)]);
+		let e021: Blade = "e021".parse().unwrap();
+		let e013: Blade = "e013".parse().unwrap();
+		let e032: Blade = "e032".parse().unwrap();
+		let e123: Blade = "e123".parse().unwrap();
 		// Pseduo-scalar;
-		// let e0123 = Blade::from_indices(vec![VecIdx(0), VecIdx(1), VecIdx(2), VecIdx(3)]);
+		let e0123: Blade = "e0123".parse().unwrap();
 
 		Self {
 			grammar,
-			nominal_types: vec![
-				NominalType {
-					name: "Plane".to_string(),
-					members: Type::from_blades(vec![e1.clone(), e2.clone(), e3.clone(), e0.clone()]),
-					example_instance_name: "a".to_string(),
-				},
-				NominalType {
-					name: "Line".to_string(),
-					members: Type::from_blades(vec![
-						e01.clone(),
-						e02.clone(),
-						e03.clone(),
-						e12.clone(),
-						e31.clone(),
-						e23.clone(),
-					]),
-					example_instance_name: "l".to_string(),
-				},
-				NominalType {
+			named_types: vec![
+				NamedType {
 					name: "Point".to_string(),
-					members: Type::from_blades(vec![e021.clone(), e013.clone(), e032.clone(), e123.clone()]),
+					example_instance_name: "v".to_string(),
+					typ: Type::auto_named(&[&e021, &e013, &e032, &e123]),
+				},
+				NamedType {
+					name: "Line".to_string(),
+					example_instance_name: "l".to_string(),
+					typ: Type::auto_named(&[&e01, &e02, &e03, &e12, &e31, &e23]),
+				},
+				NamedType {
+					name: "Plane".to_string(),
 					example_instance_name: "p".to_string(),
+					typ: Type::auto_named(&[&e1, &e2, &e3, &e0]),
+				},
+				NamedType {
+					name: "Rotor".to_string(),
+					example_instance_name: "r".to_string(),
+					// docstring: "Quaternion".to_string(),
+					typ: Type::auto_named(&[&s, &e12, &e31, &e23]),
+				},
+				NamedType {
+					name: "Translator".to_string(),
+					example_instance_name: "t".to_string(),
+					typ: Type::auto_named(&[&s, &e01, &e02, &e03]),
+				},
+				NamedType {
+					name: "Motor".to_string(),
+					// docstring: "Dual Quaternion".to_string(),
+					example_instance_name: "m".to_string(),
+					typ: Type::auto_named(&[&s, &e01, &e02, &e03, &e12, &e31, &e23, &e0123]),
 				},
 			],
 		}
 	}
 
 	pub fn build(self) -> Generator {
-		let GeneratorBuilder { grammar, nominal_types } = self;
+		let GeneratorBuilder { grammar, named_types } = self;
 		let mut blades: Vec<Blade> = (0..grammar.dims())
 			.map(|_| Some(false).into_iter().chain(Some(true)))
 			.multi_cartesian_product()
@@ -205,7 +243,7 @@ impl GeneratorBuilder {
 		Generator {
 			grammar,
 			blades,
-			nominal_types,
+			named_types,
 		}
 	}
 }
@@ -224,7 +262,7 @@ pub struct Generator {
 	grammar: Grammar,
 	/// The generating blades, e.g. [s, e0, e1, e2, e01, e20, e12, e012]
 	blades: Vec<Blade>,
-	nominal_types: Vec<NominalType>,
+	named_types: Vec<NamedType>,
 }
 
 impl Generator {
@@ -232,26 +270,32 @@ impl Generator {
 		&self.grammar
 	}
 
-	fn find_type(&self, value: &Sum) -> Option<&NominalType> {
+	pub fn named_types(&self) -> impl Iterator<Item = &NamedType> {
+		self.named_types.iter()
+	}
+
+	pub fn types(&self) -> impl Iterator<Item = &Type> {
+		self.named_types().map(|nt| &nt.typ)
+	}
+
+	fn find_type(&self, value: &Sum) -> Option<&NamedType> {
 		if value.is_zero() {
 			None
 		} else {
-			self.nominal_types
-				.iter()
-				.find(|t| t.members.is_value(value, &self.grammar))
+			self.named_types.iter().find(|t| t.typ.is_value(value, &self.grammar))
 		}
 	}
 
-	pub fn type_from_name(&self, name: &str) -> Option<&NominalType> {
-		self.nominal_types.iter().find(|t| t.name == name)
+	pub fn type_from_name(&self, name: &str) -> Option<&NamedType> {
+		self.named_types().find(|t| t.name == name)
 	}
 
 	pub fn format_typed_value(&self, untyped_value: &Sum) -> String {
 		if let Some(typ) = self.find_type(untyped_value) {
-			let typed_value = typ.members.select(untyped_value, &self.grammar);
+			let typed_value = typ.typ.select(untyped_value, &self.grammar);
 			format!("{} {}", typ.name, typed_value)
 		} else {
-			untyped_value.to_string()
+			untyped_value.as_string(&self.grammar)
 		}
 	}
 
@@ -264,7 +308,7 @@ impl Generator {
 		println!(" *  geometric multiplication");
 		println!(" |  dot / inner product");
 		println!(" ^  wedge / outer product (meet). (a ^ b) = !(!a & !b)");
-		println!(" &  regressive product (join).    (a & b) = !(!a ^ !b)");
+		println!(" &  antiwedge / regressive product (join).    (a & b) = !(!a ^ !b)");
 		println!(" x² = x * x");
 		println!();
 		println!(" R: Real number (scalar)");
@@ -289,13 +333,13 @@ impl Generator {
 		println!();
 		println!("Duals:");
 		for base in &unit_blades {
-			println!("  !{:<5} = {}", base, base.dual(grammar));
+			println!("  !{:<6} = {}", base, base.dual(grammar));
 		}
 
 		println!();
 		println!("Reversed:");
 		for base in &unit_blades {
-			println!("  rev {:<5} = {}", base, base.reverse());
+			println!("  rev {:<6} = {}", base, base.reverse());
 		}
 
 		println!();
@@ -329,7 +373,7 @@ impl Generator {
 		}
 
 		println!();
-		println!("Regressive product (join) multiplication table (right side & bottom row):");
+		println!("Regressive / antiwedge product (join) multiplication table (right side & bottom row):");
 		for a in &unit_blades {
 			print!("  ");
 			for b in &unit_blades {
@@ -340,9 +384,9 @@ impl Generator {
 
 		println!();
 		println!("TYPES:");
-		for t in &self.nominal_types {
+		for t in &self.named_types {
 			println!();
-			println!("{} {}", t.name, t.members);
+			println!("{} {}", t.name, t.typ);
 		}
 	}
 
@@ -361,6 +405,11 @@ impl Generator {
 
 		println!();
 		println!("--------------------------------------");
+		println!("SQUARED:");
+		self.print_unop(generate, "square", |v| v.clone().mul(v, grammar));
+
+		println!();
+		println!("--------------------------------------");
 		println!("GEOMETRIC MULTIPLICATION:");
 		self.print_binop(generate, "*", |l, r| l.mul(r, grammar));
 
@@ -376,7 +425,7 @@ impl Generator {
 
 		println!();
 		println!("--------------------------------------");
-		println!("REGRESSIVE PRODUCT (JOIN):");
+		println!("REGRESSIVE / ANTIWEDGE PRODUCT (JOIN):");
 		self.print_binop(generate, "&", |l, r| l.regressive(r, grammar));
 
 		println!();
@@ -386,12 +435,12 @@ impl Generator {
 	}
 
 	fn print_unop(&self, generate: Generate, op_symbol: &str, f: impl Fn(Sum) -> Sum) {
-		for t in &self.nominal_types {
+		for t in &self.named_types {
 			let name = &t.example_instance_name;
-			let value = Sum::instance(name, &t.members);
+			let value = Sum::instance(name, &t.typ);
 			let out = f(value);
 			if let Some(out_type) = self.find_type(&out) {
-				let out = out_type.members.select(&out, &self.grammar);
+				let out = out_type.typ.select(&out, &self.grammar);
 				match generate {
 					Generate::Signature => {
 						println!("{}({}) -> {}", op_symbol, t.name, out_type.name);
@@ -410,24 +459,19 @@ impl Generator {
 
 	fn print_binop(&self, generate: Generate, op_symbol: &str, f: impl Fn(Sum, Sum) -> Sum) {
 		let grammar = &self.grammar;
-		for l_type in &self.nominal_types {
-			for r_type in &self.nominal_types {
-				let (l_name, r_name) = if l_type == r_type {
-					("l", "r")
-				} else {
-					(
-						l_type.example_instance_name.as_str(),
-						r_type.example_instance_name.as_str(),
-					)
-				};
-				let l_value = Sum::instance(l_name, &l_type.members);
-				let r_value = Sum::instance(r_name, &r_type.members);
+		for l_type in &self.named_types {
+			for r_type in &self.named_types {
+				let l_name = l_type.example_instance_name.as_str();
+				let r_name = r_type.example_instance_name.as_str();
+				let (l_name, r_name) = if l_name == r_name { ("l", "r") } else { (l_name, r_name) };
+				let l_value = Sum::instance(l_name, &l_type.typ);
+				let r_value = Sum::instance(r_name, &r_type.typ);
 
 				let out = f(l_value, r_value);
 				if let Some(out_type) = self.find_type(&out) {
 					// if out_type == r_type // TODO: for sandwiching ?
 					{
-						let out = out_type.members.select(&out, grammar);
+						let out = out_type.typ.select(&out, grammar);
 						match generate {
 							Generate::Signature => {
 								println!("{} {} {} -> {}", l_type.name, op_symbol, r_type.name, out_type.name);

@@ -175,6 +175,30 @@ impl std::fmt::Display for Blade {
 	}
 }
 
+impl std::str::FromStr for Blade {
+	type Err = String;
+
+	fn from_str(s: &str) -> Result<Self, Self::Err> {
+		fn idx_from_char(c: char) -> Result<VecIdx, String> {
+			c.to_digit(10)
+				.ok_or_else(|| format!("Expected integer base, got '{}'", c))
+				.map(|v| VecIdx(v as usize))
+		}
+
+		if s == "s" {
+			Ok(Blade::scalar())
+		} else if s.starts_with('e') {
+			s[1..]
+				.chars()
+				.map(idx_from_char)
+				.collect::<Result<Vec<VecIdx>, String>>()
+				.map(Blade::from_indices)
+		} else {
+			Err(format!("Expected 'e' followed by digits (e.g. e21), found '{}'", s))
+		}
+	}
+}
+
 /// geometric multiplication, produces the geometric product
 impl std::ops::Mul<&Blade> for &Blade {
 	type Output = Blade;

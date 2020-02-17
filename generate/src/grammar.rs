@@ -38,7 +38,7 @@ impl GrammarBuilder {
 	pub fn pga_2d() -> Self {
 		Self {
 			vectors_squared: vec![0, 1, 1],
-			blade_conventions: vec![Blade::from_indices(vec![VecIdx(2), VecIdx(0)])],
+			blade_conventions: vec!["e20".parse().unwrap()],
 		}
 	}
 	/// Projective Geometric Algebra in 3d.
@@ -46,11 +46,7 @@ impl GrammarBuilder {
 	pub fn pga_3d() -> Self {
 		Self {
 			vectors_squared: vec![0, 1, 1, 1],
-			blade_conventions: vec![
-				Blade::from_indices(vec![VecIdx(3), VecIdx(1)]),
-				Blade::from_indices(vec![VecIdx(0), VecIdx(2), VecIdx(1)]),
-				Blade::from_indices(vec![VecIdx(0), VecIdx(3), VecIdx(2)]),
-			],
+			blade_conventions: vec!["e31".parse().unwrap(), "e021".parse().unwrap(), "e032".parse().unwrap()],
 		}
 	}
 

@@ -1,4 +1,4 @@
-use pga::pga2d::*;
+use pga::manual_pga2d::*;
 
 fn main() {
 	// let l1 = Line::from_euclidean(1.0, 0.0, 0.0);

@@ -32,15 +32,19 @@ impl SignedBlade {
 		self.sign == 0
 	}
 
+	pub fn is_negative(&self) -> bool {
+		self.sign < 0
+	}
+
 	pub fn grade(&self) -> usize {
 		self.blade.grade()
 	}
 
 	pub fn dual(&self, grammar: &Grammar) -> SignedBlade {
-		Self {
+		grammar.simplify(Self {
 			sign: self.sign,
 			blade: self.blade.dual(grammar),
-		}
+		})
 	}
 
 	/// Reverse the order of the vector factors in this blade
@@ -60,21 +64,23 @@ impl SignedBlade {
 		// The dot product is the K grade of the geometric product,
 		// where K is the absolute difference in grades between the operands.
 		let k = ((self.grade() as i64) - (other.grade() as i64)).abs() as usize;
-		let mut prod = self.geometric(other, grammar);
+		let prod = self.geometric(other, grammar);
 		if prod.blade.grade() > k {
-			prod.sign = 0;
+			Self::zero()
+		} else {
+			prod
 		}
-		prod
 	}
 
 	/// outer / wedge
 	pub fn outer(&self, other: &SignedBlade, grammar: &Grammar) -> Self {
 		let k = self.grade() + other.grade();
-		let mut prod = self.geometric(other, grammar);
+		let prod = self.geometric(other, grammar);
 		if prod.blade.grade() < k {
-			prod.sign = 0;
+			Self::zero()
+		} else {
+			prod
 		}
-		prod
 	}
 
 	pub fn regressive(&self, other: &SignedBlade, grammar: &Grammar) -> Self {

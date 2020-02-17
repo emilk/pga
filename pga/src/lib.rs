@@ -1,1 +1,1 @@
-pub mod pga2d;
+pub mod manual_pga2d;

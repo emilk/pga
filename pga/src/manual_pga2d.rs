@@ -201,14 +201,14 @@ impl_dual!(E20, -E1);
 impl_dual!(E12, E0);
 impl_dual!(E012, S);
 
-impl_reverse!(S, +);
-impl_reverse!(E0,     +);
-impl_reverse!(E1,     +);
-impl_reverse!(E2,     +);
-impl_reverse!(E01,    -);
-impl_reverse!(E20,    -);
-impl_reverse!(E12,    -);
-impl_reverse!(E012,   -);
+impl_reverse!(S,    +);
+impl_reverse!(E0,   +);
+impl_reverse!(E1,   +);
+impl_reverse!(E2,   +);
+impl_reverse!(E01,  -);
+impl_reverse!(E20,  -);
+impl_reverse!(E12,  -);
+impl_reverse!(E012, -);
 
 // -----------------------------------
 

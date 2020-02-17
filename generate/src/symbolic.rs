@@ -35,10 +35,10 @@ impl Factor {
 	}
 
 	fn sblade(&self, grammar: &Grammar) -> SignedBlade {
-		match self {
+		grammar.simplify(match self {
 			Factor::Normal(x) => SignedBlade::unit(&x.blade),
 			Factor::Dual(x) => SignedBlade::unit(&x.blade).dual(grammar),
-		}
+		})
 	}
 
 	pub fn dual(self) -> Self {
@@ -415,11 +415,10 @@ impl Sum {
 
 	pub fn instance(variable: &str, typ: &Type) -> Self {
 		Self(
-			typ.0
-				.iter()
-				.map(|(member, blade)| {
+			typ.members()
+				.map(|(name, blade)| {
 					Term::from_factor(Factor::Normal(Symbol {
-						name: format!("{}.{}", variable, member),
+						name: format!("{}.{}", variable, name),
 						blade: blade.clone(),
 					}))
 				})
@@ -438,6 +437,27 @@ impl Sum {
 			})
 			.cloned()
 			.collect())
+	}
+
+	pub fn as_string(&self, grammar: &Grammar) -> String {
+		let mut blades = std::collections::BTreeMap::<Blade, Vec<String>>::new();
+		for term in &self.0 {
+			let sblade = term.sblade(grammar);
+			blades.entry(sblade.blade.clone()).or_default().push({
+				if sblade.is_negative() {
+					format!("-{}", term)
+				} else {
+					term.to_string()
+				}
+			})
+		}
+		format!(
+			"{{\n{}\n}}",
+			blades
+				.iter()
+				.map(|(blade, parts)| format!("  {:6} {}", format!("{}:", blade), parts.iter().join(" + ")))
+				.join(",\n")
+		)
 	}
 
 	pub fn sblades(&self, grammar: &Grammar) -> Vec<SignedBlade> {

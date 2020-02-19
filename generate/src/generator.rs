@@ -115,7 +115,7 @@ pub struct GeneratorBuilder {
 impl GeneratorBuilder {
 	/// dual construction, with vectors representing lines, and bivectors points
 	pub fn pga_2d() -> Self {
-		let grammar = GrammarBuilder::pga_2d().build();
+		let grammar = Grammar::pga_2d();
 
 		let s: Blade = "s".parse().unwrap();
 		let e0: Blade = "e0".parse().unwrap();
@@ -141,21 +141,21 @@ impl GeneratorBuilder {
 					// typ: Type::auto_named(&[&e12, &e20, &e01]),
 					typ: Type::named(&[("x", &e20), ("y", &e01), ("w", &e12)]),
 				},
-				NamedType {
-					name: "Rotor".to_string(),
-					example_instance_name: "r".to_string(),
-					typ: Type::auto_named(&[&s, &e12]),
-				},
-				NamedType {
-					name: "Translator".to_string(),
-					example_instance_name: "t".to_string(),
-					typ: Type::auto_named(&[&s, &e20, &e01]),
-				},
-				NamedType {
-					name: "Motor".to_string(),
-					example_instance_name: "m".to_string(),
-					typ: Type::auto_named(&[&s, &e20, &e01, &e12]),
-				},
+				// NamedType {
+				// 	name: "Rotor".to_string(),
+				// 	example_instance_name: "r".to_string(),
+				// 	typ: Type::auto_named(&[&s, &e12]),
+				// },
+				// NamedType {
+				// 	name: "Translator".to_string(),
+				// 	example_instance_name: "t".to_string(),
+				// 	typ: Type::auto_named(&[&s, &e20, &e01]),
+				// },
+				// NamedType {
+				// 	name: "Motor".to_string(),
+				// 	example_instance_name: "m".to_string(),
+				// 	typ: Type::auto_named(&[&s, &e20, &e01, &e12]),
+				// },
 				// Is this a Motor? Or a Transform?
 				// NamedType {
 				// 	name: "Transform".to_string(),
@@ -168,7 +168,7 @@ impl GeneratorBuilder {
 
 	/// dual construction, with vectors representing planes, bivectors lines, and trivectors points
 	pub fn pga_3d() -> Self {
-		let grammar = GrammarBuilder::pga_3d().build();
+		let grammar = Grammar::pga_3d();
 
 		let s = Blade::from_indices(vec![]);
 		// Planes:
@@ -210,23 +210,23 @@ impl GeneratorBuilder {
 					example_instance_name: "p".to_string(),
 					typ: Type::auto_named(&[&e1, &e2, &e3, &e0]),
 				},
-				NamedType {
-					name: "Rotor".to_string(),
-					example_instance_name: "r".to_string(),
-					// docstring: "Quaternion".to_string(),
-					typ: Type::auto_named(&[&s, &e12, &e31, &e23]),
-				},
-				NamedType {
-					name: "Translator".to_string(),
-					example_instance_name: "t".to_string(),
-					typ: Type::auto_named(&[&s, &e01, &e02, &e03]),
-				},
-				NamedType {
-					name: "Motor".to_string(),
-					// docstring: "Dual Quaternion".to_string(),
-					example_instance_name: "m".to_string(),
-					typ: Type::auto_named(&[&s, &e01, &e02, &e03, &e12, &e31, &e23, &e0123]),
-				},
+				// NamedType {
+				// 	name: "Rotor".to_string(),
+				// 	example_instance_name: "r".to_string(),
+				// 	// docstring: "Quaternion".to_string(),
+				// 	typ: Type::auto_named(&[&s, &e12, &e31, &e23]),
+				// },
+				// NamedType {
+				// 	name: "Translator".to_string(),
+				// 	example_instance_name: "t".to_string(),
+				// 	typ: Type::auto_named(&[&s, &e01, &e02, &e03]),
+				// },
+				// NamedType {
+				// 	name: "Motor".to_string(),
+				// 	// docstring: "Dual Quaternion".to_string(),
+				// 	example_instance_name: "m".to_string(),
+				// 	typ: Type::auto_named(&[&s, &e01, &e02, &e03, &e12, &e31, &e23, &e0123]),
+				// },
 			],
 		}
 	}

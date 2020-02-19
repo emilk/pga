@@ -4,8 +4,18 @@ use itertools::Itertools;
 
 use crate::{Blade, SignedBlade, VecIdx};
 
-pub struct GrammarBuilder {
-	/// what you get when you sign the input vectors,
+pub struct Grammar {
+	/// what you get when you square the input vectors,
+	/// e.g. [0, 1, 1] would specify the 2d gpa of e0^2=0  e1^2=1  e2^2=1
+	vectors_squared: Vec<i32>,
+
+	/// Optionally override the order of the vector bases in a multivector,
+	/// e.g. maybe you prefer the output to use `e20` over `-e02`.
+	blade_conventions: BTreeMap<Blade, SignedBlade>,
+}
+
+impl Grammar {
+	/// What you get when you square the input vectors,
 	/// e.g. 0++ would specify the 2d gpa of e0^2=0  e1^2=1  e2^2=1
 	/// The standard form is the integers (p, m, z)
 	/// where p : number of vectors that square to +1
@@ -14,77 +24,54 @@ pub struct GrammarBuilder {
 	/// We allow others orders.
 	/// (3, 0, 0): 3d euclidean vector space
 	/// (3, 0, 1): 3d projective geometric algebra
-	pub vectors_squared: Vec<i32>,
+	pub fn from_vectors_squared(vectors_squared: Vec<i32>) -> Self {
+		Self {
+			vectors_squared,
+			blade_conventions: Default::default(),
+		}
+	}
 
-	/// Optionally specify preferred order of the vector bases in a multivector,
-	/// e.g. maybe you prefer to use `e20` as a base rather than `e02`.
-	blade_conventions: Vec<Blade>,
-	// TODO: allow changing the order (in multiplication tables, types etc) of e.e. `e20` and `e12`?
-}
+	/// Set preference of vector order in a blade.
+	/// For instance, you can decide to use `e20` instead of the default `e02`
+	pub fn set_blade_convention(&mut self, convention: Blade) {
+		for permutation in convention
+			.indices()
+			.iter()
+			.copied()
+			.permutations(convention.indices().len())
+			.map(Blade::from_indices)
+		{
+			let (canonical_sign, canonical_sorted) = convention.sorted();
+			let (permutation_sign, permutation_sorted) = permutation.sorted();
+			assert_eq!(canonical_sorted, permutation_sorted);
 
-pub struct Grammar {
-	/// what you get when you sign the input vectors,
-	/// e.g. 0++ would specify the 2d gpa of e0^2=0  e1^2=1  e2^2=1
-	vectors_squared: Vec<i32>,
+			self.blade_conventions.insert(
+				permutation,
+				SignedBlade {
+					sign: canonical_sign * permutation_sign,
+					blade: convention.clone(),
+				},
+			);
+		}
+	}
 
-	/// Optionally override the order of the vector bases in a multivector,
-	/// e.g. maybe you prefer the output to use `e20` over `-e02`.
-	blade_conventions: BTreeMap<Blade, SignedBlade>,
-}
-
-impl GrammarBuilder {
 	/// Projective Geometric Algebra in 2d.
 	/// e0^2=0  e1^2=1  e2^2=1
 	pub fn pga_2d() -> Self {
-		Self {
-			vectors_squared: vec![0, 1, 1],
-			blade_conventions: vec!["e20".parse().unwrap()],
-		}
+		let mut g = Self::from_vectors_squared(vec![0, 1, 1]);
+		g.set_blade_convention("e20".parse().unwrap()); // TODO: fix e1.dual()???
+		g
 	}
 	/// Projective Geometric Algebra in 3d.
 	/// e0^2=0  e1^2=1  e2^2=1 e3^3=1
 	pub fn pga_3d() -> Self {
-		Self {
-			vectors_squared: vec![0, 1, 1, 1],
-			blade_conventions: vec!["e31".parse().unwrap(), "e021".parse().unwrap(), "e032".parse().unwrap()],
-		}
+		let mut g = Self::from_vectors_squared(vec![0, 1, 1, 1]);
+		g.set_blade_convention("e31".parse().unwrap());
+		g.set_blade_convention("e021".parse().unwrap());
+		g.set_blade_convention("e032".parse().unwrap());
+		g
 	}
 
-	pub fn build(self) -> Grammar {
-		// Generate translations for e.g. e02 -> e20
-		let mut blade_conventions = BTreeMap::new();
-		for convention in self.blade_conventions {
-			for permutation in convention
-				.indices()
-				.iter()
-				.copied()
-				.permutations(convention.indices().len())
-				.map(Blade::from_indices)
-			{
-				let (canonical_sign, canonical_sorted) = convention.sorted();
-				let (permutation_sign, permutation_sorted) = permutation.sorted();
-				assert_eq!(canonical_sorted, permutation_sorted);
-
-				if permutation != convention {
-					blade_conventions.insert(
-						permutation,
-						SignedBlade {
-							sign: canonical_sign * permutation_sign,
-							blade: convention.clone(),
-						},
-					);
-				}
-			}
-		}
-
-		Grammar {
-			vectors_squared: self.vectors_squared,
-			blade_conventions,
-		}
-	}
-}
-
-impl Grammar {
 	/// number of vectors, dimensionality of the vector space
 	pub fn dims(&self) -> usize {
 		self.vectors_squared.len()

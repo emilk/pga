@@ -8,6 +8,21 @@
 pub struct Zero {}
 
 /// x.dual() = !x
+/// Scalar <-> pseudoscalar, etc
+/// in 2d, points and lines are duals to each other.
+/// In 3d, points and planes are dual to each other.
+/*
+Consider a simple 2D PHGA with
+
+e0=W, e1=X, e2=Y
+X^2=1, Y^2=1, W^2=0
+
+A point is {x: X,  y: Y,  w: W}
+A line  is {x: YW, y: WX, w: XY}
+And these are dual to each other (same x,y,z)
+
+Now you can see the dual as a form of transpose.
+*/
 pub trait Dual {
 	type Output;
 	fn dual(self) -> Self::Output;

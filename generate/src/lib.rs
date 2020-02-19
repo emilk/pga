@@ -6,13 +6,7 @@ mod grammar;
 mod signed_blade;
 mod symbolic;
 
-pub use {
-    blade::Blade,
-    generator::*,
-    grammar::{Grammar, GrammarBuilder},
-    signed_blade::SignedBlade,
-    symbolic::*,
-};
+pub use {blade::Blade, generator::*, grammar::Grammar, signed_blade::SignedBlade, symbolic::*};
 
 #[macro_export]
 macro_rules! collect {

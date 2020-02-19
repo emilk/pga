@@ -3,10 +3,12 @@ use generate::*;
 // ----------------------------------------------------------------------------
 
 fn main() {
-	let generator = GeneratorBuilder::pga_2d().build();
-	// let generator = GeneratorBuilder::pga_3d().build();
+	// let generator = GeneratorBuilder::pga_2d().build();
+	let generator = GeneratorBuilder::pga_3d().build();
 	generator.print();
 	generator.print_ops(Generate::Signature);
+
+	// TODO: start not with a generator, but by manually pulling out parts of a grammar, like below:
 
 	// explore square of a point
 	// println!();

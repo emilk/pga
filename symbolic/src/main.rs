@@ -3,10 +3,10 @@
 
 /// Which base vector (e0, e1 or e2?)
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
-struct VecIdx(usize);
+pub struct VecIdx(usize);
 
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
-enum Op {
+pub enum Op {
 	/// Indicated a scalar times something.
 	/// Prod(vec![X, 3, Y, 4]) simplifies to Term(Prod(vec![X, Y]), 12)
 	/// In its simplest form, the scalar is never 0 or 1
@@ -34,13 +34,18 @@ enum Op {
 /// A type is some sort of multivector.
 /// A value is a linear combination of types.
 #[derive(Clone, Debug)]
-enum Type {
+pub enum Type {
 	Zero,
 	// One,
 	/// The scalar type, i.e. 1
-	S,
+	// S,
 	/// The vector types
-	Vec(VecIdx),
+	// Vec(VecIdx),
+
+	/// Blade(vec![])     = scalar
+	/// Blade(vec![0])    = e01
+	/// Blade(vec![2, 0]) = e02
+	Blade(Vec<VecIdx>),
 	// /// Tuple-type, linear combination of blades
 	// /// Blades(vec![])       = () = Zero
 	// /// Blades(vec![S])      = (S)
@@ -50,17 +55,17 @@ enum Type {
 }
 
 /// named members
-// enum Struct(Vec<String, Type>)
+// pub enum Struct(Vec<String, Type>)
 
 #[derive(Clone, Debug)]
-struct Typedef {
+pub struct Typedef {
 	name: String,
 	typ: Type,
 }
 
 /// In order of preference (first match).
 #[derive(Clone, Debug, Default)]
-struct Types(Vec<Typedef>);
+pub struct Types(Vec<Typedef>);
 
 /// what you get when you square the input vectors,
 /// e.g. [0, 1, 1] would specify the 2d gpa of e0^2=0  e1^2=1  e2^2=1
@@ -69,10 +74,27 @@ pub struct Grammar(Vec<i32>);
 // ----------------------------------------------------------------------------
 
 impl Type {
+	fn scalar() -> Self {
+		Type::Blade(vec![])
+	}
+
+	fn vec(vi: VecIdx) -> Self {
+		Type::Blade(vec![vi])
+	}
+
+	fn blade(vecs: &[VecIdx]) -> Self {
+		Type::Blade(vecs.to_vec())
+	}
+
 	fn one(&self) -> Op {
 		match self {
-			Type::S => Op::one(),
-			Type::Vec(vi) => Op::Vec(*vi),
+			// Type::S => Op::one(),
+			// Type::Vec(vi) => Op::Vec(*vi),
+			Type::Blade(vecs) => match vecs.len() {
+				0 => Op::one(),
+				1 => Op::Vec(vecs[0]),
+				_ => Op::Prod(vecs.iter().copied().map(Op::Vec).collect()),
+			},
 			_ => panic!(),
 		}
 	}
@@ -97,8 +119,9 @@ impl Types {
 	fn vec_name(&self, vi: VecIdx) -> &str {
 		self.0
 			.iter()
-			.find(|td| match td.typ {
-				Type::Vec(v) if v == vi => true,
+			.find(|td| match &td.typ {
+				// Type::Vec(v) if v == vi => true,
+				Type::Blade(vecs) if vecs.len() == 1 && vecs[0] == vi => true,
 				_ => false,
 			})
 			.map(|td| td.name.as_str())
@@ -115,7 +138,7 @@ impl Op {
 				if **op == Op::one() {
 					s.to_string()
 				} else {
-					format!("{} * {}", s, op.rust(t))
+					format!("{} * ({})", s, op.rust(t))
 				}
 			}
 			Op::Vec(vi) => t.vec_name(*vi).to_string(),
@@ -130,7 +153,7 @@ impl Op {
 				if factors.is_empty() {
 					"1".to_string()
 				} else {
-					factors.iter().map(|factor| factor.rust(t)).join(" * ")
+					factors.iter().map(|factor| format!("({})", factor.rust(t))).join(" * ")
 				}
 			}
 		}
@@ -144,12 +167,22 @@ impl Op {
 		Op::Prod(vec![])
 	}
 
-	fn scalar(s: i32) -> Op {
+	fn scalar(s: i32) -> Self {
 		match s {
 			0 => Self::zero(),
 			1 => Self::one(),
 			s => Op::Term(Op::one().into(), s),
 		}
+	}
+
+	fn is_zero(&self) -> bool {
+		// Needs to be simplified!
+		self == &Self::zero()
+	}
+
+	fn is_one(&self) -> bool {
+		// Needs to be simplified!
+		self ==& Self::one()
 	}
 
 	fn as_scalar(&self) -> Option<i32> {
@@ -159,11 +192,23 @@ impl Op {
 		}
 	}
 
+	fn as_factors(self) -> Vec<Op> {
+		match self {
+			Op::Term(op, scalar) => {
+				let mut factors = op.as_factors();
+				factors.push(Op::scalar(scalar));
+				factors
+			}
+			Op::Prod(factors) => factors,
+			op => vec![op],
+		}
+	}
+
 	fn typ(&self, g: Option<&Grammar>) -> Option<Type> {
 		match self {
 			Op::Term(_, 0) => Some(Type::Zero),
 			Op::Term(op, _) => op.typ(g),
-			Op::Vec(vi) => Some(Type::Vec(*vi)),
+			Op::Vec(vi) => Some(Type::vec(*vi)),
 			Op::Sum(terms) => {
 				if terms.is_empty() {
 					Some(Type::Zero)
@@ -173,7 +218,7 @@ impl Op {
 			}
 			Op::Prod(factors) => {
 				if factors.is_empty() {
-					Some(Type::S) // TODO: Type::One ?
+					Some(Type::scalar()) // TODO: Type::One ?
 				} else {
 					None // TODO
 				}
@@ -195,7 +240,7 @@ impl Op {
 					}
 					op => op,
 				};
-				if scalar == 0 || op == Op::zero() {
+				if scalar == 0 || op.is_zero() {
 					Self::zero()
 				} else if scalar == 1 {
 					op
@@ -208,8 +253,7 @@ impl Op {
 				for term in &mut terms {
 					term.simplify_inplace(g);
 				}
-
-				// TODO: remove zeros
+				terms.retain(|f| !f.is_zero());
 
 				terms = join_terms(terms, g);
 
@@ -221,22 +265,23 @@ impl Op {
 					Op::Sum(terms)
 				}
 			}
-			Op::Prod(mut factors) => {
-				for fac in &mut factors {
-					fac.simplify_inplace(g);
+			Op::Prod(factors) => {
+				let mut new_scalar = 1;
+				let mut new_factors = vec![];
+
+				for fac in factors {
+					for fac in fac.as_factors() {
+						if let Some(scalar) = fac.as_scalar() {
+							new_scalar *= scalar;
+						} else {
+							new_factors.push(fac);
+						}
+					}
 				}
+				let mut scalar = new_scalar;
+				let mut factors = new_factors;
 
-				// TODO: remove ones
-
-				sort_factors(&mut factors, g);
-
-				// TODO: join
-
-				let mut scalar = 1;
-				while let Some(s) = factors.first().and_then(Op::as_scalar) {
-					scalar *= s;
-					factors.remove(0);
-				}
+				scalar *= sort_factors(&mut factors, g);
 
 				if scalar == 0 {
 					Op::zero()
@@ -312,7 +357,8 @@ fn join_terms(terms: Vec<Op>, _g: Option<&Grammar>) -> Vec<Op> {
 	collapsed_terms.into_iter().map(Term::into_op).collect()
 }
 
-fn sort_factors(factors: &mut Vec<Op>, g: Option<&Grammar>) {
+#[must_use]
+fn sort_factors(factors: &mut Vec<Op>, g: Option<&Grammar>) -> i32 {
 	// Any sign-change due to swapping
 	let mut sign = 1;
 
@@ -320,11 +366,24 @@ fn sort_factors(factors: &mut Vec<Op>, g: Option<&Grammar>) {
 	while {
 		let mut did_swap = false;
 		for i in 1..factors.len() {
-			if factors[i - 1] > factors[i] {
+			if factors[i - 1] == factors[i] {
+				// Square it!
+				if let Some(g) = g {
+				if let  Some(t) = factors[i].typ(Some(g)) {
+					if  let Some(s) = square_to_sign(t, g) {
+						sign *= s;
+						factors.remove(i);
+						factors.remove(i-1);
+						did_swap = true;
+						break;
+					}
+				}
+}
+			} else if factors[i - 1] > factors[i] {
 				// We want to swap them. Can we?
 				let lt = factors[i - 1].typ(g);
 				let rt = factors[i].typ(g);
-				if let Some(sign_change) = commutativeness(lt, rt) {
+				if let Some(sign_change) = geom_mul_commutativeness(lt, rt) {
 					factors.swap(i - 1, i);
 					did_swap = true;
 					sign *= sign_change;
@@ -334,23 +393,54 @@ fn sort_factors(factors: &mut Vec<Op>, g: Option<&Grammar>) {
 		did_swap
 	} {}
 
-	assert!(sign == -1 || sign == 1);
-	if sign == -1 {
-		factors.insert(0, Op::scalar(sign));
-	}
+	sign
 }
 
 /// Can we swap these two factors, and if so what is the sign change?
-fn commutativeness(l: Option<Type>, r: Option<Type>) -> Option<i32> {
+fn geom_mul_commutativeness(l: Option<Type>, r: Option<Type>) -> Option<i32> {
 	match (l?, r?) {
-		(Type::Vec(l), Type::Vec(r)) => {
-			if l == r {
+		(Type::Blade(l), Type::Blade(r)) => {
+			if l.is_empty() || r.is_empty() {
+				// scalar times whatever commutes
 				Some(1)
+			} else if l.len() == 1 && r.len() == 1 {
+				// vectors
+				if l[0] == r[0] {
+					// Same vector
+					Some(1)
+				} else {
+					Some(-1)
+				}
 			} else {
-				Some(-1)
+				None // TODO!
 			}
 		}
 		_ => None,
+	}
+}
+
+/// Does this type square to either -1, 0 or +1?
+fn square_to_sign(t: Type, g: &Grammar) -> Option<i32> {
+	match t {
+		Type::Zero => Some(0),
+		Type::Blade(v) => {
+			if v.is_empty() {
+				None
+			} else if v.len() == 1{
+				Some(g.square(v[0]))
+			} else {
+				None // TODO
+			}
+		}
+	}
+}
+
+// ----------------------------------------------------------------------------
+
+impl Grammar {
+	/// What do we get when we square this basis vector?
+	pub fn square(&self, v: VecIdx) -> i32 {
+		self.0[v.0]
 	}
 }
 
@@ -358,11 +448,45 @@ fn commutativeness(l: Option<Type>, r: Option<Type>) -> Option<i32> {
 
 fn main() {
 	let mut t = Types::default();
-	t.insert("X", Type::Vec(VecIdx(0)));
-	t.insert("Y", Type::Vec(VecIdx(1)));
-	t.insert("W", Type::Vec(VecIdx(2)));
+	let x = VecIdx(0);
+	let y = VecIdx(1);
+	let w = VecIdx(2);
+	t.insert("R", Type::scalar());
+	t.insert("X", Type::vec(x));
+	t.insert("Y", Type::vec(y));
+	t.insert("W", Type::vec(w));
+	t.insert("YW", Type::blade(&[y, w]));
+	t.insert("WX", Type::blade(&[w, x]));
+	t.insert("XY", Type::blade(&[x, y]));
+	t.insert("XYW", Type::blade(&[x, y, w]));
+
+	let g = Grammar(vec![1,1,0]);
+
 	let x_type = t.get("X");
 	let y_type = t.get("Y");
+
+	println!("{:?}", Op::Prod(vec![t.get("R").one(), t.get("R").one()]).simplify(Some(&g)).rust(&t));
+
+	let unit_blades = vec![
+		t.get("R"),
+		t.get("X"),
+		t.get("Y"),
+		t.get("W"),
+		t.get("YW"),
+		t.get("WX"),
+		t.get("XY"),
+		t.get("XYW"),
+	];
+	println!();
+	println!("Geometric multiplication table (left side * top row):");
+	for a in &unit_blades {
+		print!("  ");
+		for b in &unit_blades {
+			print!("{:<8}    ", Op::Prod(vec![a.one(), b.one()]).simplify(Some(&g)).rust(&t));
+		}
+		println!();
+	}
+
 
 	assert_eq!(x_type.one().rust(&t), "X");
 
@@ -374,5 +498,5 @@ fn main() {
 	]);
 	assert_eq!(op.rust(&t), "X * Y + Y * X");
 
-	assert_eq!(op.simplify(None).rust(&t), "0");
+	assert_eq!(op.simplify(Some(&g)).rust(&t), "0");
 }

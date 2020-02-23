@@ -29,12 +29,25 @@ fn main() {
 		t.get("XY"),
 		t.get("XYW"),
 	];
+
 	println!();
 	println!("Geometric multiplication table (left side * top row):");
 	for a in &unit_blades {
 		print!("  ");
 		for b in &unit_blades {
-			let prod = Op::Prod(vec![a.one(), b.one()]);
+			let prod = Op::geometric(vec![a.one(), b.one()]);
+			let prod = prod.simplify(Some(&g));
+			print!("{:<10} ", prod.rust(&t));
+		}
+		println!();
+	}
+
+	println!();
+	println!("Wedge multiplication table (left side ^ top row):");
+	for a in &unit_blades {
+		print!("  ");
+		for b in &unit_blades {
+			let prod = Op::wedge(vec![a.one(), b.one()]);
 			let prod = prod.simplify(Some(&g));
 			print!("{:<10} ", prod.rust(&t));
 		}
@@ -43,11 +56,11 @@ fn main() {
 
 	assert_eq!(x_type.one().rust(&t), "X");
 
-	assert_eq!(Op::Prod(vec![x_type.one(), y_type.one()]).rust(&t), "XY");
+	assert_eq!(Op::wedge(vec![x_type.one(), y_type.one()]).rust(&t), "XY");
 
 	let op = Op::Sum(vec![
-		Op::Prod(vec![x_type.one(), y_type.one()]),
-		Op::Prod(vec![y_type.one(), x_type.one()]),
+		Op::wedge(vec![x_type.one(), y_type.one()]),
+		Op::wedge(vec![y_type.one(), x_type.one()]),
 	]);
 	assert_eq!(op.rust(&t), "XY + -XY");
 

@@ -20,7 +20,7 @@ impl Type {
 			Type::Blade(vecs) => match vecs.len() {
 				0 => Op::one(),
 				1 => Op::Vec(vecs[0]),
-				_ => Op::Prod(vecs.iter().copied().map(Op::Vec).collect()),
+				_ => Op::wedge(vecs.iter().copied().map(Op::Vec).collect()),
 			},
 			_ => panic!(),
 		}

@@ -64,7 +64,7 @@ impl Op {
 					Op::Sum(terms)
 				}
 			}
-			Op::Prod(factors) => simplify_factors(factors, g),
+			Op::Prod(product, factors) => simplify_product(product, factors, g),
 		}
 	}
 
@@ -79,7 +79,7 @@ impl Op {
 				factors.push(Op::scalar(scalar));
 				factors
 			}
-			Op::Prod(factors) => factors,
+			Op::Prod(product, factors) => factors,
 			op => vec![op],
 		}
 	}
@@ -111,7 +111,7 @@ fn join_terms(terms: Vec<Op>, _g: Option<&Grammar>) -> Vec<Op> {
 }
 
 #[must_use]
-fn simplify_factors(factors: Vec<Op>, g: Option<&Grammar>) -> Op {
+fn simplify_product(product: Product, factors: Vec<Op>, g: Option<&Grammar>) -> Op {
 	let mut new_scalar = 1;
 	let mut new_factors = vec![];
 
@@ -127,7 +127,7 @@ fn simplify_factors(factors: Vec<Op>, g: Option<&Grammar>) -> Op {
 	let mut scalar = new_scalar;
 	let mut factors = new_factors;
 
-	scalar *= sort_factors(&mut factors, g);
+	scalar *= sort_factors(product, &mut factors, g);
 
 	if scalar == 0 {
 		Op::zero()
@@ -137,15 +137,15 @@ fn simplify_factors(factors: Vec<Op>, g: Option<&Grammar>) -> Op {
 		} else if factors.len() == 1 {
 			factors.remove(0)
 		} else {
-			Op::Prod(factors)
+			Op::Prod(product, factors)
 		}
 	} else {
-		Op::Term(Op::Prod(factors).into(), scalar).simplify(g)
+		Op::Term(Op::Prod(product, factors).into(), scalar).simplify(g)
 	}
 }
 
 #[must_use]
-fn sort_factors(factors: &mut Vec<Op>, g: Option<&Grammar>) -> i32 {
+fn sort_factors(product: Product, factors: &mut Vec<Op>, g: Option<&Grammar>) -> i32 {
 	// Any sign-change due to swapping
 	let mut sign = 1;
 
@@ -157,7 +157,7 @@ fn sort_factors(factors: &mut Vec<Op>, g: Option<&Grammar>) -> i32 {
 				// Square it!
 				if let Some(g) = g {
 					if let Some(t) = factors[i].typ(Some(g)) {
-						if let Some(s) = square_to_sign(t, g) {
+						if let Some(s) = square_to_sign(product, &t, g) {
 							sign *= s;
 							factors.remove(i);
 							factors.remove(i - 1);
@@ -170,7 +170,7 @@ fn sort_factors(factors: &mut Vec<Op>, g: Option<&Grammar>) -> i32 {
 				// We want to swap them. Can we?
 				let lt = factors[i - 1].typ(g);
 				let rt = factors[i].typ(g);
-				if let Some(sign_change) = geom_mul_commutativeness(lt, rt) {
+				if let Some(sign_change) = commutativeness(product, lt, rt) {
 					factors.swap(i - 1, i);
 					did_swap = true;
 					sign *= sign_change;
@@ -184,7 +184,7 @@ fn sort_factors(factors: &mut Vec<Op>, g: Option<&Grammar>) -> i32 {
 }
 
 /// Can we swap these two factors, and if so what is the sign change?
-fn geom_mul_commutativeness(l: Option<Type>, r: Option<Type>) -> Option<i32> {
+fn commutativeness(product: Product, l: Option<Type>, r: Option<Type>) -> Option<i32> {
 	match (l?, r?) {
 		(Type::Blade(l), Type::Blade(r)) => {
 			if l.is_empty() || r.is_empty() {
@@ -207,17 +207,25 @@ fn geom_mul_commutativeness(l: Option<Type>, r: Option<Type>) -> Option<i32> {
 }
 
 /// Does this type square to either -1, 0 or +1?
-fn square_to_sign(t: Type, g: &Grammar) -> Option<i32> {
+fn square_to_sign(product: Product, t: &Type, g: &Grammar) -> Option<i32> {
 	match t {
 		Type::Zero => Some(0),
 		Type::Blade(v) => {
 			if v.is_empty() {
 				None
 			} else if v.len() == 1 {
-				Some(g.square(v[0]))
+				match product {
+					Product::Geometric => Some(g.square(v[0])),
+					Product::Wedge => Some(0),
+				}
 			} else {
 				None // TODO
 			}
 		}
+		Type::Struct(members) => match members.len() {
+			0 => Some(0),
+			1 => square_to_sign(product, &members[0].1, g),
+			_ => None,
+		},
 	}
 }

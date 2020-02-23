@@ -50,7 +50,7 @@ impl Op {
 			// Op::S(s) => s.to_string(),
 			Op::Vec(vi) => RustExpr::atom(t.vec_name(*vi)),
 			Op::Term(op, s) => {
-				if **op == Op::one() {
+				if op.is_one() {
 					RustExpr::atom(s)
 				} else if *s == -1 {
 					RustExpr(
@@ -73,53 +73,24 @@ impl Op {
 					RustExpr(Precedence::Sum, terms.iter().map(|term| term.rust(t)).join(" + "))
 				}
 			}
-			Op::Prod(factors) => {
+			Op::Prod(product, factors) => {
 				if factors.is_empty() {
 					RustExpr::atom("1")
 				} else if factors.len() == 1 {
 					factors[0].rust_expr(t)
 				} else {
+					let operator = match product {
+						Product::Geometric => " * ",
+						Product::Wedge => " ^ ",
+					};
 					RustExpr(
 						Precedence::Product,
 						factors
 							.iter()
 							.map(|factor| factor.rust_expr(t).enclose_if_less(Precedence::Product))
-							.join(" * "),
+							.join(operator),
 					)
 				}
-			}
-		}
-	}
-
-	/// Returns this Op in terms of a multiple of a blade, if possible
-	fn as_blade(&self) -> Option<(i32, Vec<VecIdx>)> {
-		match self {
-			Op::Vec(vi) => Some((1, vec![*vi])),
-			Op::Term(op, s) => {
-				if let Some((sign, blade)) = op.as_blade() {
-					Some((s * sign, blade))
-				} else {
-					None
-				}
-			}
-			Op::Sum(terms) => {
-				if terms.is_empty() {
-					Some((0, vec![]))
-				} else if terms.len() == 1 {
-					terms[0].as_blade()
-				} else {
-					None // assuming we are simplified
-				}
-			}
-			Op::Prod(factors) => {
-				let mut sign = 1;
-				let mut blade = vec![];
-				for f in factors {
-					let (s, mut b) = f.as_blade()?;
-					sign *= s;
-					blade.append(&mut b);
-				}
-				Some((sign, blade))
 			}
 		}
 	}

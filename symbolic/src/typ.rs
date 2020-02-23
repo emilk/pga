@@ -64,17 +64,17 @@ impl Types {
 		&self.get_typedef(name).typ
 	}
 
-	pub fn vec_name(&self, vi: VecIdx) -> &str {
-		self.types
-			.iter()
-			.find(|td| match &td.typ {
-				// Type::Vec(v) if v == vi => true,
-				Type::Blade(vecs) if vecs.len() == 1 && vecs[0] == vi => true,
-				_ => false,
-			})
-			.map(|td| td.name.as_str())
-			.unwrap()
-	}
+	// pub fn vec_name(&self, vi: VecIdx) -> &str {
+	// 	self.types
+	// 		.iter()
+	// 		.find(|td| match &td.typ {
+	// 			// Type::Vec(v) if v == vi => true,
+	// 			Type::Blade(vecs) if vecs.len() == 1 && vecs[0] == vi => true,
+	// 			_ => false,
+	// 		})
+	// 		.map(|td| td.name.as_str())
+	// 		.unwrap()
+	// }
 
 	pub fn blade_name(&self, blade: &[VecIdx]) -> Option<(i32, &str)> {
 		let (sign, blade) = sort_blade(blade.to_vec());
@@ -98,3 +98,65 @@ pub fn sort_blade(mut b: Vec<VecIdx>) -> (i32, Vec<VecIdx>) {
 	}
 	(sign, b)
 }
+
+impl Op {
+	/// Detect named types and replace
+	pub fn typify(self, t: &Types) -> Self {
+		// if let Op::Sum(terms) = self {
+		// 	if let Some(s) = as_struct(terms, t, g) {
+		// 		return Some(s);
+		// 	}
+		// }
+
+		// A blade?
+		if let Some((scalar, blade)) = self.as_blade() {
+			if scalar == 0 {
+				Op::zero()
+			} else if blade.is_empty() {
+				Op::scalar(scalar)
+			} else if let Some((sign, name)) = t.blade_name(&blade) {
+				let scalar = scalar * sign;
+				let blade = Op::var(name, &Type::blade(&blade));
+				match scalar {
+					0 => Op::zero(),
+					1 => blade,
+					_ => Op::Term(blade.into(), scalar),
+				}
+			} else {
+				self
+			}
+		} else {
+			self
+		}
+	}
+}
+
+// fn as_struct(terms: &[Op], t: &Types, g: Option<&Grammar>) -> Option<RustExpr> {
+// 	let mut parts: std::collections::BTreeMap<Type, Vec<Op>> = Default::default();
+// 	for term in terms {
+// 		let typ = term.typ(g)?;
+// 		if !typ.is_zero() {
+// 			parts.entry(typ).or_default().push(term.clone());
+// 		}
+// 	}
+
+// 	let sum: Vec<(Type, Op)> = parts
+// 		.into_iter()
+// 		.map(|(typ, terms)| if terms.len() == 1 { terms[0] } else { Op::Sum(terms) })
+// 		.collect();
+
+// 	find_struct(&sum, t).map(RustExpr::atom)
+// }
+
+// fn find_struct(sum: &[(Type, Op)], t: &Types) -> Option<String> {
+// 	for members in t.structs() {
+// 		if let Some(instance) = as_struct_instance(members, &sum) {
+// 			return Some(instance);
+// 		}
+// 	}
+// 	None
+// }
+
+// fn as_struct_instance(members: &[(String, Type)], sum: &[(Type, Op)]) -> Option {
+
+// }

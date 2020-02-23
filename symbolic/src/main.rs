@@ -1,6 +1,6 @@
 use symbolic::*;
 
-fn main() {
+fn types() -> Types {
 	let mut t = Types::default();
 	let x = VecIdx(0);
 	let y = VecIdx(1);
@@ -32,7 +32,17 @@ fn main() {
 		]),
 	);
 
+	t
+}
+
+fn main() {
+	let t = types();
 	let g = Grammar(vec![1, 1, 0]);
+	let rust = |op: Op| {
+		let op = op.simplify(Some(&g));
+		let op = op.typify(&t);
+		op.rust()
+	};
 
 	let x_type = t.get("X");
 	let y_type = t.get("Y");
@@ -48,45 +58,41 @@ fn main() {
 		t.get("XYW"),
 	];
 
-	// println!();
-	// println!("Geometric multiplication table (left side * top row):");
-	// for a in &unit_blades {
-	// 	print!("  ");
-	// 	for b in &unit_blades {
-	// 		let prod = Op::geometric(vec![a.one(), b.one()]);
-	// 		let prod = prod.simplify(Some(&g));
-	// 		print!("{:<10} ", prod.rust(&t, Some(&g)));
-	// 	}
-	// 	println!();
-	// }
+	println!();
+	println!("Geometric multiplication table (left side * top row):");
+	for a in &unit_blades {
+		print!("  ");
+		for b in &unit_blades {
+			let prod = Op::geometric(vec![a.one(), b.one()]);
+			print!("{:<10} ", rust(prod));
+		}
+		println!();
+	}
 
-	// println!();
-	// println!("Wedge multiplication table (left side ^ top row):");
-	// for a in &unit_blades {
-	// 	print!("  ");
-	// 	for b in &unit_blades {
-	// 		let prod = Op::wedge(vec![a.one(), b.one()]);
-	// 		let prod = prod.simplify(Some(&g));
-	// 		print!("{:<10} ", prod.rust(&t, Some(&g)));
-	// 	}
-	// 	println!();
-	// }
+	println!();
+	println!("Wedge multiplication table (left side ^ top row):");
+	for a in &unit_blades {
+		print!("  ");
+		for b in &unit_blades {
+			let prod = Op::wedge(vec![a.one(), b.one()]);
+			print!("{:<10} ", rust(prod));
+		}
+		println!();
+	}
 
-	// assert_eq!(x_type.one().rust(&t, Some(&g)), "X");
+	assert_eq!(rust(x_type.one()), "X");
 
-	// assert_eq!(Op::wedge(vec![x_type.one(), y_type.one()]).rust(&t, Some(&g)), "XY");
+	assert_eq!(rust(Op::wedge(vec![x_type.one(), y_type.one()])), "XY");
 
-	// let op = Op::Sum(vec![
-	// 	Op::wedge(vec![x_type.one(), y_type.one()]),
-	// 	Op::wedge(vec![y_type.one(), x_type.one()]),
-	// ]);
-	// assert_eq!(op.rust(&t, Some(&g)), "XY + -XY");
+	let op = Op::Sum(vec![
+		Op::wedge(vec![x_type.one(), y_type.one()]),
+		Op::wedge(vec![y_type.one(), x_type.one()]),
+	]);
+	assert_eq!(op.rust(), "e0 ^ e1 + e1 ^ e0", "Hard to read without running typify");
 
-	// assert_eq!(op.simplify(Some(&g)).rust(&t, Some(&g)), "0");
+	assert_eq!(rust(op), "0");
 
 	let point = t.get("Point");
 	let op = Op::wedge(vec![Op::var("l", point), Op::var("r", point)]);
-	// dbg!(&op);
-	// dbg!(&op.clone().simplify(Some(&g)));
-	assert_eq!(op.simplify(Some(&g)).rust(&t, Some(&g)), "Line");
+	assert_eq!(rust(op), "Line");
 }

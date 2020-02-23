@@ -12,6 +12,8 @@ pub struct VecIdx(pub usize);
 
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Op {
+	Var(String, Type),
+
 	// A unit length base vector
 	Vec(VecIdx),
 
@@ -21,8 +23,6 @@ pub enum Op {
 	/// 0 == Sum(vec![])
 	/// 1 == Prod(_, vec![])
 	Term(Box<Op>, i32),
-
-	// Var(Variable),
 
 	// Neg(Box<Op>),
 	// Dual(Box<Op>),
@@ -43,7 +43,7 @@ pub enum Product {
 
 /// A type is some sort of multivector.
 /// A value is a linear combination of types.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Type {
 	Zero,
 	// One,

@@ -31,6 +31,13 @@ impl Op {
 	#[must_use]
 	pub fn simplify(self, g: Option<&Grammar>) -> Op {
 		match self {
+			Op::Var(var_name, Type::Struct(members)) => Op::Sum(
+				members
+					.into_iter()
+					.map(|(mem_name, typ)| Op::var(format!("{}.{}", var_name, mem_name), &typ))
+					.collect(),
+			),
+			Op::Var(_, _) => self,
 			Op::Vec(_) => self,
 			Op::Term(op, mut scalar) => {
 				let op: Op = match op.simplify(g) {
@@ -64,7 +71,30 @@ impl Op {
 					Op::Sum(terms)
 				}
 			}
-			Op::Prod(product, factors) => simplify_product(product, factors, g),
+			Op::Prod(product, mut factors) => {
+				for fac in &mut factors {
+					fac.simplify_inplace(g);
+				}
+
+				// look for a sum for expansion:
+				for (i, fac) in factors.iter().enumerate() {
+					if let Op::Sum(terms) = fac {
+						let terms = terms.clone();
+						return Op::Sum(
+							terms
+								.into_iter()
+								.map(|term| {
+									factors[i] = term;
+									Op::Prod(product, factors.clone())
+								})
+								.collect(),
+						)
+						.simplify(g);
+					}
+				}
+
+				simplify_product(product, factors, g)
+			}
 		}
 	}
 
@@ -79,7 +109,7 @@ impl Op {
 				factors.push(Op::scalar(scalar));
 				factors
 			}
-			Op::Prod(product, factors) => factors,
+			Op::Prod(_product, factors) => factors,
 			op => vec![op],
 		}
 	}
@@ -184,7 +214,7 @@ fn sort_factors(product: Product, factors: &mut Vec<Op>, g: Option<&Grammar>) ->
 }
 
 /// Can we swap these two factors, and if so what is the sign change?
-fn commutativeness(product: Product, l: Option<Type>, r: Option<Type>) -> Option<i32> {
+fn commutativeness(_product: Product, l: Option<Type>, r: Option<Type>) -> Option<i32> {
 	match (l?, r?) {
 		(Type::Blade(l), Type::Blade(r)) => {
 			if l.is_empty() || r.is_empty() {

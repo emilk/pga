@@ -17,6 +17,10 @@ impl Op {
 		}
 	}
 
+	pub fn var(name: impl ToString, typ: &Type) -> Self {
+		Op::Var(name.to_string(), typ.clone())
+	}
+
 	pub fn geometric(factors: Vec<Op>) -> Self {
 		Op::Prod(Product::Geometric, factors)
 	}
@@ -47,6 +51,7 @@ impl Op {
 
 	pub fn typ(&self, g: Option<&Grammar>) -> Option<Type> {
 		match self {
+			Op::Var(_, typ) => Some(typ.clone()),
 			Op::Term(_, 0) => Some(Type::Zero),
 			Op::Term(op, _) => op.typ(g),
 			Op::Vec(vi) => Some(Type::vec(*vi)),
@@ -74,6 +79,7 @@ impl Op {
 	/// Returns this Op in terms of a multiple of a blade, if possible
 	pub fn as_blade(&self) -> Option<(i32, Vec<VecIdx>)> {
 		match self {
+			Op::Var(_, _) => None,
 			Op::Vec(vi) => Some((1, vec![*vi])),
 			Op::Term(op, s) => {
 				if let Some((scalar, blade)) = op.as_blade() {

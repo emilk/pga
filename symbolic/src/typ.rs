@@ -13,6 +13,10 @@ impl Type {
 		Type::Blade(vecs.to_vec())
 	}
 
+	pub fn is_zero(&self) -> bool {
+		*self == Type::Zero
+	}
+
 	pub fn one(&self) -> Op {
 		match self {
 			// Type::S => Op::one(),
@@ -40,6 +44,16 @@ impl Types {
 		}
 
 		self.types.push(typedef);
+	}
+
+	pub fn structs(&self) -> impl Iterator<Item = &Vec<(String, Type)>> {
+		self.types.iter().filter_map(|t| {
+			if let Type::Struct(members) = &t.typ {
+				Some(members)
+			} else {
+				None
+			}
+		})
 	}
 
 	pub fn get_typedef(&self, name: &str) -> &Typedef {

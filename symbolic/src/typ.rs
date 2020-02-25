@@ -1,8 +1,18 @@
 use crate::*;
 
+/// A type is some sort of multivector.
+/// A value is a linear combination of types.
+#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub enum Type {
+	/// Has a sign so that we can normalize e20 to -e02
+	SBlade(SBlade),
+	/// named members
+	Struct(Vec<(String, Type)>),
+}
+
 impl Type {
 	pub fn zero() -> Self {
-		Type::SBlade(SBlade::scalar())
+		Type::SBlade(SBlade::zero())
 	}
 
 	pub fn scalar() -> Self {
@@ -74,52 +84,6 @@ impl Type {
 	}
 }
 
-impl Types {
-	pub fn insert(&mut self, name: &str, typ: Type) {
-		let typedef = Typedef {
-			name: name.to_string(),
-			typ: typ.clone(),
-		};
-
-		if let Type::SBlade(sblade) = typ {
-			self.blades.insert(sblade.blade, typedef.clone());
-		}
-
-		self.types.push(typedef);
-	}
-
-	pub fn structs(&self) -> impl Iterator<Item = (&str, &Vec<(String, Type)>)> {
-		self.types.iter().filter_map(|td| {
-			if let Type::Struct(members) = &td.typ {
-				Some((td.name.as_str(), members))
-			} else {
-				None
-			}
-		})
-	}
-
-	pub fn get_typedef(&self, name: &str) -> &Typedef {
-		self.types.iter().find(|td| td.name == name).unwrap()
-	}
-
-	pub fn get(&self, name: &str) -> &Type {
-		&self.get_typedef(name).typ
-	}
-
-	// /// Returns the canonical name of this blade, including a sign change
-	// /// For instance: blade_name([0, 2]) => (-1. "e20")
-	// pub fn blade_name(&self, blade: &Blade) -> Option<(i32, &str)> {
-	// 	self.blades.get(&blade).map(|td| match td.typ {
-	// 		Type::Blade(sign, _) => (sign, td.name.as_str()),
-	// 		_ => unreachable!(),
-	// 	})
-	// }
-
-	pub fn blade_typedef(&self, blade: &Blade) -> Option<&Typedef> {
-		self.blades.get(&blade)
-	}
-}
-
 impl Op {
 	pub fn typ(&self, g: Option<&Grammar>) -> Option<Type> {
 		match self {
@@ -170,6 +134,7 @@ fn product_type(product: Product, factors: &[Op], g: Option<&Grammar>) -> Option
 				if lb.grade() == 1 && rb.grade() == 1 {
 					let lv = lb.blade[0];
 					let rv = rb.blade[0];
+					// eprintln!("product_type of e{} {} e{}", lv, product.symbol(), rv);
 					if lv == rv {
 						match product {
 							Product::Geometric => {

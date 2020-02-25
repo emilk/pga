@@ -1,5 +1,12 @@
 use crate::*;
 
+/// Blade(vec![])     = scalar
+/// Blade(vec![0])    = e0
+/// Blade(vec![0, 2]) = e02
+/// Always sorted, always unique.
+#[derive(Clone, Eq, Ord, PartialEq, PartialOrd)]
+pub struct Blade(Vec<VecIdx>);
+
 impl Blade {
 	pub fn scalar() -> Self {
 		Blade(vec![])
@@ -75,4 +82,16 @@ fn has_adjacent_copies(b: &[VecIdx]) -> bool {
 		}
 	}
 	false
+}
+
+impl std::fmt::Debug for Blade {
+	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+		use itertools::Itertools;
+		if self.0.is_empty() {
+			// Real/Scalar
+			"s".fmt(f)
+		} else {
+			format!("e{}", self.0.iter().join("")).fmt(f)
+		}
+	}
 }

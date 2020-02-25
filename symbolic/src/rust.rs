@@ -70,17 +70,13 @@ impl Op {
 				} else if factors.len() == 1 {
 					factors[0].rust_expr()
 				} else {
-					let operator = match product {
-						Product::Geometric => " * ",
-						Product::Wedge => " ^ ",
-						Product::Antiwedge => " & ",
-					};
+					let operator = format!(" {} ", product.symbol());
 					RustExpr(
 						Precedence::Product,
 						factors
 							.iter()
 							.map(|factor| factor.rust_expr().enclose_if_less(Precedence::Product))
-							.join(operator),
+							.join(&operator),
 					)
 				}
 			}

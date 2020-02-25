@@ -45,9 +45,18 @@ impl Op {
 /// Sum of the values, grouped by their types.
 type Value = BTreeMap<Blade, Op>;
 
+fn show_value(v: &Value) -> String {
+	use itertools::Itertools;
+	format!(
+		"{{\n{}\n}}",
+		v.iter().map(|(k, v)| format!("  {:6?}: {},", k, v.rust())).join("\n")
+	)
+}
+
 fn as_value(terms: &[Op], g: Option<&Grammar>) -> Option<Value> {
 	let mut parts: BTreeMap<Blade, Vec<Op>> = Default::default();
 	for term in terms {
+		// eprintln!("as_value {} typ: {:?}", term.rust(), term.typ(g));
 		let typ = term.typ(g)?;
 		if !typ.is_zero() {
 			if let Type::SBlade(sblade) = typ {
@@ -76,6 +85,8 @@ fn as_value(terms: &[Op], g: Option<&Grammar>) -> Option<Value> {
 }
 
 fn find_struct(sum: &Value, t: &Types) -> Option<Op> {
+	eprintln!("find_struct for {}", show_value(sum));
+
 	for (name, members) in t.structs() {
 		if let Some(instance) = as_struct_instance(name, members, &sum) {
 			return Some(instance);

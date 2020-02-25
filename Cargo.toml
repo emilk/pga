@@ -2,6 +2,6 @@
 members = [
 	# "generate",
 	# "pga",
-	# "reference",
+	"reference",
 	"symbolic",
 ]

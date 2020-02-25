@@ -1,5 +1,46 @@
 use crate::*;
 
+/// TODO: rename Expr ?
+#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub enum Op {
+	Var(String, Type),
+
+	// A unit length base vector
+	Vec(VecIdx),
+
+	/// Indicated a scalar times something.
+	/// Wedge(vec![X, 3, Y, 4]) simplifies to Term(Wedge(vec![X, Y]), 12)
+	/// In its simplest form, the scalar is never 0 or 1
+	/// 0 == Sum(vec![])
+	/// 1 == Prod(_, vec![])
+	Term(Box<Op>, i32),
+
+	/// Left compliment.
+	/// The left compliment of a blade B is defined so that
+	/// LCompl(B) * B = PseudoScalar
+	/// distributive:  LCompl(a + b) = LCompl(a) + LCompl(b)
+	LCompl(Box<Op>),
+
+	// Unary operations:
+	/// Right compliment.
+	/// The right compliment of a blade B is defined so that
+	/// B * RCompl(B) = PseudoScalar
+	/// distributive:  RCompl(a + b) = RCompl(a) + RCompl(b)
+	RCompl(Box<Op>),
+
+	// N-ary operations:
+	Sum(Vec<Op>),
+	Prod(Product, Vec<Op>),
+	// Dot(Vec<Op>),
+	// AntiProd(Vec<Op>),
+	// AntiDot(Vec<Op>),
+	// AntiWedge(Vec<Op>),
+	StructInstance {
+		name: String,
+		members: Vec<(String, Op)>,
+	},
+}
+
 impl Op {
 	pub fn zero() -> Op {
 		Op::Sum(vec![])

@@ -1,5 +1,14 @@
 use crate::*;
 
+/// A blade type with a sign,
+/// this is useful so we can express e20 = -e02.
+/// Can be both a type (-e02) and a value (42 * e123)
+#[derive(Clone, Eq, Ord, PartialEq, PartialOrd)]
+pub struct SBlade {
+	pub blade: Blade,
+	pub sign: i32,
+}
+
 impl SBlade {
 	pub fn zero() -> Self {
 		SBlade {
@@ -118,4 +127,15 @@ fn sort_blade(mut b: Vec<VecIdx>) -> (i32, Vec<VecIdx>) {
 		}
 	}
 	(sign, b)
+}
+
+impl std::fmt::Debug for SBlade {
+	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+		match self.sign {
+			1 => format!(" {:?}", self.blade).fmt(f),
+			0 => " 0".fmt(f),
+			-1 => format!("-{:?}", self.blade).fmt(f),
+			sign => format!("{}*{:?}", sign, self.blade).fmt(f),
+		}
+	}
 }

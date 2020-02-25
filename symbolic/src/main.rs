@@ -40,7 +40,7 @@ fn main() {
 	let g = Grammar(vec![1, 1, 0]);
 	let rust = |op: Op| {
 		let op = op.simplify(Some(&g));
-		let op = op.typify(&t);
+		let op = op.typify(&t, Some(&g));
 		op.rust()
 	};
 
@@ -94,5 +94,14 @@ fn main() {
 
 	let point = t.get("Point");
 	let op = Op::wedge(vec![Op::var("l", point), Op::var("r", point)]);
-	assert_eq!(rust(op), "Line");
+	assert_eq!(
+		rust(op),
+		r"
+Line {
+    yw      : -l.w ^ r.y + l.y ^ r.w
+    wx      : -l.w ^ r.x + l.x ^ r.w
+    XY      : l.x ^ r.y + -l.y ^ r.x
+}"
+		.trim()
+	);
 }

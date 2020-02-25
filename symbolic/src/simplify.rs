@@ -55,10 +55,14 @@ impl Op {
 					Op::Term(op.into(), scalar)
 				}
 			}
-			Op::Sum(mut terms) => {
-				for term in &mut terms {
-					term.simplify_inplace(g);
-				}
+			Op::Sum(terms) => {
+				let mut terms: Vec<Op> = terms
+					.into_iter()
+					.flat_map(|term| match term.simplify(g) {
+						Op::Sum(terms) => terms,
+						op => vec![op],
+					})
+					.collect();
 				terms.retain(|f| !f.is_zero());
 
 				terms = join_terms(terms, g);
@@ -95,6 +99,7 @@ impl Op {
 
 				simplify_product(product, factors, g)
 			}
+			Op::StructInstance { .. } => self,
 		}
 	}
 
@@ -216,20 +221,21 @@ fn sort_factors(product: Product, factors: &mut Vec<Op>, g: Option<&Grammar>) ->
 /// Can we swap these two factors, and if so what is the sign change?
 fn commutativeness(_product: Product, l: Option<Type>, r: Option<Type>) -> Option<i32> {
 	match (l?, r?) {
-		(Type::Blade(l), Type::Blade(r)) => {
-			if l.is_empty() || r.is_empty() {
+		(Type::Blade(_, lb), Type::Blade(_, rb)) => {
+			if lb.is_empty() || rb.is_empty() {
 				// scalar times whatever commutes
 				Some(1)
-			} else if l.len() == 1 && r.len() == 1 {
+			} else if lb.len() == 1 && rb.len() == 1 {
 				// vectors
-				if l[0] == r[0] {
+				if lb[0] == rb[0] {
 					// Same vector
 					Some(1)
 				} else {
 					Some(-1)
 				}
 			} else {
-				None // TODO!
+				println!("TODO: commutativeness of complex blades");
+				None
 			}
 		}
 		_ => None,
@@ -238,9 +244,11 @@ fn commutativeness(_product: Product, l: Option<Type>, r: Option<Type>) -> Optio
 
 /// Does this type square to either -1, 0 or +1?
 fn square_to_sign(product: Product, t: &Type, g: &Grammar) -> Option<i32> {
+	if t.is_zero() {
+		return Some(0);
+	}
 	match t {
-		Type::Zero => Some(0),
-		Type::Blade(v) => {
+		Type::Blade(_, v) => {
 			if v.is_empty() {
 				None
 			} else if v.len() == 1 {
@@ -249,7 +257,8 @@ fn square_to_sign(product: Product, t: &Type, g: &Grammar) -> Option<i32> {
 					Product::Wedge => Some(0),
 				}
 			} else {
-				None // TODO
+				println!("TODO: square of blade");
+				None
 			}
 		}
 		Type::Struct(members) => match members.len() {

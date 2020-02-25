@@ -49,33 +49,6 @@ impl Op {
 		}
 	}
 
-	pub fn typ(&self, g: Option<&Grammar>) -> Option<Type> {
-		match self {
-			Op::Var(_, typ) => Some(typ.clone()),
-			Op::Term(_, 0) => Some(Type::Zero),
-			Op::Term(op, _) => op.typ(g),
-			Op::Vec(vi) => Some(Type::vec(*vi)),
-			Op::Sum(terms) => {
-				if terms.is_empty() {
-					Some(Type::Zero)
-				} else if terms.len() == 1 {
-					terms[0].typ(g)
-				} else {
-					None // TODO
-				}
-			}
-			Op::Prod(product, factors) => {
-				if factors.is_empty() {
-					Some(Type::scalar()) // TODO: Type::One ?
-				} else if factors.len() == 1 {
-					factors[0].typ(g)
-				} else {
-					None // TODO
-				}
-			}
-		}
-	}
-
 	/// Returns this Op in terms of a multiple of a blade, if possible
 	pub fn as_blade(&self) -> Option<(i32, Vec<VecIdx>)> {
 		match self {
@@ -97,7 +70,7 @@ impl Op {
 					None // assuming we are simplified
 				}
 			}
-			Op::Prod(product, factors) => {
+			Op::Prod(_product, factors) => {
 				// This assumes we are simplified,
 				// i.e. that there are no repeated vector indices!
 
@@ -110,6 +83,15 @@ impl Op {
 				}
 				Some((scalar, blade))
 			}
+			Op::StructInstance { .. } => None,
+		}
+	}
+
+	pub fn negate(self) -> Self {
+		match self {
+			Op::Term(op, -1) => *op,
+			Op::Term(op, s) => Op::Term(op, -s),
+			op => Op::Term(op.into(), -1),
 		}
 	}
 }

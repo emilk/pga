@@ -1,4 +1,6 @@
 ///! Module for formatting as rust code
+use itertools::Itertools;
+
 use crate::*;
 
 struct RustExpr(Precedence, String);
@@ -30,7 +32,6 @@ impl Op {
 	}
 
 	fn rust_expr(&self) -> RustExpr {
-		use itertools::Itertools;
 		match self {
 			// Op::S(s) => s.to_string(),
 			Op::Var(name, _typ) => RustExpr::atom(name),
@@ -81,6 +82,20 @@ impl Op {
 					)
 				}
 			}
+			Op::StructInstance { name, members } => RustExpr::atom(format!(
+				"{} {{\n{}\n}}",
+				name,
+				indent(
+					&members
+						.iter()
+						.map(|(name, op)| format!("{:8}: {}", name, op.rust()))
+						.join("\n")
+				)
+			)),
 		}
 	}
+}
+
+fn indent(s: &str) -> String {
+	s.lines().map(|line| format!("    {}", line)).join("\n")
 }

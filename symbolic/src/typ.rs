@@ -1,31 +1,63 @@
 use crate::*;
 
 impl Type {
+	pub fn zero() -> Self {
+		Type::Blade(0, vec![])
+	}
+
 	pub fn scalar() -> Self {
-		Type::Blade(vec![])
+		Type::Blade(1, vec![])
 	}
 
 	pub fn vec(vi: VecIdx) -> Self {
-		Type::Blade(vec![vi])
+		Type::Blade(1, vec![vi])
 	}
 
 	pub fn blade(vecs: &[VecIdx]) -> Self {
-		Type::Blade(vecs.to_vec())
+		let (sign, vecs) = sort_blade(vecs.to_vec());
+		assert!(!has_adjacent_copies(&vecs));
+		Type::Blade(sign, vecs.to_vec())
 	}
 
 	pub fn is_zero(&self) -> bool {
-		*self == Type::Zero
+		match self {
+			Type::Blade(0, _) => true,
+			Type::Blade(_, _) => false,
+			Type::Struct(_) => todo!(),
+		}
+	}
+
+	pub fn is_negative(&self) -> bool {
+		match self {
+			Type::Blade(s, _) => *s < 0,
+			Type::Struct(_) => todo!(),
+		}
+	}
+
+	pub fn is_blade(&self, blade: &Vec<VecIdx>) -> bool {
+		match self {
+			Type::Blade(_, b) => b == blade,
+			Type::Struct(_) => false,
+		}
 	}
 
 	pub fn one(&self) -> Op {
 		match self {
 			// Type::S => Op::one(),
 			// Type::Vec(vi) => Op::Vec(*vi),
-			Type::Blade(vecs) => match vecs.len() {
-				0 => Op::one(),
-				1 => Op::Vec(vecs[0]),
-				_ => Op::wedge(vecs.iter().copied().map(Op::Vec).collect()),
-			},
+			Type::Blade(sign, vecs) => {
+				let op = match vecs.len() {
+					0 => Op::one(),
+					1 => Op::Vec(vecs[0]),
+					_ => Op::wedge(vecs.iter().copied().map(Op::Vec).collect()),
+				};
+				match sign {
+					-1 => op.negate(),
+					0 => Op::zero(),
+					1 => op,
+					_ => unreachable!(),
+				}
+			}
 			_ => panic!(),
 		}
 	}
@@ -38,18 +70,17 @@ impl Types {
 			typ: typ.clone(),
 		};
 
-		if let Type::Blade(blade) = typ {
-			let (sign, sorted) = sort_blade(blade);
-			self.blades.insert(sorted, (sign, typedef.clone()));
+		if let Type::Blade(sign, blade) = typ {
+			self.blades.insert(blade, (sign, typedef.clone()));
 		}
 
 		self.types.push(typedef);
 	}
 
-	pub fn structs(&self) -> impl Iterator<Item = &Vec<(String, Type)>> {
-		self.types.iter().filter_map(|t| {
-			if let Type::Struct(members) = &t.typ {
-				Some(members)
+	pub fn structs(&self) -> impl Iterator<Item = (&str, &Vec<(String, Type)>)> {
+		self.types.iter().filter_map(|td| {
+			if let Type::Struct(members) = &td.typ {
+				Some((td.name.as_str(), members))
 			} else {
 				None
 			}
@@ -84,7 +115,7 @@ impl Types {
 
 /// Sort the vector indices, keeping track of all sign changes.
 #[must_use]
-pub fn sort_blade(mut b: Vec<VecIdx>) -> (i32, Vec<VecIdx>) {
+fn sort_blade(mut b: Vec<VecIdx>) -> (i32, Vec<VecIdx>) {
 	// Multiplication is anti-commutative so each time we swap we need to flip the sign.
 	// So bubble-sort!
 	let mut sign = 1;
@@ -99,64 +130,95 @@ pub fn sort_blade(mut b: Vec<VecIdx>) -> (i32, Vec<VecIdx>) {
 	(sign, b)
 }
 
-impl Op {
-	/// Detect named types and replace
-	pub fn typify(self, t: &Types) -> Self {
-		// if let Op::Sum(terms) = self {
-		// 	if let Some(s) = as_struct(terms, t, g) {
-		// 		return Some(s);
-		// 	}
-		// }
+fn has_adjacent_copies(b: &[VecIdx]) -> bool {
+	for i in 0..b.len() - 1 {
+		if b[i] == b[i + 1] {
+			return true;
+		}
+	}
+	false
+}
 
-		// A blade?
-		if let Some((scalar, blade)) = self.as_blade() {
-			if scalar == 0 {
-				Op::zero()
-			} else if blade.is_empty() {
-				Op::scalar(scalar)
-			} else if let Some((sign, name)) = t.blade_name(&blade) {
-				let scalar = scalar * sign;
-				let blade = Op::var(name, &Type::blade(&blade));
-				match scalar {
-					0 => Op::zero(),
-					1 => blade,
-					_ => Op::Term(blade.into(), scalar),
+impl Op {
+	pub fn typ(&self, g: Option<&Grammar>) -> Option<Type> {
+		match self {
+			Op::Var(_, typ) => Some(typ.clone()),
+			Op::Term(_, 0) => Some(Type::zero()),
+			Op::Term(op, _) => op.typ(g),
+			Op::Vec(vi) => Some(Type::vec(*vi)),
+			Op::Sum(terms) => {
+				if terms.is_empty() {
+					Some(Type::zero())
+				} else if terms.len() == 1 {
+					terms[0].typ(g)
+				} else {
+					println!("TODO: figure out type of '{}'", self.rust());
+					None
 				}
-			} else {
-				self
 			}
-		} else {
-			self
+			Op::Prod(product, factors) => product_type(*product, factors, g),
+			Op::StructInstance { members, .. } => {
+				let members: Option<Vec<(String, Type)>> = members
+					.iter()
+					.map(|(name, op)| Some((name.to_string(), op.typ(g)?)))
+					.collect();
+				members.map(|s| Type::Struct(s).into())
+			}
 		}
 	}
 }
 
-// fn as_struct(terms: &[Op], t: &Types, g: Option<&Grammar>) -> Option<RustExpr> {
-// 	let mut parts: std::collections::BTreeMap<Type, Vec<Op>> = Default::default();
-// 	for term in terms {
-// 		let typ = term.typ(g)?;
-// 		if !typ.is_zero() {
-// 			parts.entry(typ).or_default().push(term.clone());
-// 		}
-// 	}
+fn product_type(product: Product, factors: &[Op], g: Option<&Grammar>) -> Option<Type> {
+	if factors.is_empty() {
+		Some(Type::scalar()) // TODO: Type::One ?
+	} else if factors.len() == 1 {
+		factors[0].typ(g)
+	} else {
+		let types: Option<Vec<Type>> = factors.iter().map(|f| f.typ(g)).collect();
+		let types = types?;
+		if types.iter().any(Type::is_zero) {
+			return Some(Type::zero());
+		}
+		if types.len() == 2 {
+			let l = &types[0];
+			let r = &types[1];
 
-// 	let sum: Vec<(Type, Op)> = parts
-// 		.into_iter()
-// 		.map(|(typ, terms)| if terms.len() == 1 { terms[0] } else { Op::Sum(terms) })
-// 		.collect();
+			if let (Type::Blade(ls, lb), Type::Blade(rs, rb)) = (&l, &r) {
+				if lb.len() == 1 && rb.len() == 1 {
+					let lv = lb[0];
+					let rv = rb[0];
+					if lv == rv {
+						match product {
+							Product::Geometric => {
+								if let Some(g) = g {
+									return if g.square(lv) == 0 {
+										Some(Type::zero())
+									} else {
+										Some(Type::scalar())
+									};
+								}
+							}
+							Product::Wedge => return Some(Type::zero()),
+						}
+					} else {
+						return Some(if lv < rv {
+							Type::Blade(ls * rs, vec![lv, rv])
+						} else {
+							Type::Blade(-ls * rs, vec![rv, lv])
+						});
+					}
+				}
+			}
+		}
 
-// 	find_struct(&sum, t).map(RustExpr::atom)
-// }
+		println!(
+			"TODO: figure out type of '{}'",
+			Op::Prod(product, factors.to_vec()).rust()
+		);
+		None
+	}
+}
 
-// fn find_struct(sum: &[(Type, Op)], t: &Types) -> Option<String> {
-// 	for members in t.structs() {
-// 		if let Some(instance) = as_struct_instance(members, &sum) {
-// 			return Some(instance);
-// 		}
-// 	}
-// 	None
-// }
-
-// fn as_struct_instance(members: &[(String, Type)], sum: &[(Type, Op)]) -> Option {
-
+// fn product_type(product: Product, factors: &Vec<Op>) -> Option<Type> {
+// 	todo!()
 // }

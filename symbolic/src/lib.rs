@@ -2,6 +2,7 @@ pub mod op;
 pub mod rust;
 pub mod simplify;
 pub mod typ;
+pub mod typify;
 
 /// The scalar type we use for symbolic reasoning.
 // type S = i32;
@@ -10,6 +11,7 @@ pub mod typ;
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub struct VecIdx(pub usize);
 
+/// TODO: rename Expr ?
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Op {
 	Var(String, Type),
@@ -33,6 +35,10 @@ pub enum Op {
 	// AntiProd(Vec<Op>),
 	// AntiDot(Vec<Op>),
 	// AntiWedge(Vec<Op>),
+	StructInstance {
+		name: String,
+		members: Vec<(String, Op)>,
+	},
 }
 
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
@@ -45,22 +51,12 @@ pub enum Product {
 /// A value is a linear combination of types.
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Type {
-	Zero,
-	// One,
-	/// The scalar type, i.e. 1
-	// S,
-	/// The vector types
-	// Vec(VecIdx),
-
 	/// Blade(vec![])     = scalar
 	/// Blade(vec![0])    = e0
-	/// Blade(vec![2, 0]) = e02
-	Blade(Vec<VecIdx>),
-	// /// Tuple-type, linear combination of blades
-	// /// Blades(vec![])       = () = Zero
-	// /// Blades(vec![S])      = (S)
-	// /// Blades(vec![S, E02]) = (S, E02)
-	// Blades(Vec<Type>),
+	/// Blade(vec![0, 2]) = e02
+	/// Always sorted, and without dupliates.
+	/// Has a sign so that we can normalize e20 to -e02
+	Blade(i32, Vec<VecIdx>),
 	/// named members
 	Struct(Vec<(String, Type)>),
 }

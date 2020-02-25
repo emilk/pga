@@ -222,10 +222,10 @@ fn sort_factors(product: Product, factors: &mut Vec<Op>, g: Option<&Grammar>) ->
 fn commutativeness(_product: Product, l: Option<Type>, r: Option<Type>) -> Option<i32> {
 	match (l?, r?) {
 		(Type::Blade(_, lb), Type::Blade(_, rb)) => {
-			if lb.is_empty() || rb.is_empty() {
+			if lb.is_scalar() || rb.is_scalar() {
 				// scalar times whatever commutes
 				Some(1)
-			} else if lb.len() == 1 && rb.len() == 1 {
+			} else if lb.grade() == 1 && rb.grade() == 1 {
 				// vectors
 				if lb[0] == rb[0] {
 					// Same vector
@@ -248,17 +248,16 @@ fn square_to_sign(product: Product, t: &Type, g: &Grammar) -> Option<i32> {
 		return Some(0);
 	}
 	match t {
-		Type::Blade(_, v) => {
-			if v.is_empty() {
+		Type::Blade(_, b) => {
+			if b.is_scalar() {
 				None
-			} else if v.len() == 1 {
+			} else if b.grade() == 1 {
 				match product {
-					Product::Geometric => Some(g.square(v[0])),
+					Product::Geometric => Some(g.square(b[0])),
 					Product::Wedge => Some(0),
 				}
 			} else {
-				println!("TODO: square of blade");
-				None
+				todo!("TODO: square of blade")
 			}
 		}
 		Type::Struct(members) => match members.len() {

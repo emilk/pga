@@ -2,21 +2,20 @@ use crate::*;
 
 impl Type {
 	pub fn zero() -> Self {
-		Type::Blade(0, vec![])
+		Type::Blade(0, Blade::scalar())
 	}
 
 	pub fn scalar() -> Self {
-		Type::Blade(1, vec![])
+		Type::Blade(1, Blade::scalar())
 	}
 
 	pub fn vec(vi: VecIdx) -> Self {
-		Type::Blade(1, vec![vi])
+		Type::Blade(1, Blade::vec(vi))
 	}
 
-	pub fn blade(vecs: &[VecIdx]) -> Self {
-		let (sign, vecs) = sort_blade(vecs.to_vec());
-		assert!(!has_adjacent_copies(&vecs));
-		Type::Blade(sign, vecs.to_vec())
+	pub fn unsorted_blade(vecs: &[VecIdx]) -> Self {
+		let (sign, blade) = Blade::from_unsorted(vecs);
+		Type::Blade(sign, blade)
 	}
 
 	pub fn is_zero(&self) -> bool {
@@ -34,7 +33,7 @@ impl Type {
 		}
 	}
 
-	pub fn is_blade(&self, blade: &Vec<VecIdx>) -> bool {
+	pub fn is_blade(&self, blade: &Blade) -> bool {
 		match self {
 			Type::Blade(_, b) => b == blade,
 			Type::Struct(_) => false,
@@ -46,10 +45,10 @@ impl Type {
 			// Type::S => Op::one(),
 			// Type::Vec(vi) => Op::Vec(*vi),
 			Type::Blade(sign, vecs) => {
-				let op = match vecs.len() {
+				let op = match vecs.grade() {
 					0 => Op::one(),
 					1 => Op::Vec(vecs[0]),
-					_ => Op::wedge(vecs.iter().copied().map(Op::Vec).collect()),
+					_ => Op::wedge(vecs.vecs().iter().copied().map(Op::Vec).collect()),
 				};
 				match sign {
 					-1 => op.negate(),
@@ -95,48 +94,11 @@ impl Types {
 		&self.get_typedef(name).typ
 	}
 
-	// pub fn vec_name(&self, vi: VecIdx) -> &str {
-	// 	self.types
-	// 		.iter()
-	// 		.find(|td| match &td.typ {
-	// 			// Type::Vec(v) if v == vi => true,
-	// 			Type::Blade(vecs) if vecs.len() == 1 && vecs[0] == vi => true,
-	// 			_ => false,
-	// 		})
-	// 		.map(|td| td.name.as_str())
-	// 		.unwrap()
-	// }
-
-	pub fn blade_name(&self, blade: &[VecIdx]) -> Option<(i32, &str)> {
-		let (sign, blade) = sort_blade(blade.to_vec());
-		self.blades.get(&blade).map(|(s, td)| (sign * s, td.name.as_str()))
+	/// Returns the canonical name of this blade, including a sign change
+	/// For instance: blade_name([0, 2]) => (-1. "e20")
+	pub fn blade_name(&self, blade: &Blade) -> Option<(i32, &str)> {
+		self.blades.get(&blade).map(|(sign, td)| (*sign, td.name.as_str()))
 	}
-}
-
-/// Sort the vector indices, keeping track of all sign changes.
-#[must_use]
-fn sort_blade(mut b: Vec<VecIdx>) -> (i32, Vec<VecIdx>) {
-	// Multiplication is anti-commutative so each time we swap we need to flip the sign.
-	// So bubble-sort!
-	let mut sign = 1;
-	for _ in 0..b.len() {
-		for i in 0..b.len() - 1 {
-			if b[i] > b[i + 1] {
-				b.swap(i, i + 1);
-				sign = -sign;
-			}
-		}
-	}
-	(sign, b)
-}
-
-fn has_adjacent_copies(b: &[VecIdx]) -> bool {
-	for i in 0..b.len() - 1 {
-		if b[i] == b[i + 1] {
-			return true;
-		}
-	}
-	false
 }
 
 impl Op {
@@ -184,7 +146,7 @@ fn product_type(product: Product, factors: &[Op], g: Option<&Grammar>) -> Option
 			let r = &types[1];
 
 			if let (Type::Blade(ls, lb), Type::Blade(rs, rb)) = (&l, &r) {
-				if lb.len() == 1 && rb.len() == 1 {
+				if lb.grade() == 1 && rb.grade() == 1 {
 					let lv = lb[0];
 					let rv = rb[0];
 					if lv == rv {
@@ -202,9 +164,9 @@ fn product_type(product: Product, factors: &[Op], g: Option<&Grammar>) -> Option
 						}
 					} else {
 						return Some(if lv < rv {
-							Type::Blade(ls * rs, vec![lv, rv])
+							Type::Blade(ls * rs, Blade::from_sorted(vec![lv, rv]))
 						} else {
-							Type::Blade(-ls * rs, vec![rv, lv])
+							Type::Blade(-ls * rs, Blade::from_sorted(vec![rv, lv]))
 						});
 					}
 				}

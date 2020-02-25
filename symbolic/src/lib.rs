@@ -1,3 +1,4 @@
+pub mod blade;
 pub mod op;
 pub mod rust;
 pub mod simplify;
@@ -10,6 +11,13 @@ pub mod typify;
 /// Which base vector (e0, e1 or e2?)
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub struct VecIdx(pub usize);
+
+/// Blade(vec![])     = scalar
+/// Blade(vec![0])    = e0
+/// Blade(vec![0, 2]) = e02
+/// Always sorted, always unique.
+#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub struct Blade(Vec<VecIdx>);
 
 /// TODO: rename Expr ?
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
@@ -51,12 +59,8 @@ pub enum Product {
 /// A value is a linear combination of types.
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Type {
-	/// Blade(vec![])     = scalar
-	/// Blade(vec![0])    = e0
-	/// Blade(vec![0, 2]) = e02
-	/// Always sorted, and without dupliates.
 	/// Has a sign so that we can normalize e20 to -e02
-	Blade(i32, Vec<VecIdx>),
+	Blade(i32, Blade),
 	/// named members
 	Struct(Vec<(String, Type)>),
 }
@@ -73,7 +77,7 @@ pub struct Types {
 	types: Vec<Typedef>,
 	// Maps the sorted blade to the sign and typedef of that blade,
 	// e.g. maps [0,2] to  (-1, {"ZX", [2, 0]})
-	blades: std::collections::BTreeMap<Vec<VecIdx>, (i32, Typedef)>,
+	blades: std::collections::BTreeMap<Blade, (i32, Typedef)>,
 }
 
 /// what you get when you square the input vectors,

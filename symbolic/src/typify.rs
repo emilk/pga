@@ -19,11 +19,10 @@ impl Op {
 		if let Some((scalar, blade)) = self.as_blade() {
 			if scalar == 0 {
 				Op::zero()
-			} else if blade.is_empty() {
+			} else if blade.is_scalar() {
 				Op::scalar(scalar)
 			} else if let Some((sign, name)) = t.blade_name(&blade) {
-				let scalar = scalar * sign;
-				let blade = Op::var(name, &Type::blade(&blade));
+				let blade = Op::var(name, &Type::Blade(sign, blade));
 				match scalar {
 					0 => Op::zero(),
 					1 => blade,
@@ -38,14 +37,11 @@ impl Op {
 	}
 }
 
-/// Sorted, unique.
-type Blade = Vec<VecIdx>;
-
 /// Sum of the values, grouped by their types.
 type Value = BTreeMap<Blade, Op>;
 
 fn as_value(terms: &[Op], g: Option<&Grammar>) -> Option<Value> {
-	let mut parts: BTreeMap<Vec<VecIdx>, Vec<Op>> = Default::default();
+	let mut parts: BTreeMap<Blade, Vec<Op>> = Default::default();
 	for term in terms {
 		let typ = term.typ(g)?;
 		if !typ.is_zero() {
@@ -95,6 +91,6 @@ fn as_struct_instance(struct_name: &str, struct_members: &[(String, Type)], valu
 	}
 }
 
-fn is_blade_in_struct(struct_members: &[(String, Type)], blade: &Vec<VecIdx>) -> bool {
+fn is_blade_in_struct(struct_members: &[(String, Type)], blade: &Blade) -> bool {
 	struct_members.iter().any(|(_, t)| t.is_blade(blade))
 }

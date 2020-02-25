@@ -9,10 +9,10 @@ fn types() -> Types {
 	t.insert("X", Type::vec(x));
 	t.insert("Y", Type::vec(y));
 	t.insert("W", Type::vec(w));
-	t.insert("YW", Type::blade(&[y, w]));
-	t.insert("WX", Type::blade(&[w, x]));
-	t.insert("XY", Type::blade(&[x, y]));
-	t.insert("XYW", Type::blade(&[x, y, w]));
+	t.insert("YW", Type::unsorted_blade(&[y, w]));
+	t.insert("WX", Type::unsorted_blade(&[w, x]));
+	t.insert("XY", Type::unsorted_blade(&[x, y]));
+	t.insert("XYW", Type::unsorted_blade(&[x, y, w]));
 
 	t.insert(
 		"Point",

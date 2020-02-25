@@ -50,10 +50,10 @@ impl Op {
 	}
 
 	/// Returns this Op in terms of a multiple of a blade, if possible
-	pub fn as_blade(&self) -> Option<(i32, Vec<VecIdx>)> {
+	pub fn as_blade(&self) -> Option<(i32, Blade)> {
 		match self {
 			Op::Var(_, _) => None,
-			Op::Vec(vi) => Some((1, vec![*vi])),
+			Op::Vec(vi) => Some((1, Blade::vec(*vi))),
 			Op::Term(op, s) => {
 				if let Some((scalar, blade)) = op.as_blade() {
 					Some((s * scalar, blade))
@@ -63,7 +63,7 @@ impl Op {
 			}
 			Op::Sum(terms) => {
 				if terms.is_empty() {
-					Some((0, vec![]))
+					Some((0, Blade::scalar()))
 				} else if terms.len() == 1 {
 					terms[0].as_blade()
 				} else {
@@ -75,13 +75,15 @@ impl Op {
 				// i.e. that there are no repeated vector indices!
 
 				let mut scalar = 1;
-				let mut blade = vec![];
+				let mut vecs = vec![];
 				for f in factors {
-					let (s, mut b) = f.as_blade()?;
+					let (s, b) = f.as_blade()?;
 					scalar *= s;
-					blade.append(&mut b);
+					// TODO: check for duplicates and simplify using a grammar!
+					vecs.extend(b.vecs());
 				}
-				Some((scalar, blade))
+				let (sign, blade) = Blade::from_unsorted(&vecs);
+				Some((scalar * sign, blade))
 			}
 			Op::StructInstance { .. } => None,
 		}

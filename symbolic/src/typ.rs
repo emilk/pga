@@ -48,6 +48,13 @@ impl Type {
 		}
 	}
 
+	pub fn into_sblade(self) -> Option<SBlade> {
+		match self {
+			Type::SBlade(sb) => Some(sb),
+			Type::Struct(_) => None,
+		}
+	}
+
 	pub fn unit(&self) -> Op {
 		match self {
 			// Type::S => Op::one(),
@@ -126,41 +133,13 @@ fn product_type(product: Product, factors: &[Op], g: Option<&Grammar>) -> Option
 		if types.iter().any(Type::is_zero) {
 			return Some(Type::zero());
 		}
-		if types.len() == 2 {
-			let l = &types[0];
-			let r = &types[1];
+		let sblades: Option<Vec<SBlade>> = types.into_iter().map(Type::into_sblade).collect();
+		let sblades = sblades?;
 
-			if let (Type::SBlade(lb), Type::SBlade(rb)) = (&l, &r) {
-				if lb.grade() == 1 && rb.grade() == 1 {
-					let lv = lb.blade[0];
-					let rv = rb.blade[0];
-					// eprintln!("product_type of e{} {} e{}", lv, product.symbol(), rv);
-					if lv == rv {
-						match product {
-							Product::Geometric => {
-								if let Some(g) = g {
-									return if g.square(lv) == 0 {
-										Some(Type::zero())
-									} else {
-										Some(Type::scalar())
-									};
-								}
-							}
-							Product::Wedge => return Some(Type::zero()),
-							Product::Antiwedge => return Some(Type::zero()), // TODO: is this correct?
-						}
-					} else {
-						return Some(Type::SBlade(lb.sign * rb.sign * SBlade::from_unsorted(&[lv, rv])));
-					}
-				}
-			}
+		if let Some(g) = g {
+			Some(Type::SBlade(SBlade::product(product, &sblades, g)))
+		} else {
+			None
 		}
-
-		println!("TODO: figure out type of product '{:?}'", types);
-		None
 	}
 }
-
-// fn product_type(product: Product, factors: &Vec<Op>) -> Option<Type> {
-// 	todo!()
-// }

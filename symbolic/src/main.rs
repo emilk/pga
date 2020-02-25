@@ -28,7 +28,7 @@ fn pga2d_types() -> Types {
 		Type::Struct(vec![
 			("yw".to_string(), t.get("YW").clone()),
 			("wx".to_string(), t.get("WX").clone()),
-			("XY".to_string(), t.get("XY").clone()),
+			("xy".to_string(), t.get("XY").clone()),
 		]),
 	);
 
@@ -114,9 +114,9 @@ fn main() {
 		rust(Op::wedge(vec![Op::var("l", point), Op::var("r", point)])),
 		r"
 Line {
-    yw      : -l.w ^ r.y + l.y ^ r.w
-    wx      : -l.w ^ r.x + l.x ^ r.w
-    XY      : l.x ^ r.y + -l.y ^ r.x
+    yw: -l.w ^ r.y + l.y ^ r.w,
+    wx: -l.w ^ r.x + l.x ^ r.w,
+    xy: l.x ^ r.y + -l.y ^ r.x,
 }"
 		.trim()
 	);
@@ -126,9 +126,9 @@ Line {
 		rust(Op::antiwedge(vec![Op::var("l", line), Op::var("r", line)])),
 		r"
 Point {
-    x      : -l.xy & r.wx + l.wx & r.xy
-    y      : -l.xy & r.yw + l.yw & r.xy
-    w      : l.yw & r.wx + -l.wx & r.yw
+    x: l.wx & r.xy + -l.xy & r.wx,
+    y: l.xy & r.yw + -l.yw & r.xy,
+    w: -l.wx & r.yw + l.yw & r.wx,
 }
 "
 		.trim()

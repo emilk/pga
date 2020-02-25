@@ -85,7 +85,7 @@ fn as_value(terms: &[Op], g: Option<&Grammar>) -> Option<Value> {
 }
 
 fn find_struct(sum: &Value, t: &Types) -> Option<Op> {
-	eprintln!("find_struct for {}", show_value(sum));
+	// eprintln!("find_struct for {}", show_value(sum));
 
 	for (name, members) in t.structs() {
 		if let Some(instance) = as_struct_instance(name, members, &sum) {

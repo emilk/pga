@@ -80,16 +80,19 @@ impl Op {
 					)
 				}
 			}
-			Op::StructInstance { name, members } => RustExpr::atom(format!(
-				"{} {{\n{}\n}}",
-				name,
-				indent(
-					&members
-						.iter()
-						.map(|(name, op)| format!("{:8}: {}", name, op.rust()))
-						.join("\n")
-				)
-			)),
+			Op::StructInstance { name, members } => {
+				let maxw = members.iter().map(|(name, _)| name.len()).max().unwrap_or_default();
+				RustExpr::atom(format!(
+					"{} {{\n{}\n}}",
+					name,
+					indent(
+						&members
+							.iter()
+							.map(|(name, op)| format!("{:maxw$}: {},", name, op.rust(), maxw = maxw))
+							.join("\n")
+					)
+				))
+			}
 		}
 	}
 }

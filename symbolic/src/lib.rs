@@ -18,8 +18,11 @@ pub struct VecIdx(pub usize);
 
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Product {
+	/// Geom = Inner + Outer = Dot + Wedge
 	Geometric,
-	/// Outer (progressive) product.  Moves to a higher dimension.
+	/// Inner / dot product.
+	Dot,
+	/// Outer (progressive) product. Moves to a higher dimension.
 	Wedge,
 	/// Regressive. Reduces the dimensionality.
 	Antiwedge,
@@ -50,6 +53,7 @@ impl Product {
 	pub fn symbol(&self) -> &str {
 		match self {
 			Product::Geometric => "*",
+			Product::Dot => "|",
 			Product::Wedge => "^",
 			Product::Antiwedge => "&",
 		}

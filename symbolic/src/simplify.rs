@@ -117,14 +117,14 @@ impl Op {
 		*self = std::mem::replace(self, Op::zero()).simplify(g);
 	}
 
-	fn as_factors(self) -> Vec<Op> {
+	fn as_factors(self, desired_product_type: Product) -> Vec<Op> {
 		match self {
 			Op::Term(op, scalar) => {
-				let mut factors = op.as_factors();
+				let mut factors = op.as_factors(desired_product_type);
 				factors.push(Op::scalar(scalar));
 				factors
 			}
-			Op::Prod(_product, factors) => factors,
+			Op::Prod(product, factors) if product == desired_product_type => factors,
 			op => vec![op],
 		}
 	}
@@ -157,11 +157,12 @@ fn join_terms(terms: Vec<Op>, _g: Option<&Grammar>) -> Vec<Op> {
 
 #[must_use]
 fn simplify_product(product: Product, factors: Vec<Op>, g: Option<&Grammar>) -> Op {
+	// eprintln!("simplify_product {:?} {:?}", product, factors);
 	let mut new_scalar = 1;
 	let mut new_factors = vec![];
 
 	for fac in factors {
-		for fac in fac.as_factors() {
+		for fac in fac.as_factors(product) {
 			if let Some(scalar) = fac.as_scalar() {
 				new_scalar *= scalar;
 			} else {
@@ -172,7 +173,11 @@ fn simplify_product(product: Product, factors: Vec<Op>, g: Option<&Grammar>) -> 
 	let mut scalar = new_scalar;
 	let mut factors = new_factors;
 
+	// eprintln!("simplify_product {} * {:?} {:?}", scalar, product, factors);
+
 	scalar *= sort_factors(product, &mut factors, g);
+
+	// eprintln!("simplify_product {} * {:?} {:?}", scalar, product, factors);
 
 	if scalar == 0 {
 		Op::zero()
@@ -215,7 +220,7 @@ fn sort_factors(product: Product, factors: &mut Vec<Op>, g: Option<&Grammar>) ->
 				// We want to swap them. Can we?
 				let lt = factors[i - 1].typ(g);
 				let rt = factors[i].typ(g);
-				if let Some(sign_change) = commutativeness(product, lt, rt) {
+				if let Some(sign_change) = commutativeness(product, lt, rt, g) {
 					factors.swap(i - 1, i);
 					did_swap = true;
 					sign *= sign_change;
@@ -229,26 +234,20 @@ fn sort_factors(product: Product, factors: &mut Vec<Op>, g: Option<&Grammar>) ->
 }
 
 /// Can we swap these two factors, and if so what is the sign change?
-fn commutativeness(_product: Product, l: Option<Type>, r: Option<Type>) -> Option<i32> {
-	match (l?, r?) {
-		(Type::SBlade(l), Type::SBlade(r)) => {
-			if l.is_scalar() || r.is_scalar() {
-				// scalar times whatever commutes
-				Some(1)
-			} else if l.grade() == 1 && r.grade() == 1 {
-				// vectors
-				if l.blade[0] == r.blade[0] {
-					// Same vector
-					Some(1)
-				} else {
-					Some(-1)
-				}
-			} else {
-				println!("TODO: commutativeness of complex blades");
-				None
-			}
-		}
-		_ => None,
+fn commutativeness(product: Product, l: Option<Type>, r: Option<Type>, g: Option<&Grammar>) -> Option<i32> {
+	let l = l?.into_sblade()?;
+	let r = r?.into_sblade()?;
+	let lr = SBlade::binary_product(&l, product, &r, g?);
+	let rl = SBlade::binary_product(&r, product, &l, g?);
+	assert_eq!(lr.is_zero(), rl.is_zero());
+	assert_eq!(lr.blade, rl.blade);
+	assert_eq!(lr.sign.abs(), rl.sign.abs());
+	if lr.is_zero() {
+		Some(0)
+	} else if lr.sign == rl.sign {
+		Some(1)
+	} else {
+		Some(-1)
 	}
 }
 
@@ -259,18 +258,14 @@ fn square_to_sign(product: Product, t: &Type, g: &Grammar) -> Option<i32> {
 	}
 	match t {
 		Type::SBlade(sb) => {
-			if sb.is_zero() {
+			let prod = SBlade::binary_product(sb, product, sb, g);
+			if prod.is_zero() {
 				Some(0)
-			} else if sb.blade.is_scalar() {
-				None
-			} else if sb.blade.grade() == 1 {
-				match product {
-					Product::Geometric => Some(g.square(sb.blade[0])),
-					Product::Wedge => Some(0),
-					Product::Antiwedge => Some(0), // TODO: is this correct?
-				}
+			} else if prod.is_scalar() {
+				assert_eq!(prod.sign.abs(), 1);
+				Some(prod.sign)
 			} else {
-				todo!("TODO: square of blade")
+				None
 			}
 		}
 		Type::Struct(members) => match members.len() {

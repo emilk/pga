@@ -58,12 +58,20 @@ impl Op {
 		}
 	}
 
+	pub fn vec(vi: VecIdx) -> Self {
+		Op::Vec(vi)
+	}
+
 	pub fn var(name: impl ToString, typ: &Type) -> Self {
 		Op::Var(name.to_string(), typ.clone())
 	}
 
 	pub fn geometric(factors: Vec<Op>) -> Self {
 		Op::Prod(Product::Geometric, factors)
+	}
+
+	pub fn dot(factors: Vec<Op>) -> Self {
+		Op::Prod(Product::Dot, factors)
 	}
 
 	/// outer product
@@ -120,19 +128,10 @@ impl Op {
 					None // assuming we are simplified
 				}
 			}
-			Op::Prod(_product, factors) => {
-				// This assumes we are simplified,
-				// i.e. that there are no repeated vector indices!
-
-				let mut scalar = 1;
-				let mut vecs = vec![];
-				for f in factors {
-					let sb = f.as_sblade(g)?;
-					scalar *= sb.sign;
-					// TODO: check for duplicates and simplify using a grammar!
-					vecs.extend(sb.blade.vecs());
-				}
-				Some(scalar * SBlade::from_unsorted(&vecs))
+			Op::Prod(product, factors) => {
+				let sblades: Option<Vec<SBlade>> = factors.iter().map(|f| f.as_sblade(g)).collect();
+				let sblades = sblades?;
+				Some(SBlade::product(*product, &sblades, g))
 			}
 			Op::StructInstance { .. } => None,
 		}
@@ -144,5 +143,36 @@ impl Op {
 			Op::Term(op, s) => Op::Term(op, -s),
 			op => Op::Term(op.into(), -1),
 		}
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	use crate::sblade::tests::sb;
+
+	#[test]
+	fn test_as_sblade() {
+		let grammar = Grammar(vec![0, 1, 1, 1]);
+		let g = &grammar;
+		let v0 = VecIdx(0);
+		let v1 = VecIdx(1);
+		// let v2 = VecIdx(2);
+		// let v3 = VecIdx(3);
+
+		// assert_eq!(Op::dot(vec![Op::vec(v0), Op::vec(v0)]).as_sblade(g), Some(sb("0")));
+		// assert_eq!(Op::dot(vec![Op::vec(v1), Op::vec(v1)]).as_sblade(g), Some(sb("1")));
+		assert_eq!(Op::wedge(vec![Op::vec(v0), Op::vec(v0)]).as_sblade(g), Some(sb("0")));
+		assert_eq!(Op::wedge(vec![Op::vec(v1), Op::vec(v1)]).as_sblade(g), Some(sb("0")));
+		assert_eq!(
+			Op::geometric(vec![Op::vec(v0), Op::vec(v0)]).as_sblade(g),
+			Some(sb("0"))
+		);
+		assert_eq!(
+			Op::geometric(vec![Op::vec(v1), Op::vec(v1)]).as_sblade(g),
+			Some(sb("s"))
+		);
+		assert_eq!(Op::wedge(vec![Op::vec(v0), Op::vec(v1)]).as_sblade(g), Some(sb("e01")));
 	}
 }

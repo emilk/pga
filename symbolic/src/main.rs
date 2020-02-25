@@ -62,6 +62,9 @@ fn main() {
 	assert_eq!(t.get("WX").unit().rust(), "-e0 ^ e2");
 	assert_eq!(rust(t.get("WX").unit()), "WX");
 
+	assert_eq!(Op::dot(vec![t.get("XY").unit()]).simplify(Some(&g)).rust(), "e0 ^ e1");
+	assert_eq!(rust(Op::dot(vec![t.get("XY").unit(), Op::one()])), "XY");
+
 	let unit_blades: Vec<Op> = blades.iter().map(|t| t.unit()).collect();
 
 	println!();
@@ -70,6 +73,17 @@ fn main() {
 		print!("  ");
 		for b in &unit_blades {
 			let prod = Op::geometric(vec![a.clone(), b.clone()]);
+			print!("{:<10} ", rust(prod));
+		}
+		println!();
+	}
+
+	println!();
+	println!("Dot multiplication table (left side | top row):");
+	for a in &unit_blades {
+		print!("  ");
+		for b in &unit_blades {
+			let prod = Op::dot(vec![a.clone(), b.clone()]);
 			print!("{:<10} ", rust(prod));
 		}
 		println!();
@@ -86,6 +100,7 @@ fn main() {
 		println!();
 	}
 
+	// TODO: fix, I think this is wrong!
 	println!();
 	println!("Antiwedge multiplication table (right side & bottom row):");
 	for a in &unit_blades {
@@ -121,6 +136,7 @@ Line {
 		.trim()
 	);
 
+	// TODO: fix, I think this is wrong!
 	let line = t.get("Line");
 	assert_eq!(
 		rust(Op::antiwedge(vec![Op::var("l", line), Op::var("r", line)])),

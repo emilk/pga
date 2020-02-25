@@ -487,15 +487,15 @@ fn main() {
 		println!();
 	}
 
-	// println!();
-	// println!("Inner / dot product multiplication table (left side | top row):");
-	// for &a in &blades {
-	//     print!("  ");
-	//     for &b in &blades {
-	//         print!("{:<8}", (a | b).to_string());
-	//     }
-	//     println!();
-	// }
+	println!();
+	println!("Inner / dot product multiplication table (left side | top row):");
+	for &a in &blades {
+		print!("  ");
+		for &b in &blades {
+			print!("{:<8}", (a | b).to_string());
+		}
+		println!();
+	}
 
 	println!();
 	println!("Outer product multiplication table (left side ^ top row):");

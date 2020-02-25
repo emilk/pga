@@ -30,8 +30,20 @@ impl SBlade {
 		SBlade::unit(Blade::scalar())
 	}
 
+	pub fn pseudo_scalar(g: &Grammar) -> Self {
+		let all_vecs: Vec<VecIdx> = g.vecs().collect();
+		Self::from_sorted(&all_vecs)
+	}
+
 	pub fn vec(vi: VecIdx) -> Self {
 		SBlade::unit(Blade::vec(vi))
+	}
+
+	pub fn from_sorted(vecs: &[VecIdx]) -> SBlade {
+		SBlade {
+			sign: 1,
+			blade: Blade::from_sorted(vecs.to_vec()),
+		}
 	}
 
 	pub fn from_unsorted(vecs: &[VecIdx]) -> SBlade {
@@ -93,7 +105,8 @@ impl SBlade {
 		}
 	}
 
-	pub fn inner_product(&self, other: &SBlade, g: &Grammar) -> Self {
+	/// dot / inner product
+	pub fn dot_product(&self, other: &SBlade, g: &Grammar) -> Self {
 		// The dot product is the K grade of the geometric product,
 		// where K is the absolute difference in grades between the operands.
 		let k = ((self.grade() as i64) - (other.grade() as i64)).abs() as usize;
@@ -124,6 +137,7 @@ impl SBlade {
 	pub fn binary_product(a: &SBlade, product: Product, b: &SBlade, g: &Grammar) -> SBlade {
 		match product {
 			Product::Geometric => a.geometric_product(b, g),
+			Product::Dot => a.dot_product(b, g),
 			Product::Wedge => a.wedge_product(b, g),
 			Product::Antiwedge => a.antiwedge_product(b, g),
 		}
@@ -200,5 +214,50 @@ impl std::fmt::Debug for SBlade {
 			-1 => format!("-{:?}", self.blade).fmt(f),
 			sign => format!("{}*{:?}", sign, self.blade).fmt(f),
 		}
+	}
+}
+
+#[cfg(test)]
+pub mod tests {
+	use super::*;
+
+	/// Parse a signed blade
+	pub fn sb(s: &str) -> SBlade {
+		fn idx_from_char(c: char) -> VecIdx {
+			VecIdx(c.to_digit(10).unwrap() as usize)
+		}
+
+		if s == "0" {
+			SBlade::zero()
+		} else if s == "s" {
+			SBlade::scalar()
+		} else if s.starts_with('e') {
+			let vecs: Vec<VecIdx> = s[1..].chars().map(idx_from_char).collect();
+			SBlade::from_unsorted(&vecs)
+		} else {
+			panic!("Expected 'e' followed by digits (e.g. e21), found '{}'", s)
+		}
+	}
+
+	#[test]
+	fn test_sblade() {
+		let grammar = Grammar(vec![0, 1, 1, 1]);
+		let g = &grammar;
+		let v0 = VecIdx(0);
+		let v1 = VecIdx(1);
+		let v2 = VecIdx(2);
+		// let v3 = VecIdx(3);
+		let s = SBlade::scalar();
+		let e0 = SBlade::vec(v0);
+		let e1 = SBlade::vec(v1);
+		let e2 = SBlade::vec(v2);
+		// let e3 = SBlade::vec(v3);
+		assert_eq!(SBlade::product(Product::Wedge, &[e0, e1, e2], g), sb("e012"));
+
+		assert_eq!(s.rcompl(g), SBlade::pseudo_scalar(g));
+		assert_eq!(sb("e0").rcompl(g), sb("e123"));
+		assert_eq!(sb("e1").rcompl(g), sb("e203"));
+		assert_eq!(sb("e01").rcompl(g), sb("e23"));
+		assert_eq!(SBlade::pseudo_scalar(g).rcompl(g), s);
 	}
 }

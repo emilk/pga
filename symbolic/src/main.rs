@@ -59,11 +59,10 @@ fn main() {
 		t.get("XYW"),
 	];
 
-	dbg!(t.get("WX"));
-	assert_eq!(t.get("WX").one().rust(), "-e0 ^ e2");
-	assert_eq!(rust(t.get("WX").one()), "WX");
+	assert_eq!(t.get("WX").unit().rust(), "-e0 ^ e2");
+	assert_eq!(rust(t.get("WX").unit()), "WX");
 
-	let unit_blades: Vec<Op> = blades.iter().map(|t| t.one()).collect();
+	let unit_blades: Vec<Op> = blades.iter().map(|t| t.unit()).collect();
 
 	println!();
 	println!("Geometric multiplication table (left side * top row):");
@@ -98,13 +97,13 @@ fn main() {
 		println!();
 	}
 
-	assert_eq!(rust(x_type.one()), "X");
+	assert_eq!(rust(x_type.unit()), "X");
 
-	assert_eq!(rust(Op::wedge(vec![x_type.one(), y_type.one()])), "XY");
+	assert_eq!(rust(Op::wedge(vec![x_type.unit(), y_type.unit()])), "XY");
 
 	let op = Op::Sum(vec![
-		Op::wedge(vec![x_type.one(), y_type.one()]),
-		Op::wedge(vec![y_type.one(), x_type.one()]),
+		Op::wedge(vec![x_type.unit(), y_type.unit()]),
+		Op::wedge(vec![y_type.unit(), x_type.unit()]),
 	]);
 	assert_eq!(op.rust(), "e0 ^ e1 + e1 ^ e0", "Hard to read without running typify");
 

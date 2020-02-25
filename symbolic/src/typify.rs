@@ -16,22 +16,22 @@ impl Op {
 		}
 
 		// A blade?
-		if let Some((scalar, blade)) = self.as_blade(g) {
-			if scalar == 0 {
+		if let Some(sblade) = self.as_sblade(g) {
+			if sblade.is_zero() {
 				Op::zero()
-			} else if blade.is_scalar() {
-				Op::scalar(scalar)
-			} else if let Some(blade_typedef) = t.blade_typedef(&blade) {
-				let blade = Op::var(&blade_typedef.name, &blade_typedef.typ);
-				let scalar = scalar
-					* match blade_typedef.typ {
-						Type::Blade(sign, _) => sign,
+			} else if sblade.is_scalar() {
+				Op::scalar(sblade.sign)
+			} else if let Some(blade_typedef) = t.blade_typedef(&sblade.blade) {
+				let blade_var = Op::var(&blade_typedef.name, &blade_typedef.typ);
+				let scalar = sblade.sign
+					* match &blade_typedef.typ {
+						Type::SBlade(sb) => sb.sign,
 						_ => unreachable!(),
 					};
 				match scalar {
 					0 => Op::zero(),
-					1 => blade,
-					_ => Op::Term(blade.into(), scalar),
+					1 => blade_var,
+					_ => Op::Term(blade_var.into(), scalar),
 				}
 			} else {
 				self
@@ -50,9 +50,13 @@ fn as_value(terms: &[Op], g: Option<&Grammar>) -> Option<Value> {
 	for term in terms {
 		let typ = term.typ(g)?;
 		if !typ.is_zero() {
-			if let Type::Blade(sign, blade) = typ {
-				let term = if sign < 0 { term.clone().negate() } else { term.clone() };
-				parts.entry(blade).or_default().push(term);
+			if let Type::SBlade(sblade) = typ {
+				let term = if sblade.is_negative() {
+					term.clone().negate()
+				} else {
+					term.clone()
+				};
+				parts.entry(sblade.blade).or_default().push(term);
 			} else {
 				return None;
 			}

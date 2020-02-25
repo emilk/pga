@@ -57,32 +57,24 @@ impl Op {
 	}
 
 	/// Returns this Op in terms of a multiple of a blade, if possible
-	pub fn as_blade(&self, g: &Grammar) -> Option<(i32, Blade)> {
+	pub fn as_sblade(&self, g: &Grammar) -> Option<SBlade> {
 		match self {
 			Op::Var(_, _) => None,
-			Op::Vec(vi) => Some((1, Blade::vec(*vi))),
+			Op::Vec(vi) => Some(SBlade::vec(*vi)),
 			Op::Term(op, s) => {
-				if let Some((scalar, blade)) = op.as_blade(g) {
-					Some((s * scalar, blade))
+				if let Some(sblade) = op.as_sblade(g) {
+					Some(*s * sblade)
 				} else {
 					None
 				}
 			}
-			Op::LCompl(op) => {
-				let (op_sign, blade) = op.as_blade(g)?;
-				let (compl_sign, blade_compl) = blade.lcompl(g);
-				Some((op_sign * compl_sign, blade_compl))
-			}
-			Op::RCompl(op) => {
-				let (op_sign, blade) = op.as_blade(g)?;
-				let (compl_sign, blade_compl) = blade.rcompl(g);
-				Some((op_sign * compl_sign, blade_compl))
-			}
+			Op::LCompl(op) => Some(op.as_sblade(g)?.lcompl(g)),
+			Op::RCompl(op) => Some(op.as_sblade(g)?.rcompl(g)),
 			Op::Sum(terms) => {
 				if terms.is_empty() {
-					Some((0, Blade::scalar()))
+					Some(SBlade::zero())
 				} else if terms.len() == 1 {
-					terms[0].as_blade(g)
+					terms[0].as_sblade(g)
 				} else {
 					None // assuming we are simplified
 				}
@@ -94,13 +86,12 @@ impl Op {
 				let mut scalar = 1;
 				let mut vecs = vec![];
 				for f in factors {
-					let (s, b) = f.as_blade(g)?;
-					scalar *= s;
+					let sb = f.as_sblade(g)?;
+					scalar *= sb.sign;
 					// TODO: check for duplicates and simplify using a grammar!
-					vecs.extend(b.vecs());
+					vecs.extend(sb.blade.vecs());
 				}
-				let (sign, blade) = Blade::from_unsorted(&vecs);
-				Some((scalar * sign, blade))
+				Some(scalar * SBlade::from_unsorted(&vecs))
 			}
 			Op::StructInstance { .. } => None,
 		}

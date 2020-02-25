@@ -2,55 +2,53 @@ use crate::*;
 
 impl Type {
 	pub fn zero() -> Self {
-		Type::Blade(0, Blade::scalar())
+		Type::SBlade(SBlade::scalar())
 	}
 
 	pub fn scalar() -> Self {
-		Type::Blade(1, Blade::scalar())
+		Type::SBlade(SBlade::scalar())
 	}
 
 	pub fn vec(vi: VecIdx) -> Self {
-		Type::Blade(1, Blade::vec(vi))
+		Type::SBlade(SBlade::vec(vi))
 	}
 
 	pub fn unsorted_blade(vecs: &[VecIdx]) -> Self {
-		let (sign, blade) = Blade::from_unsorted(vecs);
-		Type::Blade(sign, blade)
+		Type::SBlade(SBlade::from_unsorted(vecs))
 	}
 
 	pub fn is_zero(&self) -> bool {
 		match self {
-			Type::Blade(0, _) => true,
-			Type::Blade(_, _) => false,
+			Type::SBlade(sb) => sb.is_zero(),
 			Type::Struct(_) => todo!(),
 		}
 	}
 
 	pub fn is_negative(&self) -> bool {
 		match self {
-			Type::Blade(s, _) => *s < 0,
+			Type::SBlade(sb) => sb.is_negative(),
 			Type::Struct(_) => todo!(),
 		}
 	}
 
 	pub fn is_blade(&self, blade: &Blade) -> bool {
 		match self {
-			Type::Blade(_, b) => b == blade,
+			Type::SBlade(sb) => sb.blade == *blade,
 			Type::Struct(_) => false,
 		}
 	}
 
-	pub fn one(&self) -> Op {
+	pub fn unit(&self) -> Op {
 		match self {
 			// Type::S => Op::one(),
 			// Type::Vec(vi) => Op::Vec(*vi),
-			Type::Blade(sign, blade) => {
-				let op = match blade.grade() {
+			Type::SBlade(sblade) => {
+				let op = match sblade.blade.grade() {
 					0 => Op::one(),
-					1 => Op::Vec(blade[0]),
-					_ => Op::wedge(blade.vecs().iter().copied().map(Op::Vec).collect()),
+					1 => Op::Vec(sblade.blade[0]),
+					_ => Op::wedge(sblade.blade.vecs().iter().copied().map(Op::Vec).collect()),
 				};
-				match sign {
+				match sblade.sign {
 					-1 => op.negate(),
 					0 => Op::zero(),
 					1 => op,
@@ -63,20 +61,14 @@ impl Type {
 
 	pub fn lcompl(&self, g: Option<&Grammar>) -> Option<Type> {
 		match self {
-			Type::Blade(sign, blade) => {
-				let (compl_sign, compl) = blade.lcompl(g?);
-				Some(Type::Blade(sign * compl_sign, compl))
-			}
+			Type::SBlade(sblade) => Some(Type::SBlade(sblade.lcompl(g?))),
 			_ => todo!("lcompl({:?})", self),
 		}
 	}
 
 	pub fn rcompl(&self, g: Option<&Grammar>) -> Option<Type> {
 		match self {
-			Type::Blade(sign, blade) => {
-				let (compl_sign, compl) = blade.rcompl(g?);
-				Some(Type::Blade(sign * compl_sign, compl))
-			}
+			Type::SBlade(sblade) => Some(Type::SBlade(sblade.rcompl(g?))),
 			_ => todo!("rcompl({:?})", self),
 		}
 	}
@@ -89,8 +81,8 @@ impl Types {
 			typ: typ.clone(),
 		};
 
-		if let Type::Blade(sign, blade) = typ {
-			self.blades.insert(blade, typedef.clone());
+		if let Type::SBlade(sblade) = typ {
+			self.blades.insert(sblade.blade, typedef.clone());
 		}
 
 		self.types.push(typedef);
@@ -174,10 +166,10 @@ fn product_type(product: Product, factors: &[Op], g: Option<&Grammar>) -> Option
 			let l = &types[0];
 			let r = &types[1];
 
-			if let (Type::Blade(ls, lb), Type::Blade(rs, rb)) = (&l, &r) {
+			if let (Type::SBlade(lb), Type::SBlade(rb)) = (&l, &r) {
 				if lb.grade() == 1 && rb.grade() == 1 {
-					let lv = lb[0];
-					let rv = rb[0];
+					let lv = lb.blade[0];
+					let rv = rb.blade[0];
 					if lv == rv {
 						match product {
 							Product::Geometric => {
@@ -193,11 +185,7 @@ fn product_type(product: Product, factors: &[Op], g: Option<&Grammar>) -> Option
 							Product::Antiwedge => return Some(Type::zero()), // TODO: is this correct?
 						}
 					} else {
-						return Some(if lv < rv {
-							Type::Blade(ls * rs, Blade::from_sorted(vec![lv, rv]))
-						} else {
-							Type::Blade(-ls * rs, Blade::from_sorted(vec![rv, lv]))
-						});
+						return Some(Type::SBlade(lb.sign * rb.sign * SBlade::from_unsorted(&[lv, rv])));
 					}
 				}
 			}

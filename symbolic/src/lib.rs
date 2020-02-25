@@ -1,6 +1,7 @@
 pub mod blade;
 pub mod op;
 pub mod rust;
+pub mod sblade;
 pub mod simplify;
 pub mod typ;
 pub mod typify;
@@ -18,6 +19,14 @@ pub struct VecIdx(pub usize);
 /// Always sorted, always unique.
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub struct Blade(Vec<VecIdx>);
+/// A blade type with a sign,
+/// this is useful so we can express e20 = -e02.
+/// Can be both a type (-e02) and a value (42 * e123)
+#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub struct SBlade {
+	blade: Blade,
+	sign: i32,
+}
 
 /// TODO: rename Expr ?
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
@@ -74,7 +83,7 @@ pub enum Product {
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Type {
 	/// Has a sign so that we can normalize e20 to -e02
-	Blade(i32, Blade),
+	SBlade(SBlade),
 	/// named members
 	Struct(Vec<(String, Type)>),
 }

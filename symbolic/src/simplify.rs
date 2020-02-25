@@ -231,13 +231,13 @@ fn sort_factors(product: Product, factors: &mut Vec<Op>, g: Option<&Grammar>) ->
 /// Can we swap these two factors, and if so what is the sign change?
 fn commutativeness(_product: Product, l: Option<Type>, r: Option<Type>) -> Option<i32> {
 	match (l?, r?) {
-		(Type::Blade(_, lb), Type::Blade(_, rb)) => {
-			if lb.is_scalar() || rb.is_scalar() {
+		(Type::SBlade(l), Type::SBlade(r)) => {
+			if l.is_scalar() || r.is_scalar() {
 				// scalar times whatever commutes
 				Some(1)
-			} else if lb.grade() == 1 && rb.grade() == 1 {
+			} else if l.grade() == 1 && r.grade() == 1 {
 				// vectors
-				if lb[0] == rb[0] {
+				if l.blade[0] == r.blade[0] {
 					// Same vector
 					Some(1)
 				} else {
@@ -258,12 +258,14 @@ fn square_to_sign(product: Product, t: &Type, g: &Grammar) -> Option<i32> {
 		return Some(0);
 	}
 	match t {
-		Type::Blade(_, b) => {
-			if b.is_scalar() {
+		Type::SBlade(sb) => {
+			if sb.is_zero() {
+				Some(0)
+			} else if sb.blade.is_scalar() {
 				None
-			} else if b.grade() == 1 {
+			} else if sb.blade.grade() == 1 {
 				match product {
-					Product::Geometric => Some(g.square(b[0])),
+					Product::Geometric => Some(g.square(sb.blade[0])),
 					Product::Wedge => Some(0),
 					Product::Antiwedge => Some(0), // TODO: is this correct?
 				}

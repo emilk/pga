@@ -4,11 +4,11 @@ use crate::*;
 
 impl Op {
 	/// Detect named types and replace
-	pub fn typify(self, t: &Types, g: Option<&Grammar>) -> Self {
+	pub fn typify(self, t: &Types, g: &Grammar) -> Self {
 		// TODO: recurse!
 
 		if let Op::Sum(terms) = &self {
-			if let Some(value) = as_value(&terms, g) {
+			if let Some(value) = as_value(&terms, Some(g)) {
 				if let Some(s) = find_struct(&value, t) {
 					return s;
 				}
@@ -16,13 +16,18 @@ impl Op {
 		}
 
 		// A blade?
-		if let Some((scalar, blade)) = self.as_blade() {
+		if let Some((scalar, blade)) = self.as_blade(g) {
 			if scalar == 0 {
 				Op::zero()
 			} else if blade.is_scalar() {
 				Op::scalar(scalar)
-			} else if let Some((sign, name)) = t.blade_name(&blade) {
-				let blade = Op::var(name, &Type::Blade(sign, blade));
+			} else if let Some(blade_typedef) = t.blade_typedef(&blade) {
+				let blade = Op::var(&blade_typedef.name, &blade_typedef.typ);
+				let scalar = scalar
+					* match blade_typedef.typ {
+						Type::Blade(sign, _) => sign,
+						_ => unreachable!(),
+					};
 				match scalar {
 					0 => Op::zero(),
 					1 => blade,

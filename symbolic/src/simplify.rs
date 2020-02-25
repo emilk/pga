@@ -39,6 +39,16 @@ impl Op {
 			),
 			Op::Var(_, _) => self,
 			Op::Vec(_) => self,
+			Op::LCompl(op) => match op.simplify(g) {
+				Op::RCompl(op) => *op,
+				Op::Sum(terms) => Op::Sum(terms.into_iter().map(|t| Op::LCompl(t.into())).collect()).simplify(g),
+				op => Op::LCompl(op.into()),
+			},
+			Op::RCompl(op) => match op.simplify(g) {
+				Op::LCompl(op) => *op,
+				Op::Sum(terms) => Op::Sum(terms.into_iter().map(|t| Op::RCompl(t.into())).collect()).simplify(g),
+				op => Op::RCompl(op.into()),
+			},
 			Op::Term(op, mut scalar) => {
 				let op: Op = match op.simplify(g) {
 					Op::Term(inner_op, inner_scalar) => {
@@ -255,6 +265,7 @@ fn square_to_sign(product: Product, t: &Type, g: &Grammar) -> Option<i32> {
 				match product {
 					Product::Geometric => Some(g.square(b[0])),
 					Product::Wedge => Some(0),
+					Product::Antiwedge => Some(0), // TODO: is this correct?
 				}
 			} else {
 				todo!("TODO: square of blade")

@@ -25,8 +25,15 @@ impl Op {
 		Op::Prod(Product::Geometric, factors)
 	}
 
+	/// outer product
 	pub fn wedge(factors: Vec<Op>) -> Self {
 		Op::Prod(Product::Wedge, factors)
+	}
+
+	/// also known as the regressive product
+	pub fn antiwedge(factors: Vec<Op>) -> Self {
+		// Op::RCompl(Op::wedge(factors.into_iter().map(|op| Op::LCompl(op.into())).collect()).into())
+		Op::Prod(Product::Antiwedge, factors)
 	}
 
 	/// Note: self must be simplified
@@ -50,22 +57,32 @@ impl Op {
 	}
 
 	/// Returns this Op in terms of a multiple of a blade, if possible
-	pub fn as_blade(&self) -> Option<(i32, Blade)> {
+	pub fn as_blade(&self, g: &Grammar) -> Option<(i32, Blade)> {
 		match self {
 			Op::Var(_, _) => None,
 			Op::Vec(vi) => Some((1, Blade::vec(*vi))),
 			Op::Term(op, s) => {
-				if let Some((scalar, blade)) = op.as_blade() {
+				if let Some((scalar, blade)) = op.as_blade(g) {
 					Some((s * scalar, blade))
 				} else {
 					None
 				}
 			}
+			Op::LCompl(op) => {
+				let (op_sign, blade) = op.as_blade(g)?;
+				let (compl_sign, blade_compl) = blade.lcompl(g);
+				Some((op_sign * compl_sign, blade_compl))
+			}
+			Op::RCompl(op) => {
+				let (op_sign, blade) = op.as_blade(g)?;
+				let (compl_sign, blade_compl) = blade.rcompl(g);
+				Some((op_sign * compl_sign, blade_compl))
+			}
 			Op::Sum(terms) => {
 				if terms.is_empty() {
 					Some((0, Blade::scalar()))
 				} else if terms.len() == 1 {
-					terms[0].as_blade()
+					terms[0].as_blade(g)
 				} else {
 					None // assuming we are simplified
 				}
@@ -77,7 +94,7 @@ impl Op {
 				let mut scalar = 1;
 				let mut vecs = vec![];
 				for f in factors {
-					let (s, b) = f.as_blade()?;
+					let (s, b) = f.as_blade(g)?;
 					scalar *= s;
 					// TODO: check for duplicates and simplify using a grammar!
 					vecs.extend(b.vecs());

@@ -1,6 +1,6 @@
 use symbolic::*;
 
-fn types() -> Types {
+fn pga2d_types() -> Types {
 	let mut t = Types::default();
 	let x = VecIdx(0);
 	let y = VecIdx(1);
@@ -36,18 +36,19 @@ fn types() -> Types {
 }
 
 fn main() {
-	let t = types();
+	let t = pga2d_types();
 	let g = Grammar(vec![1, 1, 0]);
+
 	let rust = |op: Op| {
 		let op = op.simplify(Some(&g));
-		let op = op.typify(&t, Some(&g));
+		let op = op.typify(&t, &g);
 		op.rust()
 	};
 
 	let x_type = t.get("X");
 	let y_type = t.get("Y");
 
-	let unit_blades = vec![
+	let blades = vec![
 		t.get("R"),
 		t.get("X"),
 		t.get("Y"),
@@ -58,12 +59,18 @@ fn main() {
 		t.get("XYW"),
 	];
 
+	dbg!(t.get("WX"));
+	assert_eq!(t.get("WX").one().rust(), "-e0 ^ e2");
+	assert_eq!(rust(t.get("WX").one()), "WX");
+
+	let unit_blades: Vec<Op> = blades.iter().map(|t| t.one()).collect();
+
 	println!();
 	println!("Geometric multiplication table (left side * top row):");
 	for a in &unit_blades {
 		print!("  ");
 		for b in &unit_blades {
-			let prod = Op::geometric(vec![a.one(), b.one()]);
+			let prod = Op::geometric(vec![a.clone(), b.clone()]);
 			print!("{:<10} ", rust(prod));
 		}
 		println!();
@@ -74,7 +81,18 @@ fn main() {
 	for a in &unit_blades {
 		print!("  ");
 		for b in &unit_blades {
-			let prod = Op::wedge(vec![a.one(), b.one()]);
+			let prod = Op::wedge(vec![a.clone(), b.clone()]);
+			print!("{:<10} ", rust(prod));
+		}
+		println!();
+	}
+
+	println!();
+	println!("Antiwedge multiplication table (right side & bottom row):");
+	for a in &unit_blades {
+		print!("  ");
+		for b in &unit_blades {
+			let prod = Op::antiwedge(vec![a.clone(), b.clone()]);
 			print!("{:<10} ", rust(prod));
 		}
 		println!();
@@ -93,15 +111,27 @@ fn main() {
 	assert_eq!(rust(op), "0");
 
 	let point = t.get("Point");
-	let op = Op::wedge(vec![Op::var("l", point), Op::var("r", point)]);
 	assert_eq!(
-		rust(op),
+		rust(Op::wedge(vec![Op::var("l", point), Op::var("r", point)])),
 		r"
 Line {
     yw      : -l.w ^ r.y + l.y ^ r.w
     wx      : -l.w ^ r.x + l.x ^ r.w
     XY      : l.x ^ r.y + -l.y ^ r.x
 }"
+		.trim()
+	);
+
+	let line = t.get("Line");
+	assert_eq!(
+		rust(Op::antiwedge(vec![Op::var("l", line), Op::var("r", line)])),
+		r"
+Point {
+    x      : -l.xy & r.wx + l.wx & r.xy
+    y      : -l.xy & r.yw + l.yw & r.xy
+    w      : l.yw & r.wx + -l.wx & r.yw
+}
+"
 		.trim()
 	);
 }

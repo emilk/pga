@@ -33,7 +33,6 @@ impl Op {
 
 	fn rust_expr(&self) -> RustExpr {
 		match self {
-			// Op::S(s) => s.to_string(),
 			Op::Var(name, _typ) => RustExpr::atom(name),
 			Op::Vec(vi) => {
 				//  Use typify to get more readable vector name
@@ -54,6 +53,8 @@ impl Op {
 					)
 				}
 			}
+			Op::LCompl(op) => RustExpr::atom(format!("lcompl({})", op.rust())),
+			Op::RCompl(op) => RustExpr::atom(format!("rcompl({})", op.rust())),
 			Op::Sum(terms) => {
 				if terms.is_empty() {
 					RustExpr::atom("0")
@@ -72,6 +73,7 @@ impl Op {
 					let operator = match product {
 						Product::Geometric => " * ",
 						Product::Wedge => " ^ ",
+						Product::Antiwedge => " & ",
 					};
 					RustExpr(
 						Precedence::Product,

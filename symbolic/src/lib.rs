@@ -34,9 +34,20 @@ pub enum Op {
 	/// 1 == Prod(_, vec![])
 	Term(Box<Op>, i32),
 
-	// Neg(Box<Op>),
-	// Dual(Box<Op>),
-	// Rev(Box<Op>),
+	/// Left compliment.
+	/// The left compliment of a blade B is defined so that
+	/// LCompl(B) * B = PseudoScalar
+	/// distributive:  LCompl(a + b) = LCompl(a) + LCompl(b)
+	LCompl(Box<Op>),
+
+	// Unary operations:
+	/// Right compliment.
+	/// The right compliment of a blade B is defined so that
+	/// B * RCompl(B) = PseudoScalar
+	/// distributive:  RCompl(a + b) = RCompl(a) + RCompl(b)
+	RCompl(Box<Op>),
+
+	// N-ary operations:
 	Sum(Vec<Op>),
 	Prod(Product, Vec<Op>),
 	// Dot(Vec<Op>),
@@ -52,7 +63,10 @@ pub enum Op {
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Product {
 	Geometric,
+	/// Outer (progressive) product.  Moves to a higher dimension.
 	Wedge,
+	/// Regressive. Reduces the dimensionality.
+	Antiwedge,
 }
 
 /// A type is some sort of multivector.
@@ -75,9 +89,9 @@ pub struct Typedef {
 #[derive(Clone, Debug, Default)]
 pub struct Types {
 	types: Vec<Typedef>,
-	// Maps the sorted blade to the sign and typedef of that blade,
-	// e.g. maps [0,2] to  (-1, {"ZX", [2, 0]})
-	blades: std::collections::BTreeMap<Blade, (i32, Typedef)>,
+	// Maps blades to the typedef of that blade,
+	// e.g. maps [0,2] to  Typedef{"e20", Type::(-1, Blade([0, 2]))}
+	blades: std::collections::BTreeMap<Blade, Typedef>,
 }
 
 /// what you get when you square the input vectors,
@@ -90,5 +104,13 @@ impl Grammar {
 	/// What do we get when we square this basis vector?
 	pub fn square(&self, v: VecIdx) -> i32 {
 		self.0[v.0]
+	}
+
+	pub fn num_vecs(&self) -> usize {
+		self.0.len()
+	}
+
+	pub fn vecs(&self) -> impl Iterator<Item = VecIdx> {
+		(0..self.num_vecs()).map(VecIdx)
 	}
 }

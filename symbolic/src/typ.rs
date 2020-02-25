@@ -44,11 +44,11 @@ impl Type {
 		match self {
 			// Type::S => Op::one(),
 			// Type::Vec(vi) => Op::Vec(*vi),
-			Type::Blade(sign, vecs) => {
-				let op = match vecs.grade() {
+			Type::Blade(sign, blade) => {
+				let op = match blade.grade() {
 					0 => Op::one(),
-					1 => Op::Vec(vecs[0]),
-					_ => Op::wedge(vecs.vecs().iter().copied().map(Op::Vec).collect()),
+					1 => Op::Vec(blade[0]),
+					_ => Op::wedge(blade.vecs().iter().copied().map(Op::Vec).collect()),
 				};
 				match sign {
 					-1 => op.negate(),
@@ -58,6 +58,26 @@ impl Type {
 				}
 			}
 			_ => panic!(),
+		}
+	}
+
+	pub fn lcompl(&self, g: Option<&Grammar>) -> Option<Type> {
+		match self {
+			Type::Blade(sign, blade) => {
+				let (compl_sign, compl) = blade.lcompl(g?);
+				Some(Type::Blade(sign * compl_sign, compl))
+			}
+			_ => todo!("lcompl({:?})", self),
+		}
+	}
+
+	pub fn rcompl(&self, g: Option<&Grammar>) -> Option<Type> {
+		match self {
+			Type::Blade(sign, blade) => {
+				let (compl_sign, compl) = blade.rcompl(g?);
+				Some(Type::Blade(sign * compl_sign, compl))
+			}
+			_ => todo!("rcompl({:?})", self),
 		}
 	}
 }
@@ -70,7 +90,7 @@ impl Types {
 		};
 
 		if let Type::Blade(sign, blade) = typ {
-			self.blades.insert(blade, (sign, typedef.clone()));
+			self.blades.insert(blade, typedef.clone());
 		}
 
 		self.types.push(typedef);
@@ -94,10 +114,17 @@ impl Types {
 		&self.get_typedef(name).typ
 	}
 
-	/// Returns the canonical name of this blade, including a sign change
-	/// For instance: blade_name([0, 2]) => (-1. "e20")
-	pub fn blade_name(&self, blade: &Blade) -> Option<(i32, &str)> {
-		self.blades.get(&blade).map(|(sign, td)| (*sign, td.name.as_str()))
+	// /// Returns the canonical name of this blade, including a sign change
+	// /// For instance: blade_name([0, 2]) => (-1. "e20")
+	// pub fn blade_name(&self, blade: &Blade) -> Option<(i32, &str)> {
+	// 	self.blades.get(&blade).map(|td| match td.typ {
+	// 		Type::Blade(sign, _) => (sign, td.name.as_str()),
+	// 		_ => unreachable!(),
+	// 	})
+	// }
+
+	pub fn blade_typedef(&self, blade: &Blade) -> Option<&Typedef> {
+		self.blades.get(&blade)
 	}
 }
 
@@ -108,13 +135,15 @@ impl Op {
 			Op::Term(_, 0) => Some(Type::zero()),
 			Op::Term(op, _) => op.typ(g),
 			Op::Vec(vi) => Some(Type::vec(*vi)),
+			Op::LCompl(op) => op.typ(g).and_then(|t| t.lcompl(g)),
+			Op::RCompl(op) => op.typ(g).and_then(|t| t.rcompl(g)),
 			Op::Sum(terms) => {
 				if terms.is_empty() {
 					Some(Type::zero())
 				} else if terms.len() == 1 {
 					terms[0].typ(g)
 				} else {
-					println!("TODO: figure out type of '{}'", self.rust());
+					println!("TODO: figure out type of sum '{}'", self.rust());
 					None
 				}
 			}
@@ -161,6 +190,7 @@ fn product_type(product: Product, factors: &[Op], g: Option<&Grammar>) -> Option
 								}
 							}
 							Product::Wedge => return Some(Type::zero()),
+							Product::Antiwedge => return Some(Type::zero()), // TODO: is this correct?
 						}
 					} else {
 						return Some(if lv < rv {
@@ -173,10 +203,7 @@ fn product_type(product: Product, factors: &[Op], g: Option<&Grammar>) -> Option
 			}
 		}
 
-		println!(
-			"TODO: figure out type of '{}'",
-			Op::Prod(product, factors.to_vec()).rust()
-		);
+		println!("TODO: figure out type of product '{:?}'", types);
 		None
 	}
 }

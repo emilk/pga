@@ -2,6 +2,17 @@ use std::collections::BTreeMap;
 
 use crate::*;
 
+/// Sum of the values, grouped by their types.
+type Value = BTreeMap<Blade, Op>;
+
+// fn show_value(v: &Value) -> String {
+// 	use itertools::Itertools;
+// 	format!(
+// 		"{{\n{}\n}}",
+// 		v.iter().map(|(k, v)| format!("  {:6?}: {},", k, v.rust())).join("\n")
+// 	)
+// }
+
 impl Op {
 	/// Detect named types and replace
 	pub fn typify(self, t: &Types, g: &Grammar) -> Self {
@@ -42,38 +53,26 @@ impl Op {
 	}
 }
 
-/// Sum of the values, grouped by their types.
-type Value = BTreeMap<Blade, Op>;
-
-fn show_value(v: &Value) -> String {
-	use itertools::Itertools;
-	format!(
-		"{{\n{}\n}}",
-		v.iter().map(|(k, v)| format!("  {:6?}: {},", k, v.rust())).join("\n")
-	)
-}
-
 fn as_value(terms: &[Op], g: Option<&Grammar>) -> Option<Value> {
 	let mut parts: BTreeMap<Blade, Vec<Op>> = Default::default();
 	for term in terms {
 		// eprintln!("as_value {} typ: {:?}", term.rust(), term.typ(g));
 		let typ = term.typ(g)?;
 		if !typ.is_zero() {
-			if let Type::SBlade(sblade) = typ {
-				let term = if sblade.is_negative() {
-					term.clone().negate()
-				} else {
-					term.clone()
-				};
-				parts.entry(sblade.blade).or_default().push(term);
-			} else {
-				return None;
+			match typ {
+				Type::SBlade(sblade) => {
+					let term = if sblade.is_negative() {
+						term.clone().negate()
+					} else {
+						term.clone()
+					};
+					parts.entry(sblade.blade).or_default().push(term);
+				}
+				Type::Struct { .. } => {
+					return None;
+				}
 			}
 		}
-	}
-
-	if parts.len() == 0 {
-		return None;
 	}
 
 	Some(
@@ -85,6 +84,9 @@ fn as_value(terms: &[Op], g: Option<&Grammar>) -> Option<Value> {
 }
 
 fn find_struct(sum: &Value, t: &Types) -> Option<Op> {
+	if sum.is_empty() {
+		return None; // zero: no struct for this!
+	}
 	// eprintln!("find_struct for {}", show_value(sum));
 
 	for (name, members) in t.structs() {
@@ -100,10 +102,10 @@ fn as_struct_instance(struct_name: &str, struct_members: &[(String, Type)], valu
 
 	if value.keys().all(|b| is_blade_in_struct(struct_members, b)) {
 		Some(Op::StructInstance {
-			name: struct_name.to_owned(),
+			struct_name: struct_name.to_owned(),
 			members: struct_members
 				.iter()
-				.map(|(name, t)| (name.to_string(), find_term(t).unwrap_or_else(|| Op::zero())))
+				.map(|(name, t)| (name.to_string(), find_term(t).unwrap_or_else(Op::zero)))
 				.collect(),
 		})
 	} else {

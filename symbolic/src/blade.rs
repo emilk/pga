@@ -16,7 +16,12 @@ impl Blade {
 		Self(vec![vi])
 	}
 
+	pub fn pseudo_scalar(g: &Grammar) -> Self {
+		Self::from_sorted(g.vecs().collect())
+	}
+
 	pub fn from_sorted(vecs: Vec<VecIdx>) -> Self {
+		assert!(is_sorted(&vecs));
 		assert!(!has_adjacent_copies(&vecs));
 		Self(vecs)
 	}
@@ -45,6 +50,7 @@ impl Blade {
 		let mut all_vecs = compliment.clone();
 		all_vecs.append(&mut self.0.clone());
 		let scaled_pseudoscalar = SBlade::from_unsorted(&all_vecs);
+		assert_eq!(scaled_pseudoscalar.blade, Blade::pseudo_scalar(g));
 		SBlade {
 			sign: scaled_pseudoscalar.sign,
 			blade: Self::from_sorted(compliment),
@@ -60,6 +66,7 @@ impl Blade {
 		let mut all_vecs = self.0.clone();
 		all_vecs.append(&mut compliment.clone());
 		let scaled_pseudoscalar = SBlade::from_unsorted(&all_vecs);
+		assert_eq!(scaled_pseudoscalar.blade, Blade::pseudo_scalar(g));
 		SBlade {
 			sign: scaled_pseudoscalar.sign,
 			blade: Self::from_sorted(compliment),
@@ -82,6 +89,15 @@ fn has_adjacent_copies(b: &[VecIdx]) -> bool {
 		}
 	}
 	false
+}
+
+fn is_sorted(b: &[VecIdx]) -> bool {
+	for i in 1..b.len() {
+		if b[i - 1] > b[i] {
+			return false;
+		}
+	}
+	true
 }
 
 impl std::fmt::Debug for Blade {

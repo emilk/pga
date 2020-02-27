@@ -47,15 +47,6 @@ impl Types {
 		&self.get_typedef(name).typ
 	}
 
-	// /// Returns the canonical name of this blade, including a sign change
-	// /// For instance: blade_name([0, 2]) => (-1. "e20")
-	// pub fn blade_name(&self, blade: &Blade) -> Option<(i32, &str)> {
-	// 	self.blades.get(&blade).map(|td| match td.typ {
-	// 		Type::Blade(sign, _) => (sign, td.name.as_str()),
-	// 		_ => unreachable!(),
-	// 	})
-	// }
-
 	pub fn blade_typedef(&self, blade: &Blade) -> Option<&Typedef> {
 		self.blades.get(&blade)
 	}

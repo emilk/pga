@@ -2,8 +2,7 @@ use itertools::chain;
 
 use crate::*;
 
-/// A blade type with a sign,
-/// this is useful so we can express e20 = -e02.
+/// A blade type with a sign. This is useful so we can express e20 = -e02.
 /// Can be both a type (-e02) and a value (42 * e123)
 #[derive(Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub struct SBlade {
@@ -31,22 +30,21 @@ impl SBlade {
 	}
 
 	pub fn pseudo_scalar(g: &Grammar) -> Self {
-		let all_vecs: Vec<VecIdx> = g.vecs().collect();
-		Self::from_sorted(&all_vecs)
+		Self::unit(Blade::pseudo_scalar(g))
 	}
 
 	pub fn vec(vi: VecIdx) -> Self {
 		SBlade::unit(Blade::vec(vi))
 	}
 
-	pub fn from_sorted(vecs: &[VecIdx]) -> SBlade {
+	pub fn from_sorted(vecs: &[VecIdx]) -> Self {
 		SBlade {
 			sign: 1,
 			blade: Blade::from_sorted(vecs.to_vec()),
 		}
 	}
 
-	pub fn from_unsorted(vecs: &[VecIdx]) -> SBlade {
+	pub fn from_unsorted(vecs: &[VecIdx]) -> Self {
 		let (sign, vecs) = sort_vecs(vecs.to_vec());
 		SBlade {
 			sign,
@@ -68,7 +66,7 @@ impl SBlade {
 	}
 
 	pub fn is_scalar(&self) -> bool {
-		self.blade.is_scalar()
+		self.sign == 0 || self.blade.is_scalar()
 	}
 
 	pub fn grade(&self) -> usize {
@@ -77,7 +75,7 @@ impl SBlade {
 
 	/// Left compliment.
 	/// self.lcompl() * self == pseudo-scalar
-	pub fn lcompl(&self, g: &Grammar) -> SBlade {
+	pub fn lcompl(&self, g: &Grammar) -> Self {
 		self.sign * self.blade.lcompl(g)
 	}
 
@@ -85,7 +83,7 @@ impl SBlade {
 	/// self * self.rcompl() == pseudo-scalar
 	/// e0 * e0.rcompl() = e0 * e12 = e012
 	/// e1.rcompl() = e20 = -e02
-	pub fn rcompl(&self, g: &Grammar) -> SBlade {
+	pub fn rcompl(&self, g: &Grammar) -> Self {
 		self.sign * self.blade.rcompl(g)
 	}
 
@@ -134,7 +132,7 @@ impl SBlade {
 		self.lcompl(g).wedge_product(&other.lcompl(g), g).rcompl(g)
 	}
 
-	pub fn binary_product(a: &SBlade, product: Product, b: &SBlade, g: &Grammar) -> SBlade {
+	pub fn binary_product(a: &SBlade, product: Product, b: &SBlade, g: &Grammar) -> Self {
 		match product {
 			Product::Geometric => a.geometric_product(b, g),
 			Product::Dot => a.dot_product(b, g),
@@ -143,9 +141,9 @@ impl SBlade {
 		}
 	}
 
-	pub fn product(product: Product, operands: &[SBlade], g: &Grammar) -> SBlade {
+	pub fn product(product: Product, operands: &[SBlade], g: &Grammar) -> Self {
 		if operands.is_empty() {
-			SBlade::one()
+			SBlade::one() // TODO: is this correct for antiwedge?
 		} else {
 			let mut result = operands[0].clone();
 			for operand in operands.iter().skip(1) {
@@ -174,7 +172,7 @@ fn sort_vecs(mut vecs: Vec<VecIdx>) -> (i32, Vec<VecIdx>) {
 }
 
 #[must_use]
-fn sort_vecs_inplace(vecs: &mut Vec<VecIdx>) -> i32 {
+fn sort_vecs_inplace(vecs: &mut [VecIdx]) -> i32 {
 	// Multiplication is anti-commutative so each time we swap we need to flip the sign.
 	// So bubble-sort!
 	let mut sign = 1;
@@ -209,8 +207,8 @@ pub fn collapse_adjacent(vecs: &mut Vec<VecIdx>, g: &Grammar) -> i32 {
 impl std::fmt::Debug for SBlade {
 	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
 		match self.sign {
-			1 => format!(" {:?}", self.blade).fmt(f),
-			0 => " 0".fmt(f),
+			1 => format!("{:?}", self.blade).fmt(f),
+			0 => "0".fmt(f),
 			-1 => format!("-{:?}", self.blade).fmt(f),
 			sign => format!("{}*{:?}", sign, self.blade).fmt(f),
 		}

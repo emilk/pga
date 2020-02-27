@@ -9,9 +9,6 @@ mod typify;
 
 pub use {blade::*, op::*, sblade::*, typ::*, types::*};
 
-/// The scalar type we use for symbolic reasoning.
-// type S = i32;
-
 /// Which base vector (e0, e1 or e2?)
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, derive_more::Display)]
 pub struct VecIdx(pub usize);

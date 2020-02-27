@@ -57,8 +57,6 @@ impl Type {
 
 	pub fn unit(&self) -> Op {
 		match self {
-			// Type::S => Op::one(),
-			// Type::Vec(vi) => Op::Vec(*vi),
 			Type::SBlade(sblade) => {
 				let op = match sblade.blade.grade() {
 					0 => Op::one(),
@@ -72,7 +70,7 @@ impl Type {
 					_ => unreachable!(),
 				}
 			}
-			_ => panic!(),
+			_ => todo!(),
 		}
 	}
 
@@ -106,8 +104,7 @@ impl Op {
 				} else if terms.len() == 1 {
 					terms[0].typ(g)
 				} else {
-					println!("TODO: figure out type of sum '{}'", self.rust());
-					None
+					todo!("figure out type of sum '{}'", self.rust())
 				}
 			}
 			Op::Prod(product, factors) => product_type(*product, factors, g),
@@ -116,7 +113,7 @@ impl Op {
 					.iter()
 					.map(|(name, op)| Some((name.to_string(), op.typ(g)?)))
 					.collect();
-				members.map(|s| Type::Struct(s).into())
+				members.map(Type::Struct)
 			}
 		}
 	}

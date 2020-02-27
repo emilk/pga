@@ -3,12 +3,13 @@ use crate::*;
 /// TODO: rename Expr ?
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Op {
+	/// Variable of a given type
 	Var(String, Type),
 
 	// A unit length base vector
 	Vec(VecIdx),
 
-	/// Indicated a scalar times something.
+	/// Indicates a scalar times something.
 	/// Wedge(vec![X, 3, Y, 4]) simplifies to Term(Wedge(vec![X, Y]), 12)
 	/// In its simplest form, the scalar is never 0 or 1
 	/// 0 == Sum(vec![])
@@ -21,22 +22,19 @@ pub enum Op {
 	/// distributive:  LCompl(a + b) = LCompl(a) + LCompl(b)
 	LCompl(Box<Op>),
 
-	// Unary operations:
 	/// Right compliment.
 	/// The right compliment of a blade B is defined so that
 	/// B * RCompl(B) = PseudoScalar
 	/// distributive:  RCompl(a + b) = RCompl(a) + RCompl(b)
 	RCompl(Box<Op>),
 
-	// N-ary operations:
 	Sum(Vec<Op>),
+
 	Prod(Product, Vec<Op>),
-	// Dot(Vec<Op>),
-	// AntiProd(Vec<Op>),
-	// AntiDot(Vec<Op>),
-	// AntiWedge(Vec<Op>),
+
+	/// An instance of a struct, e.g. `Point {  x: ..., y: ... }` etc.
 	StructInstance {
-		name: String,
+		struct_name: String,
 		members: Vec<(String, Op)>,
 	},
 }
@@ -81,7 +79,6 @@ impl Op {
 
 	/// also known as the regressive product
 	pub fn antiwedge(factors: Vec<Op>) -> Self {
-		// Op::RCompl(Op::wedge(factors.into_iter().map(|op| Op::LCompl(op.into())).collect()).into())
 		Op::Prod(Product::Antiwedge, factors)
 	}
 

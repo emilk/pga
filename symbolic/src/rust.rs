@@ -35,7 +35,7 @@ impl Op {
 		match self {
 			Op::Var(name, _typ) => RustExpr::atom(name),
 			Op::Vec(vi) => {
-				//  Use typify to get more readable vector name
+				//  You should call op.typify() before .rus() to get more readable vector names
 				RustExpr::atom(format!("e{}", vi.0))
 			}
 			Op::Term(op, s) => {
@@ -80,11 +80,11 @@ impl Op {
 					)
 				}
 			}
-			Op::StructInstance { name, members } => {
+			Op::StructInstance { struct_name, members } => {
 				let maxw = members.iter().map(|(name, _)| name.len()).max().unwrap_or_default();
 				RustExpr::atom(format!(
 					"{} {{\n{}\n}}",
-					name,
+					struct_name,
 					indent(
 						&members
 							.iter()

@@ -36,7 +36,8 @@ impl Op {
 					.into_iter()
 					.map(|(mem_name, typ)| Op::var(format!("{}.{}", var_name, mem_name), &typ))
 					.collect(),
-			),
+			)
+			.simplify(g),
 			Op::Var(_, _) => self,
 			Op::Vec(_) => self,
 			Op::LCompl(op) => match op.simplify(g) {
@@ -75,7 +76,7 @@ impl Op {
 					.collect();
 				terms.retain(|f| !f.is_zero());
 
-				terms = join_terms(terms, g);
+				terms = sort_and_join_terms(terms, g);
 
 				if terms.is_empty() {
 					Op::zero()
@@ -117,10 +118,10 @@ impl Op {
 		*self = std::mem::replace(self, Op::zero()).simplify(g);
 	}
 
-	fn as_factors(self, desired_product_type: Product) -> Vec<Op> {
+	fn into_factors(self, desired_product_type: Product) -> Vec<Op> {
 		match self {
 			Op::Term(op, scalar) => {
-				let mut factors = op.as_factors(desired_product_type);
+				let mut factors = op.into_factors(desired_product_type);
 				factors.push(Op::scalar(scalar));
 				factors
 			}
@@ -131,7 +132,7 @@ impl Op {
 }
 
 #[must_use]
-fn join_terms(terms: Vec<Op>, _g: Option<&Grammar>) -> Vec<Op> {
+fn sort_and_join_terms(terms: Vec<Op>, _g: Option<&Grammar>) -> Vec<Op> {
 	// Convert into sum-of-products:
 	let mut terms: Vec<Term> = terms.into_iter().map(Term::from_op).collect();
 	terms.sort();
@@ -162,7 +163,7 @@ fn simplify_product(product: Product, factors: Vec<Op>, g: Option<&Grammar>) -> 
 	let mut new_factors = vec![];
 
 	for fac in factors {
-		for fac in fac.as_factors(product) {
+		for fac in fac.into_factors(product) {
 			if let Some(scalar) = fac.as_scalar() {
 				new_scalar *= scalar;
 			} else {
@@ -176,6 +177,9 @@ fn simplify_product(product: Product, factors: Vec<Op>, g: Option<&Grammar>) -> 
 	// eprintln!("simplify_product {} * {:?} {:?}", scalar, product, factors);
 
 	scalar *= sort_factors(product, &mut factors, g);
+	if let Some(g) = g {
+		scalar *= collapse_factors(product, &mut factors, g);
+	}
 
 	// eprintln!("simplify_product {} * {:?} {:?}", scalar, product, factors);
 
@@ -195,28 +199,15 @@ fn simplify_product(product: Product, factors: Vec<Op>, g: Option<&Grammar>) -> 
 }
 
 #[must_use]
-fn sort_factors(product: Product, factors: &mut Vec<Op>, g: Option<&Grammar>) -> i32 {
+fn sort_factors(product: Product, factors: &mut [Op], g: Option<&Grammar>) -> i32 {
 	// Any sign-change due to swapping
 	let mut sign = 1;
 
-	// Sort:
+	// Bubble-sort:
 	while {
 		let mut did_swap = false;
 		for i in 1..factors.len() {
-			if factors[i - 1] == factors[i] {
-				// Square it!
-				if let Some(g) = g {
-					if let Some(t) = factors[i].typ(Some(g)) {
-						if let Some(s) = square_to_sign(product, &t, g) {
-							sign *= s;
-							factors.remove(i);
-							factors.remove(i - 1);
-							did_swap = true;
-							break;
-						}
-					}
-				}
-			} else if factors[i - 1] > factors[i] {
+			if factors[i - 1] > factors[i] {
 				// We want to swap them. Can we?
 				let lt = factors[i - 1].typ(g);
 				let rt = factors[i].typ(g);
@@ -229,6 +220,29 @@ fn sort_factors(product: Product, factors: &mut Vec<Op>, g: Option<&Grammar>) ->
 		}
 		did_swap
 	} {}
+
+	sign
+}
+
+#[must_use]
+fn collapse_factors(product: Product, factors: &mut Vec<Op>, g: &Grammar) -> i32 {
+	// Any sign-change due to squaring
+	let mut sign = 1;
+
+	let mut i = 0;
+	while i + 1 < factors.len() {
+		if factors[i] == factors[i + 1] {
+			if let Some(t) = factors[i].typ(Some(g)) {
+				if let Some(s) = square_to_sign(product, &t, g) {
+					sign *= s;
+					factors.remove(i);
+					factors.remove(i);
+					continue;
+				}
+			}
+		}
+		i += 1;
+	}
 
 	sign
 }

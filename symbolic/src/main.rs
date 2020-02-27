@@ -1,5 +1,34 @@
 use symbolic::*;
 
+fn print_multiplication_tables(unit_blades: &[Op], rust: &impl Fn(Op) -> String) {
+	println!();
+	println!("Geometric multiplication table (left side * top row):");
+	multiplication_table(unit_blades, Product::Geometric, rust);
+
+	println!();
+	println!("Dot multiplication table (left side | top row):");
+	multiplication_table(unit_blades, Product::Dot, rust);
+
+	println!();
+	println!("Wedge multiplication table (left side ^ top row):");
+	multiplication_table(unit_blades, Product::Wedge, rust);
+
+	println!();
+	println!("Antiwedge multiplication table (right side & bottom row):");
+	multiplication_table(unit_blades, Product::Antiwedge, rust);
+}
+
+fn multiplication_table(unit_blades: &[Op], product: Product, rust: &impl Fn(Op) -> String) {
+	for a in unit_blades {
+		print!("  ");
+		for b in unit_blades {
+			let prod = Op::Prod(product, vec![a.clone(), b.clone()]);
+			print!("{:<4} ", rust(prod));
+		}
+		println!();
+	}
+}
+
 fn pga2d_types() -> Types {
 	let mut t = Types::default();
 	let x = VecIdx(0);
@@ -38,12 +67,7 @@ fn pga2d_types() -> Types {
 fn main() {
 	let t = pga2d_types();
 	let g = Grammar(vec![1, 1, 0]);
-
-	let rust = |op: Op| {
-		let op = op.simplify(Some(&g));
-		let op = op.typify(&t, &g);
-		op.rust()
-	};
+	let rust = |op: Op| op.simplify(Some(&g)).typify(&t, &g).rust();
 
 	let x_type = t.get("X");
 	let y_type = t.get("Y");
@@ -59,58 +83,15 @@ fn main() {
 		t.get("XYW"),
 	];
 
+	let unit_blades: Vec<Op> = blades.iter().map(|t| t.unit()).collect();
+
+	print_multiplication_tables(&unit_blades, &rust);
+
 	assert_eq!(t.get("WX").unit().rust(), "-e0 ^ e2");
 	assert_eq!(rust(t.get("WX").unit()), "WX");
 
 	assert_eq!(Op::dot(vec![t.get("XY").unit()]).simplify(Some(&g)).rust(), "e0 ^ e1");
 	assert_eq!(rust(Op::dot(vec![t.get("XY").unit(), Op::one()])), "XY");
-
-	let unit_blades: Vec<Op> = blades.iter().map(|t| t.unit()).collect();
-
-	println!();
-	println!("Geometric multiplication table (left side * top row):");
-	for a in &unit_blades {
-		print!("  ");
-		for b in &unit_blades {
-			let prod = Op::geometric(vec![a.clone(), b.clone()]);
-			print!("{:<10} ", rust(prod));
-		}
-		println!();
-	}
-
-	println!();
-	println!("Dot multiplication table (left side | top row):");
-	for a in &unit_blades {
-		print!("  ");
-		for b in &unit_blades {
-			let prod = Op::dot(vec![a.clone(), b.clone()]);
-			print!("{:<10} ", rust(prod));
-		}
-		println!();
-	}
-
-	println!();
-	println!("Wedge multiplication table (left side ^ top row):");
-	for a in &unit_blades {
-		print!("  ");
-		for b in &unit_blades {
-			let prod = Op::wedge(vec![a.clone(), b.clone()]);
-			print!("{:<10} ", rust(prod));
-		}
-		println!();
-	}
-
-	// TODO: fix, I think this is wrong!
-	println!();
-	println!("Antiwedge multiplication table (right side & bottom row):");
-	for a in &unit_blades {
-		print!("  ");
-		for b in &unit_blades {
-			let prod = Op::antiwedge(vec![a.clone(), b.clone()]);
-			print!("{:<10} ", rust(prod));
-		}
-		println!();
-	}
 
 	assert_eq!(rust(x_type.unit()), "X");
 

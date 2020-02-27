@@ -117,7 +117,6 @@ Line {
 		.trim()
 	);
 
-	// TODO: fix, I think this is wrong!
 	let line = t.get("Line");
 	assert_eq!(
 		rust(Op::antiwedge(vec![Op::var("l", line), Op::var("r", line)])),
@@ -129,5 +128,15 @@ Point {
 }
 "
 		.trim()
+	);
+
+	assert_eq!(
+		rust(Op::geometric(vec![Op::var("p", point), Op::var("p", point)])),
+		r"p.x * p.x + p.y * p.y"
+	);
+
+	assert_eq!(
+		rust(Op::geometric(vec![Op::var("l", line), Op::var("l", line)])),
+		r"l.xy * l.xy"
 	);
 }

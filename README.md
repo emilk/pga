@@ -8,6 +8,7 @@ It is also made to teach myself the fundamentals of PGA.
 [The Geometric Algebra course at Siggraph 2019](https://www.youtube.com/watch?v=tX4H_ctggYo)
 https://bivector.net/index.html
 
+Foundation of Game Engine Development, Volume 1, by Eric Lengyel
 http://terathon.com/blog/projective-geometric-algebra-done-right/
 http://terathon.com/pga_lengyel.pdf
 
@@ -38,7 +39,7 @@ These types will be combines against each other for all operations, unary (like 
 
 Geometric Algebra (GA) is great and very general. We fill focus first on the interesting subset of 3D Projective Geometric Algebra (PHA). This is where you denote point and vectors with an extra projective dimension `w` and define `w=0` as directions and `w=1` as cartesian coordinates. Thus a vector is expressed as `[x, y, z, w]`.
 
-GA replaces the familiar named with `x/y/z/w` with the less familiar `e1/e2/e3/e4` or sometimes `e0/e1/e2/e3`. Due to this unfimiliarity and unconsistency I prefer to simply rename them to the familiar names `x/y/z/w`.
+GA replaces the familiar named with `x/y/z/w` with the less familiar `e1/e2/e3/e4` or sometimes `e0/e1/e2/e3`. Due to this unfamiliarity and inconsistency I prefer to simply rename them to the familiar names `x/y/z/w`.
 
 So, I use this notations:
 

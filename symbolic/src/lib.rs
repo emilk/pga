@@ -18,8 +18,12 @@ pub enum Product {
 	/// Geom = Inner + Outer = Dot + Wedge
 	Geometric,
 	/// Inner / dot product.
+	/// The commutative part of the geometric product.
+	/// Measures sameness of blades.
 	Dot,
 	/// Outer (progressive) product. Moves to a higher dimension.
+	/// The anti-commutative part of the geometric product.
+	/// Measures difference between blades.
 	Wedge,
 	/// Regressive. Reduces the dimensionality.
 	Antiwedge,
@@ -32,9 +36,13 @@ pub struct Grammar(pub Vec<i32>);
 // ----------------------------------------------------------------------------
 
 impl Grammar {
-	/// What do we get when we square this basis vector?
-	pub fn square(&self, v: VecIdx) -> i32 {
-		self.0[v.0]
+	pub fn square(&self, product: Product, v: VecIdx) -> i32 {
+		match product {
+			Product::Geometric => self.0[v.0],
+			Product::Dot => self.0[v.0],
+			Product::Wedge => 0,
+			Product::Antiwedge => 0,
+		}
 	}
 
 	pub fn num_vecs(&self) -> usize {

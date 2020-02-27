@@ -67,6 +67,8 @@ impl Op {
 				}
 			}
 			Op::Sum(terms) => {
+				// use itertools::Itertools;
+				// eprintln!("simplify sums input: {:?}", terms.iter().map(Op::rust).join(" + "));
 				let mut terms: Vec<Op> = terms
 					.into_iter()
 					.flat_map(|term| match term.simplify(g) {
@@ -76,7 +78,9 @@ impl Op {
 					.collect();
 				terms.retain(|f| !f.is_zero());
 
+				// eprintln!("simplify sums PRE-sort {:?}", terms.iter().map(Op::rust).join(" + "));
 				terms = sort_and_join_terms(terms, g);
+				// eprintln!("simplify sums POST-sort {:?}", terms.iter().map(Op::rust).join(" + "));
 
 				if terms.is_empty() {
 					Op::zero()
@@ -226,21 +230,28 @@ fn sort_factors(product: Product, factors: &mut [Op], g: Option<&Grammar>) -> i3
 
 #[must_use]
 fn collapse_factors(product: Product, factors: &mut Vec<Op>, g: &Grammar) -> i32 {
-	// Any sign-change due to squaring
+	// Any sign-change due to squaring of base vectors
 	let mut sign = 1;
 
 	let mut i = 0;
 	while i + 1 < factors.len() {
 		if factors[i] == factors[i + 1] {
-			if let Some(t) = factors[i].typ(Some(g)) {
-				if let Some(s) = square_to_sign(product, &t, g) {
-					sign *= s;
-					factors.remove(i);
-					factors.remove(i);
-					continue;
-				}
+			if let Op::Vec(vi) = factors[i] {
+				sign *= g.square(product, vi);
+				factors.remove(i);
+				factors.remove(i);
+				continue;
 			}
 		}
+
+		if let (Some(Type::SBlade(lb)), Some(Type::SBlade(rb))) = (factors[i].typ(Some(g)), factors[i + 1].typ(Some(g)))
+		{
+			if SBlade::binary_product(&lb, product, &rb, g).is_zero() {
+				factors.clear();
+				return 0;
+			}
+		}
+
 		i += 1;
 	}
 
@@ -262,30 +273,5 @@ fn commutativeness(product: Product, l: Option<Type>, r: Option<Type>, g: Option
 		Some(1)
 	} else {
 		Some(-1)
-	}
-}
-
-/// Does this type square to either -1, 0 or +1?
-fn square_to_sign(product: Product, t: &Type, g: &Grammar) -> Option<i32> {
-	if t.is_zero() {
-		return Some(0);
-	}
-	match t {
-		Type::SBlade(sb) => {
-			let prod = SBlade::binary_product(sb, product, sb, g);
-			if prod.is_zero() {
-				Some(0)
-			} else if prod.is_scalar() {
-				assert_eq!(prod.sign.abs(), 1);
-				Some(prod.sign)
-			} else {
-				None
-			}
-		}
-		Type::Struct(members) => match members.len() {
-			0 => Some(0),
-			1 => square_to_sign(product, &members[0].1, g),
-			_ => None,
-		},
 	}
 }

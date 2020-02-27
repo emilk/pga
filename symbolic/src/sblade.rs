@@ -194,7 +194,7 @@ pub fn collapse_adjacent(vecs: &mut Vec<VecIdx>, g: &Grammar) -> i32 {
 	let mut new_bases = vec![];
 	for vi in vecs.iter() {
 		if new_bases.last() == Some(vi) {
-			sign *= g.square(*vi);
+			sign *= g.square(Product::Geometric, *vi);
 			new_bases.pop();
 		} else {
 			new_bases.push(*vi);

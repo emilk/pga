@@ -90,7 +90,7 @@ impl Op {
 	/// Note: self must be simplified
 	pub fn is_one(&self) -> bool {
 		match self {
-			Op::Prod(_, factors) if factors.is_empty() => true,
+			Op::Prod(Product::Geometric, factors) if factors.is_empty() => true,
 			_ => false,
 		}
 	}
@@ -154,7 +154,7 @@ mod tests {
 		let grammar = Grammar(vec![0, 1, 1, 1]);
 		let g = &grammar;
 		let v0 = VecIdx(0);
-		let v1 = VecIdx(1);
+		// let v1 = VecIdx(1);
 		// let v2 = VecIdx(2);
 		// let v3 = VecIdx(3);
 

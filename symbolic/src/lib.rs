@@ -17,6 +17,8 @@ pub struct VecIdx(pub usize);
 pub enum Product {
 	/// Geom = Inner + Outer = Dot + Wedge
 	Geometric,
+	/// Geometric Antiproduct = rcompl(lcompl(a) * lcompl(b))
+	AntiGeometric,
 	/// Inner / dot product.
 	/// The commutative part of the geometric product.
 	/// Measures sameness of blades.
@@ -36,12 +38,17 @@ pub struct Grammar(pub Vec<i32>);
 // ----------------------------------------------------------------------------
 
 impl Grammar {
-	pub fn square(&self, product: Product, v: VecIdx) -> i32 {
+	pub fn square_geom(&self, v: VecIdx) -> i32 {
+		self.0[v.0]
+	}
+
+	pub fn square_with(&self, product: Product, v: VecIdx) -> Option<i32> {
 		match product {
-			Product::Geometric => self.0[v.0],
-			Product::Dot => self.0[v.0],
-			Product::Wedge => 0,
-			Product::Antiwedge => 0,
+			Product::Geometric => Some(self.0[v.0]),
+			Product::AntiGeometric => None, // TODO
+			Product::Dot => Some(self.0[v.0]),
+			Product::Wedge => Some(0),
+			Product::Antiwedge => Some(0),
 		}
 	}
 
@@ -58,6 +65,7 @@ impl Product {
 	pub fn symbol(&self) -> &str {
 		match self {
 			Product::Geometric => "*",
+			Product::AntiGeometric => "!*", // TODO
 			Product::Dot => "|",
 			Product::Wedge => "^",
 			Product::Antiwedge => "&",

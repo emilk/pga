@@ -191,7 +191,10 @@ fn simplify_product(product: Product, factors: Vec<Op>, g: Option<&Grammar>) -> 
 		Op::zero()
 	} else if scalar == 1 {
 		if factors.is_empty() {
-			Op::one()
+			match product {
+				Product::Geometric | Product::Wedge | Product::Dot => Op::one(),
+				_ => Op::Prod(product, factors), // TODO
+			}
 		} else if factors.len() == 1 {
 			factors.remove(0)
 		} else {
@@ -237,10 +240,12 @@ fn collapse_factors(product: Product, factors: &mut Vec<Op>, g: &Grammar) -> i32
 	while i + 1 < factors.len() {
 		if factors[i] == factors[i + 1] {
 			if let Op::Vec(vi) = factors[i] {
-				sign *= g.square(product, vi);
-				factors.remove(i);
-				factors.remove(i);
-				continue;
+				if let Some(s) = g.square_with(product, vi) {
+					sign *= s;
+					factors.remove(i);
+					factors.remove(i);
+					continue;
+				}
 			}
 		}
 

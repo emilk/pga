@@ -103,6 +103,10 @@ impl SBlade {
 		}
 	}
 
+	pub fn geometric_antiproduct(&self, other: &SBlade, g: &Grammar) -> Self {
+		self.lcompl(g).geometric_product(&other.lcompl(g), g).rcompl(g)
+	}
+
 	/// dot / inner product
 	pub fn dot_product(&self, other: &SBlade, g: &Grammar) -> Self {
 		// The dot product is the K grade of the geometric product,
@@ -135,6 +139,7 @@ impl SBlade {
 	pub fn binary_product(a: &SBlade, product: Product, b: &SBlade, g: &Grammar) -> Self {
 		match product {
 			Product::Geometric => a.geometric_product(b, g),
+			Product::AntiGeometric => a.geometric_antiproduct(b, g),
 			Product::Dot => a.dot_product(b, g),
 			Product::Wedge => a.wedge_product(b, g),
 			Product::Antiwedge => a.antiwedge_product(b, g),
@@ -194,7 +199,7 @@ pub fn collapse_adjacent(vecs: &mut Vec<VecIdx>, g: &Grammar) -> i32 {
 	let mut new_bases = vec![];
 	for vi in vecs.iter() {
 		if new_bases.last() == Some(vi) {
-			sign *= g.square(Product::Geometric, *vi);
+			sign *= g.square_geom(*vi);
 			new_bases.pop();
 		} else {
 			new_bases.push(*vi);

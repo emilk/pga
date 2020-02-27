@@ -6,6 +6,10 @@ fn print_multiplication_tables(unit_blades: &[Op], rust: &impl Fn(Op) -> String)
 	multiplication_table(unit_blades, Product::Geometric, rust);
 
 	println!();
+	println!("Geometric anti-product multiplication table (left side !* top row):");
+	multiplication_table(unit_blades, Product::AntiGeometric, rust);
+
+	println!();
 	println!("Dot multiplication table (left side | top row):");
 	multiplication_table(unit_blades, Product::Dot, rust);
 

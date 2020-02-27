@@ -66,7 +66,10 @@ impl Op {
 			}
 			Op::Prod(product, factors) => {
 				if factors.is_empty() {
-					RustExpr::atom("1")
+					match product {
+						Product::Geometric | Product::Wedge | Product::Dot => RustExpr::atom("1"),
+						_ => todo!(),
+					}
 				} else if factors.len() == 1 {
 					factors[0].rust_expr()
 				} else {

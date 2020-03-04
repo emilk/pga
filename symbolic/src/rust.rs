@@ -26,39 +26,39 @@ impl RustExpr {
 	}
 }
 
-impl Op {
+impl Expr {
 	pub fn rust(&self) -> String {
 		self.rust_expr().1
 	}
 
 	fn rust_expr(&self) -> RustExpr {
 		match self {
-			Op::Var(name, _typ) => RustExpr::atom(name),
-			Op::Vec(vi) => {
-				//  You should call op.typify() before .rus() to get more readable vector names
+			Expr::Var(name, _typ) => RustExpr::atom(name),
+			Expr::Vec(vi) => {
+				//  You should call expr.typify() before .rus() to get more readable vector names
 				RustExpr::atom(format!("e{}", vi.0))
 			}
-			Op::Term(op, s) => {
-				if op.is_one() {
+			Expr::Term(expr, s) => {
+				if expr.is_one() {
 					RustExpr::atom(s)
 				} else if *s == -1 {
 					RustExpr(
 						Precedence::Product,
-						format!("-{}", op.rust_expr().enclose_if_less(Precedence::Product)),
+						format!("-{}", expr.rust_expr().enclose_if_less(Precedence::Product)),
 					)
 				} else {
 					RustExpr(
 						Precedence::Product,
-						format!("{} * {}", s, op.rust_expr().enclose_if_less(Precedence::Product)),
+						format!("{} * {}", s, expr.rust_expr().enclose_if_less(Precedence::Product)),
 					)
 				}
 			}
-			Op::Unary(unary, op) => RustExpr::atom(format!(
+			Expr::Unary(unary, expr) => RustExpr::atom(format!(
 				"{}.{}()",
-				op.rust_expr().enclose_if_less(Precedence::Atom),
+				expr.rust_expr().enclose_if_less(Precedence::Atom),
 				unary.name()
 			)),
-			Op::Sum(terms) => {
+			Expr::Sum(terms) => {
 				if terms.is_empty() {
 					RustExpr::atom("0")
 				} else if terms.len() == 1 {
@@ -76,7 +76,7 @@ impl Op {
 					RustExpr(Precedence::Sum, s)
 				}
 			}
-			Op::Prod(product, factors) => {
+			Expr::Prod(product, factors) => {
 				if factors.is_empty() {
 					match product {
 						Product::Geometric | Product::Wedge | Product::Dot => RustExpr::atom("1"),
@@ -95,7 +95,7 @@ impl Op {
 					)
 				}
 			}
-			Op::StructInstance { struct_name, members } => {
+			Expr::StructInstance { struct_name, members } => {
 				let maxw = members.iter().map(|(name, _)| name.len()).max().unwrap_or_default();
 				RustExpr::atom(format!(
 					"{} {{\n{}\n}}",
@@ -103,7 +103,7 @@ impl Op {
 					indent(
 						&members
 							.iter()
-							.map(|(name, op)| format!("{:maxw$}: {},", name, op.rust(), maxw = maxw))
+							.map(|(name, expr)| format!("{:maxw$}: {},", name, expr.rust(), maxw = maxw))
 							.join("\n")
 					)
 				))

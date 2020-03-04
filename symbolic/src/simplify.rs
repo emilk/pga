@@ -3,110 +3,110 @@ use crate::*;
 // Used when simplifying sums:
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 struct Term {
-	/// op first, so we sort on that
-	op: Op,
+	/// expr first, so we sort on that
+	expr: Expr,
 	scalar: i32,
 }
 
 impl Term {
-	pub fn from_op(op: Op) -> Term {
-		match op {
-			Op::Term(op, scalar) => Term { op: *op, scalar },
-			op => Term { op, scalar: 1 },
+	pub fn from_op(expr: Expr) -> Term {
+		match expr {
+			Expr::Term(expr, scalar) => Term { expr: *expr, scalar },
+			expr => Term { expr, scalar: 1 },
 		}
 	}
 
-	pub fn into_op(self) -> Op {
+	pub fn into_op(self) -> Expr {
 		if self.scalar == 0 {
-			Op::zero()
+			Expr::zero()
 		} else if self.scalar == 1 {
-			self.op
+			self.expr
 		} else {
-			Op::Term(self.op.into(), self.scalar)
+			Expr::Term(self.expr.into(), self.scalar)
 		}
 	}
 }
 
-impl Op {
+impl Expr {
 	#[must_use]
-	pub fn simplify(self, g: Option<&Grammar>) -> Op {
+	pub fn simplify(self, g: Option<&Grammar>) -> Expr {
 		match self {
-			Op::Var(_, Type::Constant(sblade)) => Op::sblade(&sblade),
-			Op::Var(var_name, Type::Struct(members)) => Op::Sum(
+			Expr::Var(_, Type::Constant(sblade)) => Expr::sblade(&sblade),
+			Expr::Var(var_name, Type::Struct(members)) => Expr::Sum(
 				members
 					.into_iter()
-					.map(|(mem_name, typ)| Op::var(format!("{}.{}", var_name, mem_name), &typ))
+					.map(|(mem_name, typ)| Expr::var(format!("{}.{}", var_name, mem_name), &typ))
 					.collect(),
 			)
 			.simplify(g),
-			Op::Var(_, _) => self,
-			Op::Vec(_) => self,
-			Op::Unary(unary, op) => match op.simplify(g) {
+			Expr::Var(_, _) => self,
+			Expr::Vec(_) => self,
+			Expr::Unary(unary, expr) => match expr.simplify(g) {
 				// e.g. x.lcompl().rcompl() => x
-				Op::Unary(inner_unary, op) if inner_unary == unary.undoer() => *op,
+				Expr::Unary(inner_unary, expr) if inner_unary == unary.undoer() => *expr,
 
 				// distributive property
 				// (a + b).unary() = a.unary() + b.unary()
-				Op::Sum(terms) => Op::Sum(terms.into_iter().map(|t| Op::Unary(unary, t.into())).collect()).simplify(g),
+				Expr::Sum(terms) => Expr::Sum(terms.into_iter().map(|t| Expr::Unary(unary, t.into())).collect()).simplify(g),
 
-				op => Op::Unary(unary, op.into()),
+				expr => Expr::Unary(unary, expr.into()),
 			},
 
-			Op::Term(op, mut scalar) => {
-				let op: Op = match op.simplify(g) {
-					Op::Term(inner_op, inner_scalar) => {
+			Expr::Term(expr, mut scalar) => {
+				let expr: Expr = match expr.simplify(g) {
+					Expr::Term(inner_op, inner_scalar) => {
 						scalar *= inner_scalar;
 						*inner_op
 					}
-					op => op,
+					expr => expr,
 				};
-				if scalar == 0 || op.is_zero() {
+				if scalar == 0 || expr.is_zero() {
 					Self::zero()
 				} else if scalar == 1 {
-					op
+					expr
 				} else {
-					Op::Term(op.into(), scalar)
+					Expr::Term(expr.into(), scalar)
 				}
 			}
-			Op::Sum(terms) => {
+			Expr::Sum(terms) => {
 				// use itertools::Itertools;
-				// eprintln!("simplify sums input: {:?}", terms.iter().map(Op::rust).join(" + "));
-				let mut terms: Vec<Op> = terms
+				// eprintln!("simplify sums input: {:?}", terms.iter().map(Expr::rust).join(" + "));
+				let mut terms: Vec<Expr> = terms
 					.into_iter()
 					.flat_map(|term| match term.simplify(g) {
-						Op::Sum(terms) => terms,
-						op => vec![op],
+						Expr::Sum(terms) => terms,
+						expr => vec![expr],
 					})
 					.collect();
 				terms.retain(|f| !f.is_zero());
 
-				// eprintln!("simplify sums PRE-sort {:?}", terms.iter().map(Op::rust).join(" + "));
+				// eprintln!("simplify sums PRE-sort {:?}", terms.iter().map(Expr::rust).join(" + "));
 				terms = sort_and_join_terms(terms, g);
-				// eprintln!("simplify sums POST-sort {:?}", terms.iter().map(Op::rust).join(" + "));
+				// eprintln!("simplify sums POST-sort {:?}", terms.iter().map(Expr::rust).join(" + "));
 
 				if terms.is_empty() {
-					Op::zero()
+					Expr::zero()
 				} else if terms.len() == 1 {
 					terms.remove(0)
 				} else {
-					Op::Sum(terms)
+					Expr::Sum(terms)
 				}
 			}
-			Op::Prod(product, mut factors) => {
+			Expr::Prod(product, mut factors) => {
 				for fac in &mut factors {
 					fac.simplify_inplace(g);
 				}
 
 				// look for a sum for expansion:
 				for (i, fac) in factors.iter().enumerate() {
-					if let Op::Sum(terms) = fac {
+					if let Expr::Sum(terms) = fac {
 						let terms = terms.clone();
-						return Op::Sum(
+						return Expr::Sum(
 							terms
 								.into_iter()
 								.map(|term| {
 									factors[i] = term;
-									Op::Prod(product, factors.clone())
+									Expr::Prod(product, factors.clone())
 								})
 								.collect(),
 						)
@@ -116,29 +116,29 @@ impl Op {
 
 				simplify_product(product, factors, g)
 			}
-			Op::StructInstance { .. } => self,
+			Expr::StructInstance { .. } => self,
 		}
 	}
 
 	pub fn simplify_inplace(&mut self, g: Option<&Grammar>) {
-		*self = std::mem::replace(self, Op::zero()).simplify(g);
+		*self = std::mem::replace(self, Expr::zero()).simplify(g);
 	}
 
-	fn into_factors(self, desired_product_type: Product) -> Vec<Op> {
+	fn into_factors(self, desired_product_type: Product) -> Vec<Expr> {
 		match self {
-			Op::Term(op, scalar) => {
-				let mut factors = op.into_factors(desired_product_type);
-				factors.push(Op::scalar(scalar));
+			Expr::Term(expr, scalar) => {
+				let mut factors = expr.into_factors(desired_product_type);
+				factors.push(Expr::scalar(scalar));
 				factors
 			}
-			Op::Prod(product, factors) if product == desired_product_type => factors,
-			op => vec![op],
+			Expr::Prod(product, factors) if product == desired_product_type => factors,
+			expr => vec![expr],
 		}
 	}
 }
 
 #[must_use]
-fn sort_and_join_terms(terms: Vec<Op>, _g: Option<&Grammar>) -> Vec<Op> {
+fn sort_and_join_terms(terms: Vec<Expr>, _g: Option<&Grammar>) -> Vec<Expr> {
 	// Convert into sum-of-products:
 	let mut terms: Vec<Term> = terms.into_iter().map(Term::from_op).collect();
 	terms.sort();
@@ -147,7 +147,7 @@ fn sort_and_join_terms(terms: Vec<Op>, _g: Option<&Grammar>) -> Vec<Op> {
 	let mut collapsed_terms: Vec<Term> = vec![];
 	for new_term in terms {
 		if let Some(last_term) = collapsed_terms.last_mut() {
-			if last_term.op == new_term.op {
+			if last_term.expr == new_term.expr {
 				last_term.scalar += new_term.scalar;
 				if last_term.scalar == 0 {
 					collapsed_terms.pop();
@@ -163,7 +163,7 @@ fn sort_and_join_terms(terms: Vec<Op>, _g: Option<&Grammar>) -> Vec<Op> {
 }
 
 #[must_use]
-fn simplify_product(product: Product, factors: Vec<Op>, g: Option<&Grammar>) -> Op {
+fn simplify_product(product: Product, factors: Vec<Expr>, g: Option<&Grammar>) -> Expr {
 	// eprintln!("simplify_product {:?} {:?}", product, factors);
 	let mut new_scalar = 1;
 	let mut new_factors = vec![];
@@ -190,25 +190,25 @@ fn simplify_product(product: Product, factors: Vec<Op>, g: Option<&Grammar>) -> 
 	// eprintln!("simplify_product {} * {:?} {:?}", scalar, product, factors);
 
 	if scalar == 0 {
-		Op::zero()
+		Expr::zero()
 	} else if scalar == 1 {
 		if factors.is_empty() {
 			match product {
-				Product::Geometric | Product::Wedge | Product::Dot => Op::one(),
-				_ => Op::Prod(product, factors), // TODO
+				Product::Geometric | Product::Wedge | Product::Dot => Expr::one(),
+				_ => Expr::Prod(product, factors), // TODO
 			}
 		} else if factors.len() == 1 {
 			factors.remove(0)
 		} else {
-			Op::Prod(product, factors)
+			Expr::Prod(product, factors)
 		}
 	} else {
-		Op::Term(Op::Prod(product, factors).into(), scalar).simplify(g)
+		Expr::Term(Expr::Prod(product, factors).into(), scalar).simplify(g)
 	}
 }
 
 #[must_use]
-fn sort_factors(product: Product, factors: &mut [Op], g: Option<&Grammar>) -> i32 {
+fn sort_factors(product: Product, factors: &mut [Expr], g: Option<&Grammar>) -> i32 {
 	// Any sign-change due to swapping
 	let mut sign = 1;
 
@@ -234,14 +234,14 @@ fn sort_factors(product: Product, factors: &mut [Op], g: Option<&Grammar>) -> i3
 }
 
 #[must_use]
-fn collapse_factors(product: Product, factors: &mut Vec<Op>, g: &Grammar) -> i32 {
+fn collapse_factors(product: Product, factors: &mut Vec<Expr>, g: &Grammar) -> i32 {
 	// Any sign-change due to squaring of base vectors
 	let mut sign = 1;
 
 	let mut i = 0;
 	while i + 1 < factors.len() {
 		if factors[i] == factors[i + 1] {
-			if let Op::Vec(vi) = factors[i] {
+			if let Expr::Vec(vi) = factors[i] {
 				if let Some(s) = g.square_with(product, vi) {
 					sign *= s;
 					factors.remove(i);

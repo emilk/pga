@@ -35,7 +35,7 @@ impl Types {
 		self.blades.values().map(|td| &td.typ)
 	}
 
-	pub fn unit_blades(&self) -> Vec<Op> {
+	pub fn unit_blades(&self) -> Vec<Expr> {
 		self.blades().map(|t| t.unit()).collect()
 	}
 

@@ -2,7 +2,7 @@ use std::io::Write;
 
 use symbolic::*;
 
-fn multiplication_tables(unit_blades: &[Op], rust: &impl Fn(Op) -> String) -> String {
+fn multiplication_tables(unit_blades: &[Expr], rust: &impl Fn(Expr) -> String) -> String {
 	let mut text = Vec::new();
 	let w = &mut text;
 
@@ -23,12 +23,12 @@ fn multiplication_tables(unit_blades: &[Op], rust: &impl Fn(Op) -> String) -> St
 	String::from_utf8(text).unwrap()
 }
 
-fn multiplication_table(unit_blades: &[Op], product: Product, rust: &impl Fn(Op) -> String) -> String {
+fn multiplication_table(unit_blades: &[Expr], product: Product, rust: &impl Fn(Expr) -> String) -> String {
 	let mut text = Vec::new();
 	for a in unit_blades {
 		write!(&mut text, "  ").unwrap();
 		for b in unit_blades {
-			let prod = Op::Prod(product, vec![a.clone(), b.clone()]);
+			let prod = Expr::Prod(product, vec![a.clone(), b.clone()]);
 			write!(&mut text, "{:<5} ", rust(prod)).unwrap();
 		}
 		writeln!(&mut text,).unwrap();
@@ -164,7 +164,7 @@ macro_rules! assert_eq_ignoring_whitespace {
 #[test]
 fn test_pga3d_lengyel() {
 	let (g, t) = pga3d_lengyel();
-	let rust = |op: Op| op.simplify(Some(&g)).typify(&t, &g).rust();
+	let rust = |expr: Expr| expr.simplify(Some(&g)).typify(&t, &g).rust();
 	let unit_blades = t.unit_blades();
 	// println!("{}", multiplication_tables(&unit_blades, &rust));
 
@@ -223,7 +223,7 @@ fn test_pga3d_lengyel() {
 		),
 	]);
 	assert_eq_ignoring_whitespace!(
-		rust(Op::wedge(vec![Op::var("p", &point), Op::var("q", &point)])),
+		rust(Expr::wedge(vec![Expr::var("p", &point), Expr::var("q", &point)])),
 		"
 Line {
     vx: p.x ^ e3 - q.x ^ e3,
@@ -241,7 +241,7 @@ Line {
 fn test_pga2d() {
 	let t = pga2d_types();
 	let g = Grammar(vec![1, 1, 0]);
-	let rust = |op: Op| op.simplify(Some(&g)).typify(&t, &g).rust();
+	let rust = |expr: Expr| expr.simplify(Some(&g)).typify(&t, &g).rust();
 
 	let x_type = t.get("X");
 	let y_type = t.get("Y");
@@ -253,24 +253,24 @@ fn test_pga2d() {
 	assert_eq_ignoring_whitespace!(t.get("WX").unit().rust(), "-e0 ^ e2");
 	assert_eq_ignoring_whitespace!(rust(t.get("WX").unit()), "WX");
 
-	assert_eq_ignoring_whitespace!(Op::dot(vec![t.get("XY").unit()]).simplify(Some(&g)).rust(), "e0 ^ e1");
-	assert_eq_ignoring_whitespace!(rust(Op::dot(vec![t.get("XY").unit(), Op::one()])), "XY");
+	assert_eq_ignoring_whitespace!(Expr::dot(vec![t.get("XY").unit()]).simplify(Some(&g)).rust(), "e0 ^ e1");
+	assert_eq_ignoring_whitespace!(rust(Expr::dot(vec![t.get("XY").unit(), Expr::one()])), "XY");
 
 	assert_eq_ignoring_whitespace!(rust(x_type.unit()), "X");
 
-	assert_eq_ignoring_whitespace!(rust(Op::wedge(vec![x_type.unit(), y_type.unit()])), "XY");
+	assert_eq_ignoring_whitespace!(rust(Expr::wedge(vec![x_type.unit(), y_type.unit()])), "XY");
 
-	let op = Op::Sum(vec![
-		Op::wedge(vec![x_type.unit(), y_type.unit()]),
-		Op::wedge(vec![y_type.unit(), x_type.unit()]),
+	let expr = Expr::Sum(vec![
+		Expr::wedge(vec![x_type.unit(), y_type.unit()]),
+		Expr::wedge(vec![y_type.unit(), x_type.unit()]),
 	]);
-	assert_eq_ignoring_whitespace!(op.rust(), "e0 ^ e1 + e1 ^ e0", "Hard to read without running typify");
+	assert_eq_ignoring_whitespace!(expr.rust(), "e0 ^ e1 + e1 ^ e0", "Hard to read without running typify");
 
-	assert_eq_ignoring_whitespace!(rust(op), "0");
+	assert_eq_ignoring_whitespace!(rust(expr), "0");
 
 	let point = t.get("Point");
 	assert_eq_ignoring_whitespace!(
-		rust(Op::wedge(vec![Op::var("l", point), Op::var("r", point)])),
+		rust(Expr::wedge(vec![Expr::var("l", point), Expr::var("r", point)])),
 		r"
 Line {
     yw: -l.w ^ r.y + l.y ^ r.w,
@@ -282,7 +282,7 @@ Line {
 
 	let line = t.get("Line");
 	assert_eq_ignoring_whitespace!(
-		rust(Op::antiwedge(vec![Op::var("l", line), Op::var("r", line)])),
+		rust(Expr::antiwedge(vec![Expr::var("l", line), Expr::var("r", line)])),
 		r"
 Point {
     x: l.wx & r.xy - l.xy & r.wx,
@@ -294,12 +294,12 @@ Point {
 	);
 
 	assert_eq_ignoring_whitespace!(
-		rust(Op::geometric(vec![Op::var("p", point), Op::var("p", point)])),
+		rust(Expr::geometric(vec![Expr::var("p", point), Expr::var("p", point)])),
 		r"p.x * p.x + p.y * p.y"
 	);
 
 	assert_eq_ignoring_whitespace!(
-		rust(Op::geometric(vec![Op::var("l", line), Op::var("l", line)])),
+		rust(Expr::geometric(vec![Expr::var("l", line), Expr::var("l", line)])),
 		r"l.xy * l.xy"
 	);
 }

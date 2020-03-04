@@ -68,9 +68,9 @@ impl Type {
 		}
 	}
 
-	pub fn unit(&self) -> Op {
+	pub fn unit(&self) -> Expr {
 		match self {
-			Type::Constant(sblade) | Type::SBlade(sblade) => Op::sblade(sblade),
+			Type::Constant(sblade) | Type::SBlade(sblade) => Expr::sblade(sblade),
 			_ => todo!(),
 		}
 	}
@@ -83,15 +83,15 @@ impl Type {
 	}
 }
 
-impl Op {
+impl Expr {
 	pub fn typ(&self, g: Option<&Grammar>) -> Option<Type> {
 		match self {
-			Op::Var(_, typ) => Some(typ.clone()),
-			Op::Term(_, 0) => Some(Type::zero()),
-			Op::Term(op, _) => op.typ(g),
-			Op::Vec(vi) => Some(Type::vec(*vi)),
-			Op::Unary(unary, op) => op.typ(g).and_then(|t| t.unary(*unary, g)),
-			Op::Sum(terms) => {
+			Expr::Var(_, typ) => Some(typ.clone()),
+			Expr::Term(_, 0) => Some(Type::zero()),
+			Expr::Term(expr, _) => expr.typ(g),
+			Expr::Vec(vi) => Some(Type::vec(*vi)),
+			Expr::Unary(unary, expr) => expr.typ(g).and_then(|t| t.unary(*unary, g)),
+			Expr::Sum(terms) => {
 				if terms.is_empty() {
 					Some(Type::zero())
 				} else if terms.len() == 1 {
@@ -100,11 +100,11 @@ impl Op {
 					todo!("figure out type of sum '{}'", self.rust())
 				}
 			}
-			Op::Prod(product, factors) => product_type(*product, factors, g),
-			Op::StructInstance { members, .. } => {
+			Expr::Prod(product, factors) => product_type(*product, factors, g),
+			Expr::StructInstance { members, .. } => {
 				let members: Option<Vec<(String, Type)>> = members
 					.iter()
-					.map(|(name, op)| Some((name.to_string(), op.typ(g)?)))
+					.map(|(name, expr)| Some((name.to_string(), expr.typ(g)?)))
 					.collect();
 				members.map(Type::Struct)
 			}
@@ -112,7 +112,7 @@ impl Op {
 	}
 }
 
-fn product_type(product: Product, factors: &[Op], g: Option<&Grammar>) -> Option<Type> {
+fn product_type(product: Product, factors: &[Expr], g: Option<&Grammar>) -> Option<Type> {
 	if factors.is_empty() {
 		Some(Type::scalar()) // TODO: Type::One ?
 	} else if factors.len() == 1 {

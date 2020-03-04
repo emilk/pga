@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use crate::*;
 
 /// Sum of the values, grouped by their types.
-type Value = BTreeMap<Blade, Op>;
+type Value = BTreeMap<Blade, Expr>;
 
 // fn show_value(v: &Value) -> String {
 // 	use itertools::Itertools;
@@ -13,12 +13,12 @@ type Value = BTreeMap<Blade, Op>;
 // 	)
 // }
 
-impl Op {
+impl Expr {
 	/// Detect named types and replace
 	pub fn typify(self, t: &Types, g: &Grammar) -> Self {
 		// TODO: recurse!
 
-		if let Op::Sum(terms) = &self {
+		if let Expr::Sum(terms) = &self {
 			if let Some(value) = as_value(&terms, Some(g)) {
 				if let Some(s) = find_struct(&value, t) {
 					return s;
@@ -29,20 +29,20 @@ impl Op {
 		// A blade?
 		if let Some(sblade) = self.as_sblade(g) {
 			if sblade.is_zero() {
-				Op::zero()
+				Expr::zero()
 			} else if sblade.is_scalar() {
-				Op::scalar(sblade.sign)
+				Expr::scalar(sblade.sign)
 			} else if let Some(blade_typedef) = t.blade_typedef(&sblade.blade) {
-				let blade_var = Op::var(&blade_typedef.name, &blade_typedef.typ);
+				let blade_var = Expr::var(&blade_typedef.name, &blade_typedef.typ);
 				let scalar = sblade.sign
 					* match &blade_typedef.typ {
 						Type::SBlade(sb) => sb.sign,
 						_ => unreachable!(),
 					};
 				match scalar {
-					0 => Op::zero(),
+					0 => Expr::zero(),
 					1 => blade_var,
-					_ => Op::Term(blade_var.into(), scalar),
+					_ => Expr::Term(blade_var.into(), scalar),
 				}
 			} else {
 				self
@@ -53,8 +53,8 @@ impl Op {
 	}
 }
 
-fn as_value(terms: &[Op], g: Option<&Grammar>) -> Option<Value> {
-	let mut parts: BTreeMap<Blade, Vec<Op>> = Default::default();
+fn as_value(terms: &[Expr], g: Option<&Grammar>) -> Option<Value> {
+	let mut parts: BTreeMap<Blade, Vec<Expr>> = Default::default();
 	for term in terms {
 		// eprintln!("as_value {} typ: {:?}", term.rust(), term.typ(g));
 		let typ = term.typ(g)?;
@@ -78,12 +78,12 @@ fn as_value(terms: &[Op], g: Option<&Grammar>) -> Option<Value> {
 	Some(
 		parts
 			.into_iter()
-			.map(|(typ, terms)| (typ, Op::Sum(terms).simplify(g)))
+			.map(|(typ, terms)| (typ, Expr::Sum(terms).simplify(g)))
 			.collect(),
 	)
 }
 
-fn find_struct(sum: &Value, t: &Types) -> Option<Op> {
+fn find_struct(sum: &Value, t: &Types) -> Option<Expr> {
 	if sum.is_empty() {
 		return None; // zero: no struct for this!
 	}
@@ -97,15 +97,15 @@ fn find_struct(sum: &Value, t: &Types) -> Option<Op> {
 	None
 }
 
-fn as_struct_instance(struct_name: &str, struct_members: &[(String, Type)], value: &Value) -> Option<Op> {
-	let find_term = |needle: &Type| value.iter().find(|(b, _)| needle.is_blade(b)).map(|(_, op)| op.clone());
+fn as_struct_instance(struct_name: &str, struct_members: &[(String, Type)], value: &Value) -> Option<Expr> {
+	let find_term = |needle: &Type| value.iter().find(|(b, _)| needle.is_blade(b)).map(|(_, expr)| expr.clone());
 
 	if value.keys().all(|b| is_blade_in_struct(struct_members, b)) {
-		Some(Op::StructInstance {
+		Some(Expr::StructInstance {
 			struct_name: struct_name.to_owned(),
 			members: struct_members
 				.iter()
-				.map(|(name, t)| (name.to_string(), find_term(t).unwrap_or_else(Op::zero)))
+				.map(|(name, t)| (name.to_string(), find_term(t).unwrap_or_else(Expr::zero)))
 				.collect(),
 		})
 	} else {

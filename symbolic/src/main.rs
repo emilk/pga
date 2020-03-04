@@ -67,34 +67,36 @@ fn multiplication_tables(unit_blades: &[Expr], rust: &impl Fn(Expr) -> String) -
 	let mut text = Vec::new();
 	let w = &mut text;
 
-	writeln!(w, "Geometric multiplication table (left side * top row):").unwrap();
+	writeln!(w, "Geometric multiplication table:").unwrap();
 	writeln!(w, "{}", multiplication_table(unit_blades, Product::Geometric, rust)).unwrap();
 
-	writeln!(w, "Geometric anti-product multiplication table (left side !* top row):").unwrap();
+	writeln!(w, "Geometric anti-product multiplication table:").unwrap();
 	writeln!(w, "{}", multiplication_table(unit_blades, Product::AntiGeometric, rust)).unwrap();
 
-	writeln!(w, "Dot multiplication table (left side | top row):").unwrap();
+	writeln!(w, "Dot multiplication table:").unwrap();
 	writeln!(w, "{}", multiplication_table(unit_blades, Product::Dot, rust)).unwrap();
 
-	writeln!(w, "Wedge multiplication table (left side ^ top row):").unwrap();
+	writeln!(w, "Wedge multiplication table:").unwrap();
 	writeln!(w, "{}", multiplication_table(unit_blades, Product::Wedge, rust)).unwrap();
 
-	writeln!(w, "Antiwedge multiplication table (right side & bottom row):").unwrap();
+	writeln!(w, "Antiwedge multiplication table:").unwrap();
 	writeln!(w, "{}", multiplication_table(unit_blades, Product::Antiwedge, rust)).unwrap();
 	String::from_utf8(text).unwrap()
 }
 
 fn multiplication_table(unit_blades: &[Expr], product: Product, rust: &impl Fn(Expr) -> String) -> String {
-	let mut text = Vec::new();
-	for a in unit_blades {
-		write!(&mut text, "  ").unwrap();
-		for b in unit_blades {
-			let prod = Expr::Prod(product, vec![a.clone(), b.clone()]);
-			write!(&mut text, "{:<5} ", rust(prod)).unwrap();
-		}
-		writeln!(&mut text,).unwrap();
-	}
-	String::from_utf8(text).unwrap()
+	markdown_table(
+		chain(Some("l \\ r".to_owned()), unit_blades.iter().cloned().map(rust)),
+		unit_blades.iter().map(|l| {
+			chain(
+				Some(rust(l.clone())),
+				unit_blades
+					.iter()
+					.map(|r| rust(Expr::Prod(product, vec![l.clone(), r.clone()]))),
+			)
+			.collect()
+		}),
+	)
 }
 
 fn pga2d_types() -> Types {
@@ -244,44 +246,48 @@ fn test_pga3d_lengyel() {
 	assert_eq_ignoring_whitespace!(
 		multiplication_table(&unit_blades, Product::Geometric, &rust),
 		r"
-  1     e1    e2    e3    e4    e41   e42   e43   e23   e31   e12   e234  e314  e124  e321  E4
-  e1    1     e12   -e31  -e41  -e4   -e124 e314  -e321 -e3   e2    E4    e43   -e42  -e23  e234
-  e2    -e12  1     e23   -e42  e124  -e4   -e234 e3    -e321 -e1   -e43  E4    e41   -e31  e314
-  e3    e31   -e23  1     -e43  -e314 e234  -e4   -e2   e1    -e321 e42   -e41  E4    -e12  e124
-  e4    e41   e42   e43   0     0     0     0     e234  e314  e124  0     0     0     E4    0
-  e41   e4    e124  -e314 0     0     0     0     -E4   -e43  e42   0     0     0     -e234 0
-  e42   -e124 e4    e234  0     0     0     0     e43   -E4   -e41  0     0     0     -e314 0
-  e43   e314  -e234 e4    0     0     0     0     -e42  e41   -E4   0     0     0     -e124 0
-  e23   -e321 -e3   e2    e234  -E4   -e43  e42   -1    -e12  e31   -e4   -e124 e314  e1    e41
-  e31   e3    -e321 -e1   e314  e43   -E4   -e41  e12   -1    -e23  e124  -e4   -e234 e2    e42
-  e12   -e2   e1    -e321 e124  -e42  e41   -E4   -e31  e23   -1    -e314 e234  -e4   e3    e43
-  e234  -E4   -e43  e42   0     0     0     0     -e4   -e124 e314  0     0     0     e41   0
-  e314  e43   -E4   -e41  0     0     0     0     e124  -e4   -e234 0     0     0     e42   0
-  e124  -e42  e41   -E4   0     0     0     0     -e314 e234  -e4   0     0     0     e43   0
-  e321  -e23  -e31  -e12  -E4   e234  e314  e124  e1    e2    e3    -e41  -e42  -e43  -1    e4
-  E4    -e234 -e314 -e124 0     0     0     0     e41   e42   e43   0     0     0     -e4   0
+| l \ r | 1    | e1    | e2    | e3    | e4   | e41   | e42   | e43   | e23   | e31   | e12   | e234  | e314  | e124  | e321  | E4   |
+| ----- | ---- | ----- | ----- | ----- | ---- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ---- |
+| 1     | 1    | e1    | e2    | e3    | e4   | e41   | e42   | e43   | e23   | e31   | e12   | e234  | e314  | e124  | e321  | E4   |
+| e1    | e1   | 1     | e12   | -e31  | -e41 | -e4   | -e124 | e314  | -e321 | -e3   | e2    | E4    | e43   | -e42  | -e23  | e234 |
+| e2    | e2   | -e12  | 1     | e23   | -e42 | e124  | -e4   | -e234 | e3    | -e321 | -e1   | -e43  | E4    | e41   | -e31  | e314 |
+| e3    | e3   | e31   | -e23  | 1     | -e43 | -e314 | e234  | -e4   | -e2   | e1    | -e321 | e42   | -e41  | E4    | -e12  | e124 |
+| e4    | e4   | e41   | e42   | e43   | 0    | 0     | 0     | 0     | e234  | e314  | e124  | 0     | 0     | 0     | E4    | 0    |
+| e41   | e41  | e4    | e124  | -e314 | 0    | 0     | 0     | 0     | -E4   | -e43  | e42   | 0     | 0     | 0     | -e234 | 0    |
+| e42   | e42  | -e124 | e4    | e234  | 0    | 0     | 0     | 0     | e43   | -E4   | -e41  | 0     | 0     | 0     | -e314 | 0    |
+| e43   | e43  | e314  | -e234 | e4    | 0    | 0     | 0     | 0     | -e42  | e41   | -E4   | 0     | 0     | 0     | -e124 | 0    |
+| e23   | e23  | -e321 | -e3   | e2    | e234 | -E4   | -e43  | e42   | -1    | -e12  | e31   | -e4   | -e124 | e314  | e1    | e41  |
+| e31   | e31  | e3    | -e321 | -e1   | e314 | e43   | -E4   | -e41  | e12   | -1    | -e23  | e124  | -e4   | -e234 | e2    | e42  |
+| e12   | e12  | -e2   | e1    | -e321 | e124 | -e42  | e41   | -E4   | -e31  | e23   | -1    | -e314 | e234  | -e4   | e3    | e43  |
+| e234  | e234 | -E4   | -e43  | e42   | 0    | 0     | 0     | 0     | -e4   | -e124 | e314  | 0     | 0     | 0     | e41   | 0    |
+| e314  | e314 | e43   | -E4   | -e41  | 0    | 0     | 0     | 0     | e124  | -e4   | -e234 | 0     | 0     | 0     | e42   | 0    |
+| e124  | e124 | -e42  | e41   | -E4   | 0    | 0     | 0     | 0     | -e314 | e234  | -e4   | 0     | 0     | 0     | e43   | 0    |
+| e321  | e321 | -e23  | -e31  | -e12  | -E4  | e234  | e314  | e124  | e1    | e2    | e3    | -e41  | -e42  | -e43  | -1    | e4   |
+| E4    | E4   | -e234 | -e314 | -e124 | 0    | 0     | 0     | 0     | e41   | e42   | e43   | 0     | 0     | 0     | -e4   | 0    |
   "
 	);
 
 	assert_eq_ignoring_whitespace!(
 		multiplication_table(&unit_blades, Product::AntiGeometric, &rust),
 		r"
-  0     0     0     0     e321  e23   e31   e12   0     0     0     e1    e2    e3    0     1
-  0     0     0     0     -e23  -e321 e3    -e2   0     0     0     1     -e12  e31   0     e1
-  0     0     0     0     -e31  -e3   -e321 e1    0     0     0     e12   1     -e23  0     e2
-  0     0     0     0     -e12  e2    -e1   -e321 0     0     0     -e31  e23   1     0     e3
-  -e321 e23   e31   e12   -E4   e234  e314  e124  -e1   -e2   -e3   -e41  -e42  -e43  1     e4
-  e23   -e321 e3    -e2   e234  -E4   e43   -e42  -1    e12   -e31  -e4   e124  -e314 e1    e41
-  e31   -e3   -e321 e1    e314  -e43  -E4   e41   -e12  -1    e23   -e124 -e4   e234  e2    e42
-  e12   e2    -e1   -e321 e124  e42   -e41  -E4   e31   -e23  -1    e314  -e234 -e4   e3    e43
-  0     0     0     0     e1    -1    e12   -e31  0     0     0     -e321 e3    -e2   0     e23
-  0     0     0     0     e2    -e12  -1    e23   0     0     0     -e3   -e321 e1    0     e31
-  0     0     0     0     e3    e31   -e23  -1    0     0     0     e2    -e1   -e321 0     e12
-  -e1   -1    e12   -e31  -e41  -e4   e124  -e314 e321  -e3   e2    E4    -e43  e42   e23   e234
-  -e2   -e12  -1    e23   -e42  -e124 -e4   e234  e3    e321  -e1   e43   E4    -e41  e31   e314
-  -e3   e31   -e23  -1    -e43  e314  -e234 -e4   -e2   e1    e321  -e42  e41   E4    e12   e124
-  0     0     0     0     -1    e1    e2    e3    0     0     0     -e23  -e31  -e12  0     e321
-  1     e1    e2    e3    e4    e41   e42   e43   e23   e31   e12   e234  e314  e124  e321  E4
+| l \ r | 1     | e1    | e2    | e3    | e4   | e41   | e42   | e43   | e23  | e31  | e12  | e234  | e314  | e124  | e321 | E4   |
+| ----- | ----- | ----- | ----- | ----- | ---- | ----- | ----- | ----- | ---- | ---- | ---- | ----- | ----- | ----- | ---- | ---- |
+| 1     | 0     | 0     | 0     | 0     | e321 | e23   | e31   | e12   | 0    | 0    | 0    | e1    | e2    | e3    | 0    | 1    |
+| e1    | 0     | 0     | 0     | 0     | -e23 | -e321 | e3    | -e2   | 0    | 0    | 0    | 1     | -e12  | e31   | 0    | e1   |
+| e2    | 0     | 0     | 0     | 0     | -e31 | -e3   | -e321 | e1    | 0    | 0    | 0    | e12   | 1     | -e23  | 0    | e2   |
+| e3    | 0     | 0     | 0     | 0     | -e12 | e2    | -e1   | -e321 | 0    | 0    | 0    | -e31  | e23   | 1     | 0    | e3   |
+| e4    | -e321 | e23   | e31   | e12   | -E4  | e234  | e314  | e124  | -e1  | -e2  | -e3  | -e41  | -e42  | -e43  | 1    | e4   |
+| e41   | e23   | -e321 | e3    | -e2   | e234 | -E4   | e43   | -e42  | -1   | e12  | -e31 | -e4   | e124  | -e314 | e1   | e41  |
+| e42   | e31   | -e3   | -e321 | e1    | e314 | -e43  | -E4   | e41   | -e12 | -1   | e23  | -e124 | -e4   | e234  | e2   | e42  |
+| e43   | e12   | e2    | -e1   | -e321 | e124 | e42   | -e41  | -E4   | e31  | -e23 | -1   | e314  | -e234 | -e4   | e3   | e43  |
+| e23   | 0     | 0     | 0     | 0     | e1   | -1    | e12   | -e31  | 0    | 0    | 0    | -e321 | e3    | -e2   | 0    | e23  |
+| e31   | 0     | 0     | 0     | 0     | e2   | -e12  | -1    | e23   | 0    | 0    | 0    | -e3   | -e321 | e1    | 0    | e31  |
+| e12   | 0     | 0     | 0     | 0     | e3   | e31   | -e23  | -1    | 0    | 0    | 0    | e2    | -e1   | -e321 | 0    | e12  |
+| e234  | -e1   | -1    | e12   | -e31  | -e41 | -e4   | e124  | -e314 | e321 | -e3  | e2   | E4    | -e43  | e42   | e23  | e234 |
+| e314  | -e2   | -e12  | -1    | e23   | -e42 | -e124 | -e4   | e234  | e3   | e321 | -e1  | e43   | E4    | -e41  | e31  | e314 |
+| e124  | -e3   | e31   | -e23  | -1    | -e43 | e314  | -e234 | -e4   | -e2  | e1   | e321 | -e42  | e41   | E4    | e12  | e124 |
+| e321  | 0     | 0     | 0     | 0     | -1   | e1    | e2    | e3    | 0    | 0    | 0    | -e23  | -e31  | -e12  | 0    | e321 |
+| E4    | 1     | e1    | e2    | e3    | e4   | e41   | e42   | e43   | e23  | e31  | e12  | e234  | e314  | e124  | e321 | E4   |
   "
 	);
 

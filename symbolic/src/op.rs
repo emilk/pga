@@ -161,7 +161,7 @@ mod tests {
 		let grammar = Grammar(vec![0, 1, 1, 1]);
 		let g = &grammar;
 		let v0 = VecIdx(0);
-		// let v1 = VecIdx(1);
+		let v1 = VecIdx(1);
 		// let v2 = VecIdx(2);
 		// let v3 = VecIdx(3);
 

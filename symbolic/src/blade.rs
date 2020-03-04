@@ -4,7 +4,7 @@ use crate::*;
 /// Blade(vec![0])    = e0
 /// Blade(vec![0, 2]) = e02
 /// Always sorted, always unique.
-#[derive(Clone, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct Blade(Vec<VecIdx>);
 
 impl Blade {

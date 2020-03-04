@@ -76,18 +76,7 @@ fn main() {
 	let x_type = t.get("X");
 	let y_type = t.get("Y");
 
-	let blades = vec![
-		t.get("R"),
-		t.get("X"),
-		t.get("Y"),
-		t.get("W"),
-		t.get("YW"),
-		t.get("WX"),
-		t.get("XY"),
-		t.get("XYW"),
-	];
-
-	let unit_blades: Vec<Op> = blades.iter().map(|t| t.unit()).collect();
+	let unit_blades = t.unit_blades();
 
 	print_multiplication_tables(&unit_blades, &rust);
 

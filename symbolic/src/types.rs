@@ -1,3 +1,5 @@
+use indexmap::IndexMap;
+
 use crate::*;
 
 #[derive(Clone, Debug)]
@@ -12,7 +14,7 @@ pub struct Types {
 	types: Vec<Typedef>,
 	// Maps blades to the typedef of that blade,
 	// e.g. maps [0,2] to  Typedef{"e20", Type::(-1, Blade([0, 2]))}
-	blades: std::collections::BTreeMap<Blade, Typedef>,
+	blades: IndexMap<Blade, Typedef>,
 }
 
 impl Types {
@@ -27,6 +29,14 @@ impl Types {
 		}
 
 		self.types.push(typedef);
+	}
+
+	pub fn blades(&self) -> impl Iterator<Item = &Type> {
+		self.blades.values().map(|td| &td.typ)
+	}
+
+	pub fn unit_blades(&self) -> Vec<Op> {
+		self.blades().map(|t| t.unit()).collect()
 	}
 
 	pub fn structs(&self) -> impl Iterator<Item = (&str, &Vec<(String, Type)>)> {
@@ -48,6 +58,6 @@ impl Types {
 	}
 
 	pub fn blade_typedef(&self, blade: &Blade) -> Option<&Typedef> {
-		self.blades.get(&blade)
+		self.blades.get(blade)
 	}
 }

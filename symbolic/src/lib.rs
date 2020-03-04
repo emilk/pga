@@ -10,7 +10,7 @@ mod typify;
 pub use {blade::*, op::*, sblade::*, typ::*, types::*};
 
 /// Which base vector (e0, e1 or e2?)
-#[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, derive_more::Display)]
+#[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, derive_more::Display)]
 pub struct VecIdx(pub usize);
 
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]

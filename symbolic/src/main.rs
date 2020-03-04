@@ -1,36 +1,39 @@
+use std::io::Write;
+
 use symbolic::*;
 
-fn print_multiplication_tables(unit_blades: &[Op], rust: &impl Fn(Op) -> String) {
-	println!();
-	println!("Geometric multiplication table (left side * top row):");
-	multiplication_table(unit_blades, Product::Geometric, rust);
+fn multiplication_tables(unit_blades: &[Op], rust: &impl Fn(Op) -> String) -> String {
+	let mut text = Vec::new();
+	let w = &mut text;
 
-	println!();
-	println!("Geometric anti-product multiplication table (left side !* top row):");
-	multiplication_table(unit_blades, Product::AntiGeometric, rust);
+	writeln!(w, "Geometric multiplication table (left side * top row):").unwrap();
+	writeln!(w, "{}", multiplication_table(unit_blades, Product::Geometric, rust)).unwrap();
 
-	println!();
-	println!("Dot multiplication table (left side | top row):");
-	multiplication_table(unit_blades, Product::Dot, rust);
+	writeln!(w, "Geometric anti-product multiplication table (left side !* top row):").unwrap();
+	writeln!(w, "{}", multiplication_table(unit_blades, Product::AntiGeometric, rust)).unwrap();
 
-	println!();
-	println!("Wedge multiplication table (left side ^ top row):");
-	multiplication_table(unit_blades, Product::Wedge, rust);
+	writeln!(w, "Dot multiplication table (left side | top row):").unwrap();
+	writeln!(w, "{}", multiplication_table(unit_blades, Product::Dot, rust)).unwrap();
 
-	println!();
-	println!("Antiwedge multiplication table (right side & bottom row):");
-	multiplication_table(unit_blades, Product::Antiwedge, rust);
+	writeln!(w, "Wedge multiplication table (left side ^ top row):").unwrap();
+	writeln!(w, "{}", multiplication_table(unit_blades, Product::Wedge, rust)).unwrap();
+
+	writeln!(w, "Antiwedge multiplication table (right side & bottom row):").unwrap();
+	writeln!(w, "{}", multiplication_table(unit_blades, Product::Antiwedge, rust)).unwrap();
+	String::from_utf8(text).unwrap()
 }
 
-fn multiplication_table(unit_blades: &[Op], product: Product, rust: &impl Fn(Op) -> String) {
+fn multiplication_table(unit_blades: &[Op], product: Product, rust: &impl Fn(Op) -> String) -> String {
+	let mut text = Vec::new();
 	for a in unit_blades {
-		print!("  ");
+		write!(&mut text, "  ").unwrap();
 		for b in unit_blades {
 			let prod = Op::Prod(product, vec![a.clone(), b.clone()]);
-			print!("{:<4} ", rust(prod));
+			write!(&mut text, "{:<5} ", rust(prod)).unwrap();
 		}
-		println!();
+		writeln!(&mut text,).unwrap();
 	}
+	String::from_utf8(text).unwrap()
 }
 
 fn pga2d_types() -> Types {
@@ -69,6 +72,35 @@ fn pga2d_types() -> Types {
 }
 
 fn main() {
+	// test_pga2d();
+	// test_pga3d_lengyel();
+}
+
+fn tokenize(s: &str) -> Vec<&str> {
+	s.trim().split_ascii_whitespace().collect()
+}
+
+#[cfg(test)]
+macro_rules! assert_eq_ignoring_whitespace {
+	($l:expr, $r:expr) => {{
+		let l = $l;
+		let r = $r;
+		if tokenize(&l) != tokenize(&r) {
+			panic!("Got this:\n{}\n\nExpected this:\n{}", l, r);
+			}
+		}};
+	($l:expr, $r:expr, $msg:expr) => {{
+		let l = $l;
+		let r = $r;
+		if tokenize(&l) != tokenize(&r) {
+			panic!("{}. Got this:\n{}\n\nExpected this:\n{}", $msg, l, r);
+			}
+		}};
+}
+
+
+#[test]
+fn test_pga2d() {
 	let t = pga2d_types();
 	let g = Grammar(vec![1, 1, 0]);
 	let rust = |op: Op| op.simplify(Some(&g)).typify(&t, &g).rust();
@@ -78,28 +110,28 @@ fn main() {
 
 	let unit_blades = t.unit_blades();
 
-	print_multiplication_tables(&unit_blades, &rust);
+	println!("{}", multiplication_tables(&unit_blades, &rust));
 
-	assert_eq!(t.get("WX").unit().rust(), "-e0 ^ e2");
-	assert_eq!(rust(t.get("WX").unit()), "WX");
+	assert_eq_ignoring_whitespace!(t.get("WX").unit().rust(), "-e0 ^ e2");
+	assert_eq_ignoring_whitespace!(rust(t.get("WX").unit()), "WX");
 
-	assert_eq!(Op::dot(vec![t.get("XY").unit()]).simplify(Some(&g)).rust(), "e0 ^ e1");
-	assert_eq!(rust(Op::dot(vec![t.get("XY").unit(), Op::one()])), "XY");
+	assert_eq_ignoring_whitespace!(Op::dot(vec![t.get("XY").unit()]).simplify(Some(&g)).rust(), "e0 ^ e1");
+	assert_eq_ignoring_whitespace!(rust(Op::dot(vec![t.get("XY").unit(), Op::one()])), "XY");
 
-	assert_eq!(rust(x_type.unit()), "X");
+	assert_eq_ignoring_whitespace!(rust(x_type.unit()), "X");
 
-	assert_eq!(rust(Op::wedge(vec![x_type.unit(), y_type.unit()])), "XY");
+	assert_eq_ignoring_whitespace!(rust(Op::wedge(vec![x_type.unit(), y_type.unit()])), "XY");
 
 	let op = Op::Sum(vec![
 		Op::wedge(vec![x_type.unit(), y_type.unit()]),
 		Op::wedge(vec![y_type.unit(), x_type.unit()]),
 	]);
-	assert_eq!(op.rust(), "e0 ^ e1 + e1 ^ e0", "Hard to read without running typify");
+	assert_eq_ignoring_whitespace!(op.rust(), "e0 ^ e1 + e1 ^ e0", "Hard to read without running typify");
 
-	assert_eq!(rust(op), "0");
+	assert_eq_ignoring_whitespace!(rust(op), "0");
 
 	let point = t.get("Point");
-	assert_eq!(
+	assert_eq_ignoring_whitespace!(
 		rust(Op::wedge(vec![Op::var("l", point), Op::var("r", point)])),
 		r"
 Line {
@@ -111,7 +143,7 @@ Line {
 	);
 
 	let line = t.get("Line");
-	assert_eq!(
+	assert_eq_ignoring_whitespace!(
 		rust(Op::antiwedge(vec![Op::var("l", line), Op::var("r", line)])),
 		r"
 Point {
@@ -123,12 +155,12 @@ Point {
 		.trim()
 	);
 
-	assert_eq!(
+	assert_eq_ignoring_whitespace!(
 		rust(Op::geometric(vec![Op::var("p", point), Op::var("p", point)])),
 		r"p.x * p.x + p.y * p.y"
 	);
 
-	assert_eq!(
+	assert_eq_ignoring_whitespace!(
 		rust(Op::geometric(vec![Op::var("l", line), Op::var("l", line)])),
 		r"l.xy * l.xy"
 	);

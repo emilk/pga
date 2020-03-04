@@ -98,7 +98,12 @@ fn find_struct(sum: &Value, t: &Types) -> Option<Expr> {
 }
 
 fn as_struct_instance(struct_name: &str, struct_members: &[(String, Type)], value: &Value) -> Option<Expr> {
-	let find_term = |needle: &Type| value.iter().find(|(b, _)| needle.is_blade(b)).map(|(_, expr)| expr.clone());
+	let find_term = |needle: &Type| {
+		value
+			.iter()
+			.find(|(b, _)| needle.is_blade(b))
+			.map(|(_, expr)| expr.clone())
+	};
 
 	if value.keys().all(|b| is_blade_in_struct(struct_members, b)) {
 		Some(Expr::StructInstance {

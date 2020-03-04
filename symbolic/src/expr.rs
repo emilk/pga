@@ -172,8 +172,14 @@ mod tests {
 
 		// assert_eq!(Expr::dot(vec![Expr::vec(v0), Expr::vec(v0)]).as_sblade(g), Some(sb("0")));
 		// assert_eq!(Expr::dot(vec![Expr::vec(v1), Expr::vec(v1)]).as_sblade(g), Some(sb("1")));
-		assert_eq!(Expr::wedge(vec![Expr::vec(v0), Expr::vec(v0)]).as_sblade(g), Some(sb("0")));
-		assert_eq!(Expr::wedge(vec![Expr::vec(v1), Expr::vec(v1)]).as_sblade(g), Some(sb("0")));
+		assert_eq!(
+			Expr::wedge(vec![Expr::vec(v0), Expr::vec(v0)]).as_sblade(g),
+			Some(sb("0"))
+		);
+		assert_eq!(
+			Expr::wedge(vec![Expr::vec(v1), Expr::vec(v1)]).as_sblade(g),
+			Some(sb("0"))
+		);
 		assert_eq!(
 			Expr::geometric(vec![Expr::vec(v0), Expr::vec(v0)]).as_sblade(g),
 			Some(sb("0"))
@@ -182,6 +188,9 @@ mod tests {
 			Expr::geometric(vec![Expr::vec(v1), Expr::vec(v1)]).as_sblade(g),
 			Some(sb("s"))
 		);
-		assert_eq!(Expr::wedge(vec![Expr::vec(v0), Expr::vec(v1)]).as_sblade(g), Some(sb("e01")));
+		assert_eq!(
+			Expr::wedge(vec![Expr::vec(v0), Expr::vec(v1)]).as_sblade(g),
+			Some(sb("e01"))
+		);
 	}
 }

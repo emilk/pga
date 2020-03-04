@@ -47,7 +47,9 @@ impl Expr {
 
 				// distributive property
 				// (a + b).unary() = a.unary() + b.unary()
-				Expr::Sum(terms) => Expr::Sum(terms.into_iter().map(|t| Expr::Unary(unary, t.into())).collect()).simplify(g),
+				Expr::Sum(terms) => {
+					Expr::Sum(terms.into_iter().map(|t| Expr::Unary(unary, t.into())).collect()).simplify(g)
+				}
 
 				expr => Expr::Unary(unary, expr.into()),
 			},

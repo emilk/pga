@@ -53,8 +53,11 @@ impl Op {
 					)
 				}
 			}
-			Op::LCompl(op) => RustExpr::atom(format!("lcompl({})", op.rust())),
-			Op::RCompl(op) => RustExpr::atom(format!("rcompl({})", op.rust())),
+			Op::Unary(unary, op) => RustExpr::atom(format!(
+				"{}.{}()",
+				op.rust_expr().enclose_if_less(Precedence::Atom),
+				unary.name()
+			)),
 			Op::Sum(terms) => {
 				if terms.is_empty() {
 					RustExpr::atom("0")

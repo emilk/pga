@@ -41,16 +41,17 @@ impl Op {
 			.simplify(g),
 			Op::Var(_, _) => self,
 			Op::Vec(_) => self,
-			Op::LCompl(op) => match op.simplify(g) {
-				Op::RCompl(op) => *op,
-				Op::Sum(terms) => Op::Sum(terms.into_iter().map(|t| Op::LCompl(t.into())).collect()).simplify(g),
-				op => Op::LCompl(op.into()),
+			Op::Unary(unary, op) => match op.simplify(g) {
+				// e.g. x.lcompl().rcompl() => x
+				Op::Unary(inner_unary, op) if inner_unary == unary.undoer() => *op,
+
+				// distributive property
+				// (a + b).unary() = a.unary() + b.unary()
+				Op::Sum(terms) => Op::Sum(terms.into_iter().map(|t| Op::Unary(unary, t.into())).collect()).simplify(g),
+
+				op => Op::Unary(unary, op.into()),
 			},
-			Op::RCompl(op) => match op.simplify(g) {
-				Op::LCompl(op) => *op,
-				Op::Sum(terms) => Op::Sum(terms.into_iter().map(|t| Op::RCompl(t.into())).collect()).simplify(g),
-				op => Op::RCompl(op.into()),
-			},
+
 			Op::Term(op, mut scalar) => {
 				let op: Op = match op.simplify(g) {
 					Op::Term(inner_op, inner_scalar) => {

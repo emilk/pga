@@ -16,17 +16,8 @@ pub enum Op {
 	/// 1 == Prod(_, vec![])
 	Term(Box<Op>, i32),
 
-	/// Left compliment.
-	/// The left compliment of a blade B is defined so that
-	/// LCompl(B) * B = PseudoScalar
-	/// distributive:  LCompl(a + b) = LCompl(a) + LCompl(b)
-	LCompl(Box<Op>),
-
-	/// Right compliment.
-	/// The right compliment of a blade B is defined so that
-	/// B * RCompl(B) = PseudoScalar
-	/// distributive:  RCompl(a + b) = RCompl(a) + RCompl(b)
-	RCompl(Box<Op>),
+	/// Unary operation, e.g. a complement or a reverse
+	Unary(Unary, Box<Op>),
 
 	Sum(Vec<Op>),
 
@@ -144,8 +135,7 @@ impl Op {
 					None
 				}
 			}
-			Op::LCompl(op) => Some(op.as_sblade(g)?.lcompl(g)),
-			Op::RCompl(op) => Some(op.as_sblade(g)?.rcompl(g)),
+			Op::Unary(unary, op) => Some(op.as_sblade(g)?.unary(*unary, g)),
 			Op::Sum(terms) => {
 				if terms.is_empty() {
 					Some(SBlade::zero())

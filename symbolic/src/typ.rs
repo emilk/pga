@@ -90,8 +90,7 @@ impl Op {
 			Op::Term(_, 0) => Some(Type::zero()),
 			Op::Term(op, _) => op.typ(g),
 			Op::Vec(vi) => Some(Type::vec(*vi)),
-			Op::LCompl(op) => op.typ(g).and_then(|t| t.lcompl(g)),
-			Op::RCompl(op) => op.typ(g).and_then(|t| t.rcompl(g)),
+			Op::Unary(unary, op) => op.typ(g).and_then(|t| t.unary(*unary, g)),
 			Op::Sum(terms) => {
 				if terms.is_empty() {
 					Some(Type::zero())

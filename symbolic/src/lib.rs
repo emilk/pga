@@ -13,20 +13,53 @@ pub use {blade::*, op::*, sblade::*, typ::*, types::*};
 #[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, derive_more::Display)]
 pub struct VecIdx(pub usize);
 
+/// Types of distributative unary operations
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub enum Unary {
+	/// Left compliment.
+	/// The left compliment of a blade B is defined so that
+	/// LCompl(B) * B = PseudoScalar
+	/// distributive:  LCompl(a + b) = LCompl(a) + LCompl(b)
+	LCompl,
+
+	/// Right compliment.
+	/// The right compliment of a blade B is defined so that
+	/// B * RCompl(B) = PseudoScalar
+	/// distributive:  RCompl(a + b) = RCompl(a) + RCompl(b)
+	RCompl,
+
+	/// Reverse the order of the vector indices:
+	/// e1.reverse()   = e1
+	/// e12.reverse()  = e21  = -e12
+	/// e012.reverse() = e210 = -e012
+	/// Used for sandwich products
+	Reverse,
+
+	/// x.anti_reverse() ==
+	/// x.lcompl().reverse().rcompl()
+	/// x.rcompl().reverse().lcompl()
+	/// Used for anti-sandwich-products
+	AntiReverse,
+}
+
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Product {
 	/// Geom = Inner + Outer = Dot + Wedge
+	///
 	Geometric,
 	/// Geometric Antiproduct = rcompl(lcompl(a) * lcompl(b))
 	AntiGeometric,
+
 	/// Inner / dot product.
 	/// The commutative part of the geometric product.
 	/// Measures sameness of blades.
 	Dot,
+
 	/// Outer (progressive) product. Moves to a higher dimension.
 	/// The anti-commutative part of the geometric product.
 	/// Measures difference between blades.
 	Wedge,
+
 	/// Regressive. Reduces the dimensionality.
 	Antiwedge,
 }
@@ -61,8 +94,29 @@ impl Grammar {
 	}
 }
 
+impl Unary {
+	pub fn name(self) -> &'static str {
+		match self {
+			Unary::LCompl => "lcompl",
+			Unary::RCompl => "rcompl",
+			Unary::Reverse => "rev",
+			Unary::AntiReverse => "arev",
+		}
+	}
+
+	/// whan undoes this operation?
+	pub fn undoer(self) -> Self {
+		match self {
+			Unary::LCompl => Unary::RCompl,
+			Unary::RCompl => Unary::LCompl,
+			Unary::Reverse => Unary::Reverse,
+			Unary::AntiReverse => Unary::AntiReverse,
+		}
+	}
+}
+
 impl Product {
-	pub fn symbol(&self) -> &str {
+	pub fn symbol(self) -> &'static str {
 		match self {
 			Product::Geometric => "*",
 			Product::AntiGeometric => "!*", // TODO

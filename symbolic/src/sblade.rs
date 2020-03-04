@@ -87,6 +87,37 @@ impl SBlade {
 		self.sign * self.blade.rcompl(g)
 	}
 
+	/// Reverse the order of the vector indices:
+	/// e1.reverse()   = e1
+	/// e12.reverse()  = e21  = -e12
+	/// e012.reverse() = e210 = -e012
+	/// Used for sandwich products
+	pub fn reverse(mut self) -> Self {
+		let r = self.grade();
+		if r > 1 {
+			// After reversing the order, we want to sort again.
+			let num_swaps = r * (r - 1) / 2;
+			if num_swaps % 2 == 1 {
+				// Odd number of swaps => sign change
+				self.sign = -self.sign;
+			}
+		}
+		self
+	}
+
+	pub fn anti_reverse(&self, g: &Grammar) -> Self {
+		self.lcompl(g).reverse().rcompl(g)
+	}
+
+	pub fn unary(&self, unary: Unary, g: &Grammar) -> Self {
+		match unary {
+			Unary::LCompl => self.lcompl(g),
+			Unary::RCompl => self.rcompl(g),
+			Unary::Reverse => self.clone().reverse(),
+			Unary::AntiReverse => self.anti_reverse(g),
+		}
+	}
+
 	/// geometric product (normal multiplication)
 	pub fn geometric_product(&self, other: &SBlade, g: &Grammar) -> Self {
 		let mut sign = self.sign * other.sign;

@@ -60,6 +60,21 @@ impl Op {
 		Op::Vec(vi)
 	}
 
+	/// One magnitude sblade
+	pub fn sblade(sblade: &SBlade) -> Self {
+		let op = match sblade.blade.grade() {
+			0 => Op::one(),
+			1 => Op::Vec(sblade.blade[0]),
+			_ => Op::wedge(sblade.blade.vecs().iter().copied().map(Op::Vec).collect()),
+		};
+		match sblade.sign {
+			-1 => op.negate(),
+			0 => Op::zero(),
+			1 => op,
+			_ => unreachable!(),
+		}
+	}
+
 	pub fn var(name: impl ToString, typ: &Type) -> Self {
 		Op::Var(name.to_string(), typ.clone())
 	}

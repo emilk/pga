@@ -4,6 +4,9 @@ use crate::*;
 /// A value is a linear combination of types.
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Type {
+	/// Special type: a value that is always the magnitude 1.
+	/// This is useful for describing a normalized point with {x: X, y: Y, z: Z, w: One(W)}
+	Constant(SBlade),
 	/// Has a sign so that we can normalize e20 to -e02
 	SBlade(SBlade),
 	/// named members
@@ -13,6 +16,12 @@ pub enum Type {
 impl Type {
 	pub fn zero() -> Self {
 		Type::SBlade(SBlade::zero())
+	}
+
+	/// Special type: a value that is always the scalar value 1.
+	/// This is useful for describing a normalized point with {x: X, y: Y, z: Z, w: 1}
+	pub fn constant(sblade: SBlade) -> Self {
+		Type::Constant(sblade)
 	}
 
 	pub fn scalar() -> Self {
@@ -29,6 +38,7 @@ impl Type {
 
 	pub fn is_zero(&self) -> bool {
 		match self {
+			Type::Constant(sb) => sb.is_zero(),
 			Type::SBlade(sb) => sb.is_zero(),
 			Type::Struct(_) => todo!(),
 		}
@@ -36,6 +46,7 @@ impl Type {
 
 	pub fn is_negative(&self) -> bool {
 		match self {
+			Type::Constant(sb) => sb.is_negative(),
 			Type::SBlade(sb) => sb.is_negative(),
 			Type::Struct(_) => todo!(),
 		}
@@ -43,6 +54,7 @@ impl Type {
 
 	pub fn is_blade(&self, blade: &Blade) -> bool {
 		match self {
+			Type::Constant(_) => todo!(),
 			Type::SBlade(sb) => sb.blade == *blade,
 			Type::Struct(_) => false,
 		}
@@ -50,6 +62,7 @@ impl Type {
 
 	pub fn into_sblade(self) -> Option<SBlade> {
 		match self {
+			Type::Constant(sb) => Some(sb),
 			Type::SBlade(sb) => Some(sb),
 			Type::Struct(_) => None,
 		}
@@ -57,34 +70,15 @@ impl Type {
 
 	pub fn unit(&self) -> Op {
 		match self {
-			Type::SBlade(sblade) => {
-				let op = match sblade.blade.grade() {
-					0 => Op::one(),
-					1 => Op::Vec(sblade.blade[0]),
-					_ => Op::wedge(sblade.blade.vecs().iter().copied().map(Op::Vec).collect()),
-				};
-				match sblade.sign {
-					-1 => op.negate(),
-					0 => Op::zero(),
-					1 => op,
-					_ => unreachable!(),
-				}
-			}
+			Type::Constant(sblade) | Type::SBlade(sblade) => Op::sblade(sblade),
 			_ => todo!(),
 		}
 	}
 
-	pub fn lcompl(&self, g: Option<&Grammar>) -> Option<Type> {
+	pub fn unary(&self, unary: Unary, g: Option<&Grammar>) -> Option<Type> {
 		match self {
-			Type::SBlade(sblade) => Some(Type::SBlade(sblade.lcompl(g?))),
-			_ => todo!("lcompl({:?})", self),
-		}
-	}
-
-	pub fn rcompl(&self, g: Option<&Grammar>) -> Option<Type> {
-		match self {
-			Type::SBlade(sblade) => Some(Type::SBlade(sblade.rcompl(g?))),
-			_ => todo!("rcompl({:?})", self),
+			Type::Constant(sblade) | Type::SBlade(sblade) => Some(Type::SBlade(sblade.unary(unary, g?))),
+			_ => todo!("{:?}.{}()", self, unary.name()),
 		}
 	}
 }

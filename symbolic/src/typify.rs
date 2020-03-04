@@ -60,7 +60,7 @@ fn as_value(terms: &[Op], g: Option<&Grammar>) -> Option<Value> {
 		let typ = term.typ(g)?;
 		if !typ.is_zero() {
 			match typ {
-				Type::SBlade(sblade) => {
+				Type::Constant(sblade) | Type::SBlade(sblade) => {
 					let term = if sblade.is_negative() {
 						term.clone().negate()
 					} else {

@@ -31,6 +31,7 @@ impl Op {
 	#[must_use]
 	pub fn simplify(self, g: Option<&Grammar>) -> Op {
 		match self {
+			Op::Var(_, Type::Constant(sblade)) => Op::sblade(&sblade),
 			Op::Var(var_name, Type::Struct(members)) => Op::Sum(
 				members
 					.into_iter()

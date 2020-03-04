@@ -61,7 +61,16 @@ impl Op {
 				} else if terms.len() == 1 {
 					terms[0].rust_expr()
 				} else {
-					RustExpr(Precedence::Sum, terms.iter().map(|term| term.rust()).join(" + "))
+					// RustExpr(Precedence::Sum, terms.iter().map(|term| term.rust()).join(" + "))
+					let mut s = terms[0].rust();
+					for t in &terms[1..] {
+						if t.is_negation() {
+							s += &format!(" - {}", t.clone().negate().rust());
+						} else {
+							s += &format!(" + {}", t.rust());
+						}
+					}
+					RustExpr(Precedence::Sum, s)
 				}
 			}
 			Op::Prod(product, factors) => {

@@ -95,6 +95,21 @@ impl Op {
 		}
 	}
 
+	pub fn is_negation(&self) -> bool {
+		match self {
+			Op::Term(_op, s) => *s < 0,
+			_ => false,
+		}
+	}
+
+	pub fn negate(self) -> Self {
+		match self {
+			Op::Term(op, -1) => *op,
+			Op::Term(op, s) => Op::Term(op, -s),
+			op => Op::Term(op.into(), -1),
+		}
+	}
+
 	pub fn as_scalar(&self) -> Option<i32> {
 		match self {
 			Op::Term(op, s) if op.is_one() => Some(*s),
@@ -131,14 +146,6 @@ impl Op {
 				Some(SBlade::product(*product, &sblades, g))
 			}
 			Op::StructInstance { .. } => None,
-		}
-	}
-
-	pub fn negate(self) -> Self {
-		match self {
-			Op::Term(op, -1) => *op,
-			Op::Term(op, s) => Op::Term(op, -s),
-			op => Op::Term(op.into(), -1),
 		}
 	}
 }

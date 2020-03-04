@@ -116,7 +116,7 @@ fn main() {
 Line {
     yw: -l.w ^ r.y + l.y ^ r.w,
     wx: -l.w ^ r.x + l.x ^ r.w,
-    xy: l.x ^ r.y + -l.y ^ r.x,
+    xy: l.x ^ r.y - l.y ^ r.x,
 }"
 		.trim()
 	);
@@ -126,8 +126,8 @@ Line {
 		rust(Op::antiwedge(vec![Op::var("l", line), Op::var("r", line)])),
 		r"
 Point {
-    x: l.wx & r.xy + -l.xy & r.wx,
-    y: l.xy & r.yw + -l.yw & r.xy,
+    x: l.wx & r.xy - l.xy & r.wx,
+    y: l.xy & r.yw - l.yw & r.xy,
     w: -l.wx & r.yw + l.yw & r.wx,
 }
 "

@@ -70,6 +70,10 @@ impl Expr {
 		Expr::Var(name.to_string(), typ.clone())
 	}
 
+	pub fn unary(unary: Unary, expr: Expr) -> Self {
+		Expr::Unary(unary, expr.into())
+	}
+
 	pub fn geometric(factors: Vec<Expr>) -> Self {
 		Expr::Prod(Product::Geometric, factors)
 	}

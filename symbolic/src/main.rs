@@ -1,6 +1,67 @@
 use std::io::Write;
 
+use {
+	itertools::{chain, izip, Itertools},
+	strum::IntoEnumIterator,
+};
+
 use symbolic::*;
+
+fn unary_table(unit_blades: &[Expr], rust: &impl Fn(Expr) -> String) -> String {
+	markdown_table(
+		chain(Some("Op \\ Blade".to_owned()), unit_blades.iter().cloned().map(rust)),
+		Unary::iter().map(|unary| {
+			chain(
+				Some(unary.short_description().to_owned()),
+				unit_blades.iter().map(|blade| rust(Expr::unary(unary, blade.clone()))),
+			)
+			.collect()
+		}),
+	)
+}
+
+fn markdown_table(headers: impl IntoIterator<Item = String>, rows: impl IntoIterator<Item = Vec<String>>) -> String {
+	let headers: Vec<String> = headers.into_iter().collect();
+	let rows: Vec<Vec<String>> = rows.into_iter().collect();
+
+	let mut col_widths: Vec<usize> = headers.iter().map(String::len).collect();
+	for row in &rows {
+		assert_eq!(row.len(), col_widths.len());
+		for (col_idx, cell) in row.iter().enumerate() {
+			col_widths[col_idx] = col_widths[col_idx].max(cell.len());
+		}
+	}
+
+	let mut s = vec![];
+	write!(
+		&mut s,
+		"| {} |\n",
+		izip!(&headers, &col_widths)
+			.map(|(header, width)| format!("{:<w$}", header, w = width))
+			.format(" | ")
+	)
+	.unwrap();
+	write!(
+		&mut s,
+		"| {} |\n",
+		col_widths
+			.iter()
+			.map(|width| format!("{:-<w$}", "", w = width))
+			.format(" | ")
+	)
+	.unwrap();
+	for row in &rows {
+		write!(
+			&mut s,
+			"| {} |\n",
+			izip!(row, &col_widths)
+				.map(|(cell, width)| format!("{:<w$}", cell, w = width))
+				.format(" | ")
+		)
+		.unwrap();
+	}
+	String::from_utf8(s).unwrap()
+}
 
 fn multiplication_tables(unit_blades: &[Expr], rust: &impl Fn(Expr) -> String) -> String {
 	let mut text = Vec::new();
@@ -169,6 +230,18 @@ fn test_pga3d_lengyel() {
 	// println!("{}", multiplication_tables(&unit_blades, &rust));
 
 	assert_eq_ignoring_whitespace!(
+		unary_table(&unit_blades, &rust),
+		r"
+| Op \ Blade       | 1  | e1    | e2    | e3    | e4    | e41  | e42  | e43  | e23  | e31  | e12  | e234  | e314  | e124  | e321  | E4 |
+| ---------------- | -- | ----- | ----- | ----- | ----- | ---- | ---- | ---- | ---- | ---- | ---- | ----- | ----- | ----- | ----- | -- |
+| Right complement | E4 | e234  | e314  | e124  | e321  | -e23 | -e31 | -e12 | -e41 | -e42 | -e43 | -e1   | -e2   | -e3   | -e4   | 1  |
+| Left complement  | E4 | -e234 | -e314 | -e124 | -e321 | -e23 | -e31 | -e12 | -e41 | -e42 | -e43 | e1    | e2    | e3    | e4    | 1  |
+| Reverse          | 1  | e1    | e2    | e3    | e4    | -e41 | -e42 | -e43 | -e23 | -e31 | -e12 | -e234 | -e314 | -e124 | -e321 | E4 |
+| Antireverse      | 1  | -e1   | -e2   | -e3   | -e4   | -e41 | -e42 | -e43 | -e23 | -e31 | -e12 | e234  | e314  | e124  | e321  | E4 |
+"
+	);
+
+	assert_eq_ignoring_whitespace!(
 		multiplication_table(&unit_blades, Product::Geometric, &rust),
 		r"
   1     e1    e2    e3    e4    e41   e42   e43   e23   e31   e12   e234  e314  e124  e321  E4
@@ -248,7 +321,7 @@ fn test_pga2d() {
 
 	let unit_blades = t.unit_blades();
 
-	println!("{}", multiplication_tables(&unit_blades, &rust));
+	// println!("{}", multiplication_tables(&unit_blades, &rust));
 
 	assert_eq_ignoring_whitespace!(t.get("WX").unit().rust(), "-e0 ^ e2");
 	assert_eq_ignoring_whitespace!(rust(t.get("WX").unit()), "WX");

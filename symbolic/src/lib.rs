@@ -14,19 +14,19 @@ pub use {blade::*, expr::*, sblade::*, typ::*, types::*};
 pub struct VecIdx(pub usize);
 
 /// Types of distributative unary operations
-#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd, strum_macros::EnumIter)]
 pub enum Unary {
-	/// Left compliment.
-	/// The left compliment of a blade B is defined so that
-	/// LCompl(B) * B = PseudoScalar
-	/// distributive:  LCompl(a + b) = LCompl(a) + LCompl(b)
-	LCompl,
-
 	/// Right compliment.
 	/// The right compliment of a blade B is defined so that
 	/// B * RCompl(B) = PseudoScalar
 	/// distributive:  RCompl(a + b) = RCompl(a) + RCompl(b)
 	RCompl,
+
+	/// Left compliment.
+	/// The left compliment of a blade B is defined so that
+	/// LCompl(B) * B = PseudoScalar
+	/// distributive:  LCompl(a + b) = LCompl(a) + LCompl(b)
+	LCompl,
 
 	/// Reverse the order of the vector indices:
 	/// e1.reverse()   = e1
@@ -42,10 +42,9 @@ pub enum Unary {
 	AntiReverse,
 }
 
-#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd, strum_macros::EnumIter)]
 pub enum Product {
 	/// Geom = Inner + Outer = Dot + Wedge
-	///
 	Geometric,
 	/// Geometric Antiproduct = rcompl(lcompl(a) * lcompl(b))
 	AntiGeometric,
@@ -75,6 +74,7 @@ impl Grammar {
 		self.0[v.0]
 	}
 
+	/// What do we get when we multiply the given base vector with itself using the given product?
 	pub fn square_with(&self, product: Product, v: VecIdx) -> Option<i32> {
 		match product {
 			Product::Geometric => Some(self.0[v.0]),
@@ -85,6 +85,7 @@ impl Grammar {
 		}
 	}
 
+	/// Number of base vectors, i.e. the dimensionaltiy of the grammar
 	pub fn num_vecs(&self) -> usize {
 		self.0.len()
 	}
@@ -101,6 +102,15 @@ impl Unary {
 			Unary::RCompl => "rcompl",
 			Unary::Reverse => "rev",
 			Unary::AntiReverse => "arev",
+		}
+	}
+
+	pub fn short_description(self) -> &'static str {
+		match self {
+			Unary::LCompl => "Left complement",
+			Unary::RCompl => "Right complement",
+			Unary::Reverse => "Reverse",
+			Unary::AntiReverse => "Antireverse",
 		}
 	}
 

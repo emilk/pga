@@ -118,7 +118,7 @@ impl Expr {
 
 				simplify_product(product, factors, g)
 			}
-			Expr::StructInstance { .. } => self,
+			Expr::StructInstance(_) => self,
 		}
 	}
 

@@ -24,10 +24,14 @@ pub enum Expr {
 	Prod(Product, Vec<Expr>),
 
 	/// An instance of a struct, e.g. `Point {  x: ..., y: ... }` etc.
-	StructInstance {
-		struct_name: String,
-		members: Vec<(String, Expr)>,
-	},
+	StructInstance(StructInstance),
+}
+
+/// An instance of a struct, e.g. `Point {  x: ..., y: ... }` etc.
+#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub struct StructInstance {
+	pub struct_name: String,
+	pub members: Vec<(String, Expr)>,
 }
 
 impl Expr {

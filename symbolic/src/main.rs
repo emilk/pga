@@ -305,9 +305,9 @@ fn test_pga3d_lengyel() {
 		rust(Expr::wedge(vec![Expr::var("p", &point), Expr::var("q", &point)])),
 		"
 Line {
-    vx: p.x ^ e3 - q.x ^ e3,
-    vy: p.y ^ e3 - q.y ^ e3,
-    vz: p.z ^ e3 - q.z ^ e3,
+    vx: p.x ^ e4 - q.x ^ e4,
+    vy: p.y ^ e4 - q.y ^ e4,
+    vz: p.z ^ e4 - q.z ^ e4,
     mx: p.y ^ q.z - p.z ^ q.y,
     my: p.x ^ q.z - p.z ^ q.x,
     mz: p.x ^ q.y - p.y ^ q.x,
@@ -322,29 +322,31 @@ fn test_pga2d() {
 	let g = Grammar(vec![1, 1, 0]);
 	let rust = |expr: Expr| expr.simplify(Some(&g)).typify(&t, &g).rust();
 
-	let x_type = t.get("X");
-	let y_type = t.get("Y");
-
-	let unit_blades = t.unit_blades();
-
+	// let unit_blades = t.unit_blades();
 	// println!("{}", multiplication_tables(&unit_blades, &rust));
 
-	assert_eq_ignoring_whitespace!(t.get("WX").unit().rust(), "-e0 ^ e2");
+	assert_eq_ignoring_whitespace!(t.get("WX").unit().rust(), "-_e0 ^ _e2", "Ugly output without typify");
 	assert_eq_ignoring_whitespace!(rust(t.get("WX").unit()), "WX");
 
-	assert_eq_ignoring_whitespace!(Expr::dot(vec![t.get("XY").unit()]).simplify(Some(&g)).rust(), "e0 ^ e1");
+	assert_eq_ignoring_whitespace!(
+		Expr::dot(vec![t.get("XY").unit()]).simplify(Some(&g)).rust(),
+		"_e0 ^ _e1"
+	);
 	assert_eq_ignoring_whitespace!(rust(Expr::dot(vec![t.get("XY").unit(), Expr::one()])), "XY");
 
+	let x_type = t.get("X");
+	let y_type = t.get("Y");
 	assert_eq_ignoring_whitespace!(rust(x_type.unit()), "X");
-
 	assert_eq_ignoring_whitespace!(rust(Expr::wedge(vec![x_type.unit(), y_type.unit()])), "XY");
-
 	let expr = Expr::Sum(vec![
 		Expr::wedge(vec![x_type.unit(), y_type.unit()]),
 		Expr::wedge(vec![y_type.unit(), x_type.unit()]),
 	]);
-	assert_eq_ignoring_whitespace!(expr.rust(), "e0 ^ e1 + e1 ^ e0", "Hard to read without running typify");
-
+	assert_eq_ignoring_whitespace!(
+		expr.rust(),
+		"_e0 ^ _e1 + _e1 ^ _e0",
+		"Hard to read without running typify"
+	);
 	assert_eq_ignoring_whitespace!(rust(expr), "0");
 
 	let point = t.get("Point");

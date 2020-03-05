@@ -101,7 +101,7 @@ impl Expr {
 				}
 			}
 			Expr::Prod(product, factors) => product_type(*product, factors, g),
-			Expr::StructInstance { members, .. } => {
+			Expr::StructInstance(StructInstance { members, .. }) => {
 				let members: Option<Vec<(String, Type)>> = members
 					.iter()
 					.map(|(name, expr)| Some((name.to_string(), expr.typ(g)?)))

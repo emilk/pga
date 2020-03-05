@@ -36,7 +36,7 @@ impl Expr {
 			Expr::Var(name, _typ) => RustExpr::atom(name),
 			Expr::Vec(vi) => {
 				//  You should call expr.typify() before .rus() to get more readable vector names
-				RustExpr::atom(format!("e{}", vi.0))
+				RustExpr::atom(format!("_e{}", vi.0))
 			}
 			Expr::Term(expr, s) => {
 				if expr.is_one() {
@@ -95,7 +95,7 @@ impl Expr {
 					)
 				}
 			}
-			Expr::StructInstance { struct_name, members } => {
+			Expr::StructInstance(StructInstance { struct_name, members }) => {
 				let maxw = members.iter().map(|(name, _)| name.len()).max().unwrap_or_default();
 				RustExpr::atom(format!(
 					"{} {{\n{}\n}}",

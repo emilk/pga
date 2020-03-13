@@ -31,12 +31,16 @@ impl Types {
 		self.types.push(typedef);
 	}
 
-	pub fn blades(&self) -> impl Iterator<Item = &Type> {
-		self.blades.values().map(|td| &td.typ)
+	pub fn blades(&self) -> impl Iterator<Item = &Typedef> {
+		self.blades.values()
 	}
 
 	pub fn unit_blades(&self) -> Vec<Expr> {
-		self.blades().map(|t| t.unit()).collect()
+		self.blades().map(|td| td.typ.unit()).collect()
+	}
+
+	pub fn typedefs(&self) -> impl Iterator<Item = &Typedef> {
+		self.types.iter()
 	}
 
 	pub fn structs(&self) -> impl Iterator<Item = (&str, &Vec<(String, Type)>)> {

@@ -18,7 +18,7 @@ impl Expr {
 	pub fn typify(mut self, t: &Types, g: &Grammar) -> Self {
 		if let Expr::Sum(terms) = &self {
 			// eprintln!("typify Sum: {}", self.rust());
-			if let Some(mut value) = as_value(&terms, Some(g)) {
+			if let Some(value) = as_value(&terms, Some(g)) {
 				if let Some(s) = find_struct(&value, t) {
 					// eprintln!("typify Sum {} as struct {}", self.rust(), s.struct_name);
 					self = Expr::StructInstance(s);
@@ -48,7 +48,7 @@ impl Expr {
 			}
 		}
 
-		self = match self {
+		match self {
 			Expr::Var(_, _) | Expr::Vec(_) => self,
 			Expr::Term(expr, s) => Expr::Term(expr.typify(t, g).into(), s),
 			Expr::Unary(unary, expr) => Expr::Unary(unary, expr.typify(t, g).into()),
@@ -58,9 +58,7 @@ impl Expr {
 				struct_name,
 				members: members.into_iter().map(|(name, e)| (name, e.typify(t, g))).collect(),
 			}),
-		};
-
-		self
+		}
 	}
 }
 

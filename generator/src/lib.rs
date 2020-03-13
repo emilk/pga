@@ -1,5 +1,7 @@
 mod blade;
 mod expr;
+pub mod grammars;
+pub mod markdown;
 mod rust;
 mod sblade;
 mod simplify;

@@ -45,14 +45,12 @@ fn main() -> Result<(), Box<dyn Error>> {
 	write_file(&declare_blades(&gen), &out_dir.join("blades.rs"))?;
 
 	lib_file_contents += "\n// Types:\n";
-	for td in gen.types.typedefs() {
-		if let Type::Struct(members) = &td.typ {
-			let mod_name = td.name.to_ascii_lowercase();
-			let file_name = format!("{}.rs", mod_name);
-			let file_contents = declare_struct(&gen, td, members);
-			write_file(&file_contents, &out_dir.join(file_name))?;
-			lib_file_contents += &format!("pub mod {};\n", mod_name);
-		}
+	for (struct_name, strct) in gen.types.structs() {
+		let mod_name = struct_name.to_ascii_lowercase();
+		let file_name = format!("{}.rs", mod_name);
+		let file_contents = declare_struct(&gen, struct_name, strct);
+		write_file(&file_contents, &out_dir.join(file_name))?;
+		lib_file_contents += &format!("pub mod {};\n", mod_name);
 	}
 
 	write_file(&lib_file_contents, &out_dir.join("lib.rs"))?;
@@ -71,12 +69,14 @@ fn write_file(contents: &str, path: &Path) -> Result<(), Box<dyn Error>> {
 }
 
 fn declare_blades(gen: &Generator) -> String {
-	gen.types.blades().map(|b| declare_blade(gen, b)).join("\n\n")
+	gen.types
+		.sblades()
+		.iter()
+		.map(|(name, sb)| declare_blade(gen, name, sb))
+		.join("\n\n")
 }
 
-fn declare_blade(gen: &Generator, td: &Typedef) -> String {
-	let sb = td.typ.clone().into_sblade().unwrap();
-
+fn declare_blade(gen: &Generator, name: &str, sb: &SBlade) -> String {
 	let is_scalar = sb.grade() == 0;
 	let is_pseudoscalar = sb.grade() == gen.grammar.num_vecs();
 
@@ -98,13 +98,13 @@ fn declare_blade(gen: &Generator, td: &Typedef) -> String {
 		code += "#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub)]\n";
 	}
 
-	format!("{}pub struct {}(pub {});", code, td.name, gen.settings.float_type)
+	format!("{}pub struct {}(pub {});", code, name, gen.settings.float_type)
 }
 
-fn declare_struct(gen: &Generator, td: &Typedef, members: &[(String, Type)]) -> String {
-	let members = members
+fn declare_struct(_gen: &Generator, struct_name: &str, strct: &Struct) -> String {
+	let members = strct
 		.iter()
-		.map(|(name, typ)| format!("\t{}: {},", name, "TODO: TYPE NAME???"))
+		.map(|(member_name, member_type)| format!("\t{}: {},", member_name, member_type.name))
 		.join("\n");
-	format!("pub struct {} {{\n{}\n}}\n", td.name, members)
+	format!("pub struct {} {{\n{}\n}}\n", struct_name, members)
 }

@@ -57,6 +57,10 @@ impl SBlade {
 		Self { sign: 1, blade }
 	}
 
+	pub fn signed_blade(sign: i32, blade: Blade) -> Self {
+		Self { sign, blade }
+	}
+
 	pub fn is_zero(&self) -> bool {
 		self.sign == 0
 	}

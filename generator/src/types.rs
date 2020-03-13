@@ -2,66 +2,80 @@ use indexmap::IndexMap;
 
 use crate::*;
 
-#[derive(Clone, Debug)]
-pub struct Typedef {
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct MemberType {
 	pub name: String,
 	pub typ: Type,
 }
 
+pub type Struct = IndexMap<String, MemberType>;
+
 /// In order of preference (first match).
 #[derive(Clone, Debug, Default)]
 pub struct Types {
-	types: Vec<Typedef>,
-	// Maps blades to the typedef of that blade,
-	// e.g. maps [0,2] to  Typedef{"e20", Type::(-1, Blade([0, 2]))}
-	blades: IndexMap<Blade, Typedef>,
+	// types: Vec<Typedef>,
+	types: IndexMap<String, Type>,
+
+	/// Mapes struct to their declarations
+	structs: IndexMap<String, Struct>,
+
+	/// Maps blades to cannocial sign and name,
+	/// e.g. [0,2] => -"e20"
+	blades: IndexMap<Blade, (i32, String)>,
 }
 
 impl Types {
-	pub fn insert(&mut self, name: &str, typ: Type) {
-		let typedef = Typedef {
-			name: name.to_string(),
-			typ: typ.clone(),
-		};
-
-		if let Type::SBlade(sblade) = typ {
-			self.blades.insert(sblade.blade, typedef.clone());
-		}
-
-		self.types.push(typedef);
+	pub fn insert_blade(&mut self, name: &str, sblade: SBlade) {
+		self.blades
+			.insert(sblade.blade.clone(), (sblade.sign, name.to_string()));
+		self.types.insert(name.to_string(), Type::SBlade(sblade));
 	}
 
-	pub fn blades(&self) -> impl Iterator<Item = &Typedef> {
-		self.blades.values()
-	}
+	pub fn insert_struct(&mut self, name: &str, members: &[(&str, &str)]) {
+		let strct: Struct = members
+			.iter()
+			.map(|(member, type_name)| {
+				(
+					member.to_string(),
+					MemberType {
+						name: type_name.to_string(),
+						typ: self.get(type_name).clone(),
+					},
+				)
+			})
+			.collect();
+		self.structs.insert(name.to_string(), strct.clone());
 
-	pub fn unit_blades(&self) -> Vec<Expr> {
-		self.blades().map(|td| td.typ.unit()).collect()
-	}
-
-	pub fn typedefs(&self) -> impl Iterator<Item = &Typedef> {
-		self.types.iter()
-	}
-
-	pub fn structs(&self) -> impl Iterator<Item = (&str, &Vec<(String, Type)>)> {
-		self.types.iter().filter_map(|td| {
-			if let Type::Struct(members) = &td.typ {
-				Some((td.name.as_str(), members))
-			} else {
-				None
-			}
-		})
-	}
-
-	pub fn get_typedef(&self, name: &str) -> &Typedef {
-		self.types.iter().find(|td| td.name == name).unwrap()
+		let struct_type = strct.into_iter().map(|(key, val)| (key, val.typ)).collect();
+		self.types.insert(name.to_string(), Type::Struct(struct_type));
 	}
 
 	pub fn get(&self, name: &str) -> &Type {
-		&self.get_typedef(name).typ
+		self.types
+			.get(name)
+			.unwrap_or_else(|| panic!("Failed to find type '{}'", name))
 	}
 
-	pub fn blade_typedef(&self, blade: &Blade) -> Option<&Typedef> {
+	/// Maps blades to cannocial sign and name,
+	pub fn get_blade(&self, blade: &Blade) -> Option<&(i32, String)> {
 		self.blades.get(blade)
+	}
+
+	pub fn sblades(&self) -> Vec<(&str, SBlade)> {
+		self.blades
+			.iter()
+			.map(|(blade, (sign, name))| (name.as_str(), SBlade::signed_blade(*sign, blade.clone())))
+			.collect()
+	}
+
+	pub fn unit_blades(&self) -> Vec<Expr> {
+		self.sblades()
+			.iter()
+			.map(|(_name, sblade)| Expr::sblade(sblade))
+			.collect()
+	}
+
+	pub fn structs(&self) -> impl Iterator<Item = (&String, &Struct)> {
+		self.structs.iter()
 	}
 }

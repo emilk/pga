@@ -1,5 +1,5 @@
 pub struct Line {
-	yw: TODO: TYPE NAME???,
-	wx: TODO: TYPE NAME???,
-	xy: TODO: TYPE NAME???,
+	yw: YW,
+	wx: WX,
+	xy: XY,
 }

@@ -32,10 +32,6 @@ impl Type {
 		Type::SBlade(SBlade::vec(vi))
 	}
 
-	pub fn unsorted_blade(vecs: &[VecIdx]) -> Self {
-		Type::SBlade(SBlade::from_unsorted(vecs))
-	}
-
 	pub fn is_zero(&self) -> bool {
 		match self {
 			Type::Constant(sb) => sb.is_zero(),

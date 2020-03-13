@@ -33,13 +33,14 @@ impl Expr {
 				self = Expr::zero();
 			} else if sblade.is_scalar() {
 				self = Expr::scalar(sblade.sign);
-			} else if let Some(blade_typedef) = t.blade_typedef(&sblade.blade) {
-				let blade_var = Expr::var(&blade_typedef.name, &blade_typedef.typ);
-				let scalar = sblade.sign
-					* match &blade_typedef.typ {
-						Type::SBlade(sb) => sb.sign,
-						_ => unreachable!(),
-					};
+			} else if let Some((canon_sign, canon_name)) = t.get_blade(&sblade.blade) {
+				let canon_sign = *canon_sign;
+				let canon_type = Type::SBlade(SBlade {
+					sign: canon_sign,
+					blade: sblade.blade.clone(),
+				});
+				let blade_var = Expr::var(&canon_name, &canon_type);
+				let scalar = sblade.sign * canon_sign;
 				self = match scalar {
 					0 => Expr::zero(),
 					1 => blade_var,
@@ -102,15 +103,15 @@ fn find_struct(sum: &Value, t: &Types) -> Option<StructInstance> {
 
 	// eprintln!("find_struct for {}", show_value(sum));
 
-	for (name, members) in t.structs() {
-		if let Some(instance) = as_struct_instance(name, members, &sum) {
+	for (name, strct) in t.structs() {
+		if let Some(instance) = as_struct_instance(name, strct, &sum) {
 			return Some(instance);
 		}
 	}
 	None
 }
 
-fn as_struct_instance(struct_name: &str, struct_members: &[(String, Type)], value: &Value) -> Option<StructInstance> {
+fn as_struct_instance(struct_name: &str, strct: &Struct, value: &Value) -> Option<StructInstance> {
 	let find_term = |needle: &Type| {
 		value
 			.iter()
@@ -118,12 +119,12 @@ fn as_struct_instance(struct_name: &str, struct_members: &[(String, Type)], valu
 			.map(|(_, expr)| expr.clone())
 	};
 
-	if value.keys().all(|b| is_blade_in_struct(struct_members, b)) {
+	if value.keys().all(|b| is_blade_in_struct(strct, b)) {
 		Some(StructInstance {
 			struct_name: struct_name.to_owned(),
-			members: struct_members
+			members: strct
 				.iter()
-				.map(|(name, t)| (name.to_string(), find_term(t).unwrap_or_else(Expr::zero)))
+				.map(|(name, mem)| (name.to_string(), find_term(&mem.typ).unwrap_or_else(Expr::zero)))
 				.collect(),
 		})
 	} else {
@@ -131,6 +132,6 @@ fn as_struct_instance(struct_name: &str, struct_members: &[(String, Type)], valu
 	}
 }
 
-fn is_blade_in_struct(struct_members: &[(String, Type)], blade: &Blade) -> bool {
-	struct_members.iter().any(|(_, t)| t.is_blade(blade))
+fn is_blade_in_struct(strct: &Struct, blade: &Blade) -> bool {
+	strct.iter().any(|(_, mem)| mem.typ.is_blade(blade))
 }

@@ -1,13 +1,8 @@
 [package]
-name = "generator"
+name = "generated"
 version = "0.1.0"
 authors = ["Emil Ernerfeldt <emil.ernerfeldt@gmail.com>"]
 edition = "2018"
 
 [dependencies]
 derive_more = "0.99"
-indexmap = "1"
-itertools = "0.8"
-pico-args = "0.3"
-strum = "0.18"
-strum_macros = "0.18"

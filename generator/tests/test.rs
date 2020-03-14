@@ -1,4 +1,4 @@
-use std::io::Write;
+// use std::io::Write;
 
 use {itertools::chain, strum::IntoEnumIterator};
 
@@ -17,26 +17,26 @@ fn unary_table(unit_blades: &[Expr], rust: &impl Fn(Expr) -> String) -> String {
 	)
 }
 
-fn multiplication_tables(unit_blades: &[Expr], rust: &impl Fn(Expr) -> String) -> String {
-	let mut text = Vec::new();
-	let w = &mut text;
+// fn multiplication_tables(unit_blades: &[Expr], rust: &impl Fn(Expr) -> String) -> String {
+// 	let mut text = Vec::new();
+// 	let w = &mut text;
 
-	writeln!(w, "Geometric multiplication table:").unwrap();
-	writeln!(w, "{}", multiplication_table(unit_blades, Product::Geometric, rust)).unwrap();
+// 	writeln!(w, "Geometric multiplication table:").unwrap();
+// 	writeln!(w, "{}", multiplication_table(unit_blades, Product::Geometric, rust)).unwrap();
 
-	writeln!(w, "Geometric anti-product multiplication table:").unwrap();
-	writeln!(w, "{}", multiplication_table(unit_blades, Product::AntiGeometric, rust)).unwrap();
+// 	writeln!(w, "Geometric anti-product multiplication table:").unwrap();
+// 	writeln!(w, "{}", multiplication_table(unit_blades, Product::AntiGeometric, rust)).unwrap();
 
-	writeln!(w, "Dot multiplication table:").unwrap();
-	writeln!(w, "{}", multiplication_table(unit_blades, Product::Dot, rust)).unwrap();
+// 	writeln!(w, "Dot multiplication table:").unwrap();
+// 	writeln!(w, "{}", multiplication_table(unit_blades, Product::Dot, rust)).unwrap();
 
-	writeln!(w, "Wedge multiplication table:").unwrap();
-	writeln!(w, "{}", multiplication_table(unit_blades, Product::Wedge, rust)).unwrap();
+// 	writeln!(w, "Wedge multiplication table:").unwrap();
+// 	writeln!(w, "{}", multiplication_table(unit_blades, Product::Wedge, rust)).unwrap();
 
-	writeln!(w, "Antiwedge multiplication table:").unwrap();
-	writeln!(w, "{}", multiplication_table(unit_blades, Product::Antiwedge, rust)).unwrap();
-	String::from_utf8(text).unwrap()
-}
+// 	writeln!(w, "Antiwedge multiplication table:").unwrap();
+// 	writeln!(w, "{}", multiplication_table(unit_blades, Product::Antiwedge, rust)).unwrap();
+// 	String::from_utf8(text).unwrap()
+// }
 
 fn multiplication_table(unit_blades: &[Expr], product: Product, rust: &impl Fn(Expr) -> String) -> String {
 	markdown::table(

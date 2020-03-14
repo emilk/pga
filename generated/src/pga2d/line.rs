@@ -1,5 +1,7 @@
+use super::*;
+
 pub struct Line {
-	yw: YW,
-	wx: WX,
-	xy: XY,
+    pub yw: YW,
+    pub wx: WX,
+    pub xy: XY,
 }

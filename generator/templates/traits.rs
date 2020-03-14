@@ -48,7 +48,7 @@ pub trait Square {
 /// a.geometric(b) = a.dot(b) + a.wedge(b)
 pub trait Geometric<Rhs> {
 	type Output;
-	fn geometric(self, e: Rhs) -> Output;
+	fn geometric(self, e: Rhs) -> Self::Output;
 }
 
 /// The anti-geometric product, i.e. the dual version of the geometric product.
@@ -56,7 +56,7 @@ pub trait Geometric<Rhs> {
 /// Introduced in http://terathon.com/blog/projective-geometric-algebra-done-right/
 pub trait AntiGeometric<Rhs> {
 	type Output;
-	fn anti_geometric(self, e: Rhs) -> Output;
+	fn anti_geometric(self, e: Rhs) -> Self::Output;
 }
 
 /// The dot product, a.k.a. the inner product.
@@ -65,7 +65,7 @@ pub trait AntiGeometric<Rhs> {
 /// Orthogonal values always dot to zero.
 pub trait Dot<Rhs> {
 	type Output;
-	fn dot(self, e: Rhs) -> Output;
+	fn dot(self, e: Rhs) -> Self::Output;
 }
 
 /// The wedge product, a.k.a. the outer product.
@@ -75,7 +75,7 @@ pub trait Dot<Rhs> {
 /// In dual PGA this is the MEET operator, used to intersect two things (e.g. a line ^ plane = point).
 pub trait Wedge<Rhs> {
 	type Output;
-	fn wedge(self, e: Rhs) -> Output;
+	fn wedge(self, e: Rhs) -> Self::Output;
 }
 
 /// The regressive product, a.k.a. the anti-wedge product, a.k.a. exterior antiproduct.
@@ -84,5 +84,5 @@ pub trait Wedge<Rhs> {
 /// In dual PHA this is the JOIN operator, used to join two things, e.g. point & line = plane.
 pub trait AntiWedge<Rhs> {
 	type Output;
-	fn anti_wedge(self, e: Rhs) -> Output;
+	fn anti_wedge(self, e: Rhs) -> Self::Output;
 }

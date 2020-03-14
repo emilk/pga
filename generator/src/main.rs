@@ -1,4 +1,4 @@
-use std::{error::Error, fs::File, io::prelude::*, path::Path};
+use std::{collections::BTreeSet, error::Error, fs, io::prelude::*, path::Path};
 
 use itertools::Itertools;
 
@@ -37,35 +37,71 @@ fn main() -> Result<(), Box<dyn Error>> {
 		settings,
 	};
 
-	std::fs::create_dir_all(out_dir)?;
+	fs::create_dir_all(out_dir)?;
 
-	let mut lib_file_contents = include_str!("../templates/lib.rs").to_owned();
+	let mut mod_file_contents = include_str!("../templates/lib.rs").to_owned();
+
+	let mut mods = BTreeSet::new();
+	mods.insert("traits".to_string());
+	mods.insert("blades".to_string());
 
 	write_file(include_str!("../templates/traits.rs"), &out_dir.join("traits.rs"))?;
-	write_file(&declare_blades(&gen), &out_dir.join("blades.rs"))?;
+	write_file(&blades_file(&gen), &out_dir.join("blades.rs"))?;
 
-	lib_file_contents += "\n// Types:\n";
+	mod_file_contents += "\n// Types:\n";
 	for (struct_name, strct) in gen.types.structs() {
 		let mod_name = struct_name.to_ascii_lowercase();
 		let file_name = format!("{}.rs", mod_name);
-		let file_contents = declare_struct(&gen, struct_name, strct);
+		let file_contents = struct_file(&gen, struct_name, strct);
 		write_file(&file_contents, &out_dir.join(file_name))?;
-		lib_file_contents += &format!("pub mod {};\n", mod_name);
+		mod_file_contents += &format!("pub mod {};\n", mod_name);
+		mods.insert(mod_name);
 	}
 
-	write_file(&lib_file_contents, &out_dir.join("lib.rs"))?;
+	mod_file_contents += &format!(
+		"\npub use self::{{\n{}\n}};\n",
+		mods.iter().map(|mod_name| format!("\t{}::*,", mod_name)).join("\n")
+	);
+
+	write_file(&mod_file_contents, &out_dir.join("mod.rs"))?;
 
 	Ok(())
 }
 
-fn write_file(contents: &str, path: &Path) -> Result<(), Box<dyn Error>> {
+fn write_file(unformatted_contents: &str, final_path: &Path) -> Result<(), Box<dyn Error>> {
+	let temp_file_path = std::env::temp_dir().join("temp.rs");
+	fs::File::create(&temp_file_path)?.write_all(unformatted_contents.as_bytes())?;
+	cargo_fmt(&temp_file_path)?;
+
+	let formatted_contents = fs::read_to_string(temp_file_path)?;
+
 	// Only write file if it has actually changed:
-	match std::fs::read_to_string(path) {
-		Ok(existing) if existing == contents => {}
-		_ => File::create(&path)?.write_all(contents.as_bytes())?,
+	if matches!(fs::read_to_string(final_path), Ok(existing_contents) if existing_contents == formatted_contents) {
+		eprintln!("No change to '{}'", final_path.display());
+		return Ok(());
 	}
 
+	fs::File::create(&final_path)?.write_all(formatted_contents.as_bytes())?;
+	eprintln!("New file written to '{}'", final_path.display());
+
 	Ok(())
+}
+
+fn cargo_fmt(path: &Path) -> Result<(), Box<dyn Error>> {
+	std::process::Command::new("cargo")
+		.arg("fmt")
+		.arg("--")
+		.arg(path)
+		.output()?;
+	Ok(())
+}
+
+fn blades_file(gen: &Generator) -> String {
+	format!(
+		"{}\n\n{}\n",
+		"use derive_more::{Neg, Add, Sub, Mul};",
+		declare_blades(gen)
+	)
 }
 
 fn declare_blades(gen: &Generator) -> String {
@@ -93,7 +129,7 @@ fn declare_blade(gen: &Generator, name: &str, sb: &SBlade) -> String {
 	code += &format!("/// Squares to {}.\n", squares_to);
 
 	if is_scalar || is_pseudoscalar {
-		code += "#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub, Mil)]\n";
+		code += "#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub, Mul)]\n";
 	} else {
 		code += "#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub)]\n";
 	}
@@ -101,10 +137,14 @@ fn declare_blade(gen: &Generator, name: &str, sb: &SBlade) -> String {
 	format!("{}pub struct {}(pub {});", code, name, gen.settings.float_type)
 }
 
+fn struct_file(gen: &Generator, struct_name: &str, strct: &Struct) -> String {
+	format!("{}\n\n{}\n", "use super::*;", declare_struct(gen, struct_name, strct))
+}
+
 fn declare_struct(_gen: &Generator, struct_name: &str, strct: &Struct) -> String {
 	let members = strct
 		.iter()
-		.map(|(member_name, member_type)| format!("\t{}: {},", member_name, member_type.name))
+		.map(|(member_name, member_type)| format!("\tpub {}: {},", member_name, member_type.name))
 		.join("\n");
 	format!("pub struct {} {{\n{}\n}}\n", struct_name, members)
 }

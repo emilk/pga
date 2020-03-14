@@ -1,6 +1,6 @@
 pub mod blades;
-pub mod tratis;
+pub mod traits;
 
 // Types:
-pub mod point;
 pub mod line;
+pub mod point;

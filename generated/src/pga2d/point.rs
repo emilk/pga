@@ -1,5 +1,7 @@
+use super::*;
+
 pub struct Point {
-	x: X,
-	y: Y,
-	w: W,
+    pub x: X,
+    pub y: Y,
+    pub w: W,
 }

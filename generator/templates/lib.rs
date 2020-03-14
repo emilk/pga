@@ -1,2 +1,2 @@
 pub mod blades;
-pub mod tratis;
+pub mod traits;

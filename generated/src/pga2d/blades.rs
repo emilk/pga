@@ -1,6 +1,8 @@
+use derive_more::{Add, Mul, Neg, Sub};
+
 /// The scalar type (real numbers).
 /// Squares to 1.
-#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub, Mil)]
+#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub, Mul)]
 pub struct R(pub f64);
 
 /// Squares to 1.
@@ -29,5 +31,5 @@ pub struct XY(pub f64);
 
 /// The pseudo-scalar.
 /// Squares to 0.
-#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub, Mil)]
+#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub, Mul)]
 pub struct XYW(pub f64);

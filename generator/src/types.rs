@@ -61,6 +61,14 @@ impl Types {
 		self.blades.get(blade)
 	}
 
+	pub fn type_name(&self, typ: &Type) -> &str {
+		match typ {
+			Type::SBlade(sblade) if sblade.is_zero() => "Zero",
+			Type::SBlade(sblade) => self.get_blade(&sblade.blade).unwrap().1.as_str(),
+			_ => todo!(),
+		}
+	}
+
 	pub fn sblades(&self) -> Vec<(&str, SBlade)> {
 		self.blades
 			.iter()

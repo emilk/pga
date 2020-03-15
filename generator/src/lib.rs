@@ -137,4 +137,24 @@ impl Product {
 			Product::Antiwedge => "&",
 		}
 	}
+
+	pub fn trait_name(self) -> &'static str {
+		match self {
+			Product::Geometric => "Geometric",
+			Product::AntiGeometric => "AntiGeometric",
+			Product::Dot => "Dot",
+			Product::Wedge => "Wedge",
+			Product::Antiwedge => "Antiwedge",
+		}
+	}
+
+	pub fn trait_function_name(self) -> &'static str {
+		match self {
+			Product::Geometric => "geometric",
+			Product::AntiGeometric => "anti_geometric",
+			Product::Dot => "dot",
+			Product::Wedge => "wedge",
+			Product::Antiwedge => "antiwedge",
+		}
+	}
 }

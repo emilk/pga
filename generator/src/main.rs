@@ -98,9 +98,11 @@ fn cargo_fmt(path: &Path) -> Result<(), Box<dyn Error>> {
 
 fn blades_file(gen: &Generator) -> String {
 	format!(
-		"{}\n\n{}\n",
+		"{}\n\n{}\n\n{}\n\n{}\n",
 		"use derive_more::{Neg, Add, Sub, Mul};",
-		declare_blades(gen)
+		"use super::traits::*;",
+		declare_blades(gen),
+		impl_blade_ops(gen),
 	)
 }
 
@@ -135,6 +137,80 @@ fn declare_blade(gen: &Generator, name: &str, sb: &SBlade) -> String {
 	}
 
 	format!("{}pub struct {}(pub {});", code, name, gen.settings.float_type)
+}
+
+fn impl_blade_ops(gen: &Generator) -> String {
+	impl_blade_ops_product(gen, Product::Geometric)
+}
+
+fn impl_blade_ops_product(gen: &Generator, product: Product) -> String {
+	gen.types
+		.sblades()
+		.iter()
+		.map(|lhs| {
+			gen.types
+				.sblades()
+				.iter()
+				.map(|rhs| impl_blade_product(gen, lhs, rhs, product))
+				.join("\n\n")
+		})
+		.join("\n\n")
+}
+
+fn impl_blade_product(gen: &Generator, lhs: &(&str, SBlade), rhs: &(&str, SBlade), product: Product) -> String {
+	let product_type = SBlade::product(product, &[lhs.1.clone(), rhs.1.clone()], &gen.grammar);
+	let (sign, output_sblade_name) = gen.types.get_blade(&product_type.blade).unwrap();
+	let sign = product_type.sign * sign;
+	if sign == 0 {
+		return format!("// Omitted: {} {} {} = 0", lhs.0, product.symbol(), rhs.0);
+	}
+	assert_eq!(sign.abs(), 1);
+
+	format!(
+		r"
+impl {Trait}<{Rhs}> for {Lhs} {{
+	type Output = {Output};
+	fn {function_name}(self, rhs: {Rhs}) -> Self::Output {{
+		{Output}({sign} self.0 * rhs.0)
+	}}
+}}
+",
+		Lhs = lhs.0,
+		Rhs = rhs.0,
+		Trait = product.trait_name(),
+		function_name = product.trait_function_name(),
+		Output = output_sblade_name,
+		sign = if sign == -1 { "-" } else { "" },
+	)
+}
+
+// TODO: use this for struct multiplication
+fn impl_product(gen: &Generator, lhs: &(&str, Type), rhs: &(&str, Type), product: Product) -> String {
+	let factors = vec![Expr::var("self.0", &lhs.1), Expr::var("rhs.0", &rhs.1)];
+	let expr = Expr::Prod(product, factors);
+	let expr = expr.simplify(Some(&gen.grammar)).typify(&gen.types, &gen.grammar);
+	let output_type = expr.typ(Some(&gen.grammar)).unwrap();
+	if output_type.is_zero() {
+		return format!("// Omitted: {} {} {} = 0", lhs.0, product.symbol(), rhs.0);
+	}
+	let output_type_name = gen.types.type_name(&output_type);
+
+	format!(
+		r"
+impl {Trait}<{Rhs}> for {Lhs} {{
+	type Output = {Output};
+	fn {function_name}(self, rhs: {Rhs}) -> Self::Output {{
+		{code}
+	}}
+}}
+",
+		Lhs = lhs.0,
+		Rhs = rhs.0,
+		Trait = product.trait_name(),
+		function_name = product.trait_function_name(),
+		Output = output_type_name,
+		code = expr.rust(),
+	)
 }
 
 fn struct_file(gen: &Generator, struct_name: &str, strct: &Struct) -> String {

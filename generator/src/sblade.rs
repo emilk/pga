@@ -177,7 +177,7 @@ impl SBlade {
 			Product::AntiGeometric => a.geometric_antiproduct(b, g),
 			Product::Dot => a.dot_product(b, g),
 			Product::Wedge => a.wedge_product(b, g),
-			Product::Antiwedge => a.antiwedge_product(b, g),
+			Product::AntiWedge => a.antiwedge_product(b, g),
 		}
 	}
 

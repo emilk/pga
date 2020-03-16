@@ -93,7 +93,7 @@ impl Expr {
 
 	/// also known as the regressive product
 	pub fn antiwedge(factors: Vec<Expr>) -> Self {
-		Expr::Prod(Product::Antiwedge, factors)
+		Expr::Prod(Product::AntiWedge, factors)
 	}
 
 	/// Note: self must be simplified

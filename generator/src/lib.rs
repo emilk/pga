@@ -62,7 +62,7 @@ pub enum Product {
 	Wedge,
 
 	/// Regressive. Reduces the dimensionality.
-	Antiwedge,
+	AntiWedge,
 }
 
 /// what you get when you square the input vectors,
@@ -83,7 +83,7 @@ impl Grammar {
 			Product::AntiGeometric => None, // TODO
 			Product::Dot => Some(self.0[v.0]),
 			Product::Wedge => Some(0),
-			Product::Antiwedge => Some(0),
+			Product::AntiWedge => Some(0),
 		}
 	}
 
@@ -112,7 +112,7 @@ impl Unary {
 			Unary::LCompl => "Left complement",
 			Unary::RCompl => "Right complement",
 			Unary::Reverse => "Reverse",
-			Unary::AntiReverse => "Antireverse",
+			Unary::AntiReverse => "Anti-reverse",
 		}
 	}
 
@@ -134,7 +134,7 @@ impl Product {
 			Product::AntiGeometric => "!*", // TODO
 			Product::Dot => "|",
 			Product::Wedge => "^",
-			Product::Antiwedge => "&",
+			Product::AntiWedge => "&",
 		}
 	}
 
@@ -144,7 +144,7 @@ impl Product {
 			Product::AntiGeometric => "AntiGeometric",
 			Product::Dot => "Dot",
 			Product::Wedge => "Wedge",
-			Product::Antiwedge => "Antiwedge",
+			Product::AntiWedge => "AntiWedge",
 		}
 	}
 
@@ -154,7 +154,7 @@ impl Product {
 			Product::AntiGeometric => "anti_geometric",
 			Product::Dot => "dot",
 			Product::Wedge => "wedge",
-			Product::Antiwedge => "antiwedge",
+			Product::AntiWedge => "anti_wedge",
 		}
 	}
 }

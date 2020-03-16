@@ -33,8 +33,8 @@ fn unary_table(unit_blades: &[Expr], rust: &impl Fn(Expr) -> String) -> String {
 // 	writeln!(w, "Wedge multiplication table:").unwrap();
 // 	writeln!(w, "{}", multiplication_table(unit_blades, Product::Wedge, rust)).unwrap();
 
-// 	writeln!(w, "Antiwedge multiplication table:").unwrap();
-// 	writeln!(w, "{}", multiplication_table(unit_blades, Product::Antiwedge, rust)).unwrap();
+// 	writeln!(w, "AntiWedge multiplication table:").unwrap();
+// 	writeln!(w, "{}", multiplication_table(unit_blades, Product::AntiWedge, rust)).unwrap();
 // 	String::from_utf8(text).unwrap()
 // }
 

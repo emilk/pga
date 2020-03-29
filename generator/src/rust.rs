@@ -33,7 +33,7 @@ impl Expr {
 
 	fn rust_expr(&self) -> RustExpr {
 		match self {
-			Expr::Var(name, _typ) => RustExpr::atom(name),
+			Expr::Var { name, .. } => RustExpr::atom(name),
 			Expr::Vec(vi) => {
 				//  You should call expr.typify() before .rus() to get more readable vector names
 				RustExpr::atom(format!("_e{}", vi.0))

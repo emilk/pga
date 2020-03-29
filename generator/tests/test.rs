@@ -153,7 +153,7 @@ fn test_pga3d_lengyel() {
 		),
 	]);
 	assert_eq_ignoring_whitespace!(
-		rust(Expr::wedge(vec![Expr::var("p", &point), Expr::var("q", &point)])),
+		rust(Expr::wedge(vec![Expr::var(0, "p", &point), Expr::var(1, "q", &point)])),
 		"
 Line {
     vx: p.x ^ e4 - q.x ^ e4,
@@ -201,7 +201,7 @@ fn test_pga2d() {
 
 	let point = t.get("Point");
 	assert_eq_ignoring_whitespace!(
-		rust(Expr::wedge(vec![Expr::var("l", point), Expr::var("r", point)])),
+		rust(Expr::wedge(vec![Expr::var(0, "l", point), Expr::var(1, "r", point)])),
 		r"
 Line {
     yw: -l.w ^ r.y + l.y ^ r.w,
@@ -213,7 +213,7 @@ Line {
 
 	let line = t.get("Line");
 	assert_eq_ignoring_whitespace!(
-		rust(Expr::antiwedge(vec![Expr::var("l", line), Expr::var("r", line)])),
+		rust(Expr::antiwedge(vec![Expr::var(0, "l", line), Expr::var(1, "r", line)])),
 		r"
 Point {
     x: l.wx & r.xy - l.xy & r.wx,
@@ -225,12 +225,15 @@ Point {
 	);
 
 	assert_eq_ignoring_whitespace!(
-		rust(Expr::geometric(vec![Expr::var("p", point), Expr::var("p", point)])),
+		rust(Expr::geometric(vec![
+			Expr::var(0, "p", point),
+			Expr::var(1, "p", point)
+		])),
 		r"p.x * p.x + p.y * p.y"
 	);
 
 	assert_eq_ignoring_whitespace!(
-		rust(Expr::geometric(vec![Expr::var("l", line), Expr::var("l", line)])),
+		rust(Expr::geometric(vec![Expr::var(0, "l", line), Expr::var(1, "l", line)])),
 		r"l.xy * l.xy"
 	);
 }

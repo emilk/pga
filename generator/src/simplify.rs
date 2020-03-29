@@ -31,15 +31,22 @@ impl Expr {
 	#[must_use]
 	pub fn simplify(self, g: Option<&Grammar>) -> Expr {
 		match self {
-			Expr::Var(_, Type::Constant(sblade)) => Expr::sblade(&sblade),
-			Expr::Var(var_name, Type::Struct(members)) => Expr::Sum(
+			Expr::Var {
+				typ: Type::Constant(sblade),
+				..
+			} => Expr::sblade(&sblade),
+			Expr::Var {
+				order,
+				name,
+				typ: Type::Struct(members),
+			} => Expr::Sum(
 				members
 					.into_iter()
-					.map(|(mem_name, typ)| Expr::var(format!("{}.{}", var_name, mem_name), &typ))
+					.map(|(mem_name, typ)| Expr::var(order, format!("{}.{}", name, mem_name), &typ))
 					.collect(),
 			)
 			.simplify(g),
-			Expr::Var(_, _) => self,
+			Expr::Var { .. } => self,
 			Expr::Vec(_) => self,
 			Expr::Unary(unary, expr) => match expr.simplify(g) {
 				// e.g. x.lcompl().rcompl() => x

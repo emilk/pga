@@ -39,7 +39,8 @@ impl Expr {
 					sign: canon_sign,
 					blade: sblade.blade.clone(),
 				});
-				let blade_var = Expr::var(&canon_name, &canon_type);
+				let order = sblade.grade(); // TODO
+				let blade_var = Expr::var(order, &canon_name, &canon_type);
 				let scalar = sblade.sign * canon_sign;
 				self = match scalar {
 					0 => Expr::zero(),
@@ -50,7 +51,7 @@ impl Expr {
 		}
 
 		match self {
-			Expr::Var(_, _) | Expr::Vec(_) => self,
+			Expr::Var { .. } | Expr::Vec(_) => self,
 			Expr::Term(expr, s) => Expr::Term(expr.typify(t, g).into(), s),
 			Expr::Unary(unary, expr) => Expr::Unary(unary, expr.typify(t, g).into()),
 			Expr::Sum(terms) => Expr::Sum(terms.into_iter().map(|e| e.typify(t, g)).collect()),

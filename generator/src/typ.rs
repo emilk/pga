@@ -32,6 +32,10 @@ impl Type {
 		Type::SBlade(SBlade::vec(vi))
 	}
 
+	pub fn strct(s: &Struct) -> Self {
+		Self::Struct(s.iter().map(|(name, mem)| (name.clone(), mem.typ.clone())).collect())
+	}
+
 	pub fn is_zero(&self) -> bool {
 		match self {
 			Type::Constant(sb) => sb.is_zero(),
@@ -82,7 +86,7 @@ impl Type {
 impl Expr {
 	pub fn typ(&self, g: Option<&Grammar>) -> Option<Type> {
 		match self {
-			Expr::Var(_, typ) => Some(typ.clone()),
+			Expr::Var { typ, .. } => Some(typ.clone()),
 			Expr::Term(_, 0) => Some(Type::zero()),
 			Expr::Term(expr, _) => expr.typ(g),
 			Expr::Vec(vi) => Some(Type::vec(*vi)),
@@ -93,7 +97,7 @@ impl Expr {
 				} else if terms.len() == 1 {
 					terms[0].typ(g)
 				} else {
-					todo!("figure out type of sum '{}'", self.rust())
+					None // This could be a struct, but should be handled by typify
 				}
 			}
 			Expr::Prod(product, factors) => product_type(*product, factors, g),

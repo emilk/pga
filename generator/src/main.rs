@@ -210,37 +210,28 @@ fn impl_blade_product(gen: &Generator, lhs: &(&str, SBlade), rhs: &(&str, SBlade
 	}
 }
 
-// TODO: use this for struct multiplication
-// fn impl_product(gen: &Generator, lhs: &(&str, Type), rhs: &(&str, Type), product: Product) -> String {
-// 	let factors = vec![Expr::var("self.0", &lhs.1), Expr::var("rhs.0", &rhs.1)];
-// 	let expr = Expr::Prod(product, factors);
-// 	let expr = expr.simplify(Some(&gen.grammar)).typify(&gen.types, &gen.grammar);
-// 	let output_type = expr.typ(Some(&gen.grammar)).unwrap();
-// 	if output_type.is_zero() {
-// 		return format!("// Omitted: {} {} {} = 0", lhs.0, product.symbol(), rhs.0);
-// 	}
-// 	let output_type_name = gen.types.type_name(&output_type);
-
-// 	format!(
-// 		r"
-// impl {Trait}<{Rhs}> for {Lhs} {{
-// 	type Output = {Output};
-// 	fn {function_name}(self, rhs: {Rhs}) -> Self::Output {{
-// 		{code}
-// 	}}
-// }}
-// ",
-// 		Lhs = lhs.0,
-// 		Rhs = rhs.0,
-// 		Trait = product.trait_name(),
-// 		function_name = product.trait_function_name(),
-// 		Output = output_type_name,
-// 		code = expr.rust(),
-// 	)
-// }
-
 fn struct_file(gen: &Generator, struct_name: &str, strct: &Struct) -> String {
-	format!("{}\n\n{}\n", "use super::*;", declare_struct(gen, struct_name, strct))
+	let binops = gen
+		.types
+		.structs()
+		.map(|(rhs_name, rhs_struct)| {
+			format!(
+				"// {} OP {}:\n\n{}\n",
+				struct_name,
+				rhs_name,
+				Product::iter()
+					.map(|prod| impl_struct_product(gen, &(struct_name, strct), &(rhs_name, rhs_struct), prod))
+					.join("\n")
+			)
+		})
+		.join(&format!("\n{}", CODE_SEPARATOR));
+	format!(
+		"{}\n\n{}\n{}{}\n",
+		"use super::*;",
+		declare_struct(gen, struct_name, strct),
+		CODE_SEPARATOR,
+		binops
+	)
 }
 
 fn declare_struct(_gen: &Generator, struct_name: &str, strct: &Struct) -> String {
@@ -249,4 +240,75 @@ fn declare_struct(_gen: &Generator, struct_name: &str, strct: &Struct) -> String
 		.map(|(member_name, member_type)| format!("\tpub {}: {},", member_name, member_type.name))
 		.join("\n");
 	format!("pub struct {} {{\n{}\n}}\n", struct_name, members)
+}
+
+fn impl_struct_product(gen: &Generator, lhs: &(&str, &Struct), rhs: &(&str, &Struct), product: Product) -> String {
+	let factors = vec![
+		Expr::var(0, "self", &Type::strct(lhs.1)),
+		Expr::var(1, "rhs", &Type::strct(rhs.1)),
+	];
+	let expr = Expr::Prod(product, factors);
+	let expr = expr.simplify(Some(&gen.grammar)).typify(&gen.types, &gen.grammar);
+
+	if true {
+		match &expr {
+			Expr::StructInstance(output_struct) => format!(
+				r"
+		impl {Trait}<{Rhs}> for {Lhs} {{
+			type Output = {Output};
+			fn {function_name}(self, rhs: {Rhs}) -> Self::Output {{
+				{code}
+			}}
+		}}
+		",
+				Lhs = lhs.0,
+				Rhs = rhs.0,
+				Trait = product.trait_name(),
+				function_name = product.trait_function_name(),
+				Output = output_struct.struct_name,
+				code = expr.rust(),
+			),
+			_ => format!(
+				"// Omitted: {} {} {} = {}",
+				lhs.0,
+				product.trait_function_name(),
+				rhs.0,
+				expr.rust()
+			),
+		}
+	} else {
+		let output_type = match expr.typ(Some(&gen.grammar)) {
+			Some(typ) => typ,
+			None => {
+				return format!(
+					"// Omitted: {} {} {} = {}",
+					lhs.0,
+					product.trait_function_name(),
+					rhs.0,
+					expr.rust()
+				);
+			}
+		};
+		if output_type.is_zero() {
+			return format!("// Omitted: {} {} {} = 0", lhs.0, product.symbol(), rhs.0);
+		}
+		let output_type_name = gen.types.type_name(&output_type);
+
+		format!(
+			r"
+impl {Trait}<{Rhs}> for {Lhs} {{
+	type Output = {Output};
+	fn {function_name}(self, rhs: {Rhs}) -> Self::Output {{
+		{code}
+	}}
+}}
+",
+			Lhs = lhs.0,
+			Rhs = rhs.0,
+			Trait = product.trait_name(),
+			function_name = product.trait_function_name(),
+			Output = output_type_name,
+			code = expr.rust(),
+		)
+	}
 }

@@ -65,7 +65,7 @@ impl Types {
 		match typ {
 			Type::SBlade(sblade) if sblade.is_zero() => "Zero",
 			Type::SBlade(sblade) => self.get_blade(&sblade.blade).unwrap().1.as_str(),
-			_ => todo!(),
+			_ => todo!("Get name of type {:?}", typ),
 		}
 	}
 
@@ -83,7 +83,7 @@ impl Types {
 			.collect()
 	}
 
-	pub fn structs(&self) -> impl Iterator<Item = (&String, &Struct)> {
-		self.structs.iter()
+	pub fn structs(&self) -> impl Iterator<Item = (&str, &Struct)> {
+		self.structs.iter().map(|(name, strct)| (name.as_str(), strct))
 	}
 }

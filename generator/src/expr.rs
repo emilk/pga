@@ -4,8 +4,13 @@ use crate::*;
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Expr {
 	/// Variable of a given type
-	Var(String, Type),
-
+	Var {
+		/// This is the sort order when rearranging expressions.
+		/// You can use this to always place "self" to the left of "rhs", for instance.
+		order: usize,
+		name: String,
+		typ: Type,
+	},
 	// A unit length base vector
 	Vec(VecIdx),
 
@@ -70,8 +75,12 @@ impl Expr {
 		}
 	}
 
-	pub fn var(name: impl ToString, typ: &Type) -> Self {
-		Expr::Var(name.to_string(), typ.clone())
+	pub fn var(order: usize, name: impl ToString, typ: &Type) -> Self {
+		Expr::Var {
+			order,
+			name: name.to_string(),
+			typ: typ.clone(),
+		}
 	}
 
 	pub fn unary(unary: Unary, expr: Expr) -> Self {
@@ -134,7 +143,7 @@ impl Expr {
 	/// Returns this Expr in terms of a multiple of a blade, if possible
 	pub fn as_sblade(&self, g: &Grammar) -> Option<SBlade> {
 		match self {
-			Expr::Var(_, _) => None,
+			Expr::Var { .. } => None,
 			Expr::Vec(vi) => Some(SBlade::vec(*vi)),
 			Expr::Term(expr, s) => {
 				if let Some(sblade) = expr.as_sblade(g) {

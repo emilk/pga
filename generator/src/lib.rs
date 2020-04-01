@@ -9,7 +9,7 @@ mod typ;
 mod types;
 mod typify;
 
-pub use {blade::*, expr::*, sblade::*, typ::*, types::*};
+pub use {blade::*, expr::*, rust::*, sblade::*, typ::*, types::*};
 
 /// Which base vector (e0, e1 or e2?)
 #[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, derive_more::Display)]

@@ -1,8 +1,5 @@
 [workspace]
 members = [
-	# "generate",
-	# "generated",
-	# "pga",
-	# "reference",
+	"generated",
 	"generator",
 ]

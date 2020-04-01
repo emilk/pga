@@ -22,6 +22,7 @@ struct Generator {
 	grammar: Grammar,
 	types: Types,
 	settings: Settings,
+	ro: RustOptions,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -37,6 +38,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 		grammar,
 		types,
 		settings,
+		ro: RustOptions { operators: false },
 	};
 
 	fs::create_dir_all(out_dir)?;
@@ -100,8 +102,7 @@ fn cargo_fmt(path: &Path) -> Result<(), Box<dyn Error>> {
 
 fn blades_file(gen: &Generator) -> String {
 	format!(
-		"{}\n\n{}\n\n{}\n\n{}{}\n",
-		"use derive_more::{Neg, Add, Sub, Mul};",
+		"{}\n\n{}\n\n{}{}\n",
 		"use super::*;",
 		declare_blades(gen),
 		CODE_SEPARATOR,
@@ -133,11 +134,12 @@ fn declare_blade(gen: &Generator, name: &str, sb: &SBlade) -> String {
 	let squares_to = squares_to.sign;
 	code += &format!("/// Squares to {}.\n", squares_to);
 
+	let mut derives =
+		"Copy, Clone, Debug, PartialEq, PartialOrd, derive_more::Neg, derive_more::Add, derive_more::Sub".to_string();
 	if is_scalar || is_pseudoscalar {
-		code += "#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub, Mul)]\n";
-	} else {
-		code += "#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub)]\n";
+		derives += ", derive_more::Mul";
 	}
+	code += &format!("#[derive({})]\n", derives);
 
 	format!("{}pub struct {}(pub {});", code, name, gen.settings.float_type)
 }
@@ -226,8 +228,11 @@ fn struct_file(gen: &Generator, struct_name: &str, strct: &Struct) -> String {
 		})
 		.join(&format!("\n{}", CODE_SEPARATOR));
 	format!(
-		"{}\n\n{}\n{}{}\n",
-		"use super::*;",
+		"\
+		//! TODO: documentation\n\
+		//!\n\
+		//! TODO: describe what operators are available for the struct.\n\
+		use super::*;\n\n{}\n{}{}\n",
 		declare_struct(gen, struct_name, strct),
 		CODE_SEPARATOR,
 		binops
@@ -235,11 +240,20 @@ fn struct_file(gen: &Generator, struct_name: &str, strct: &Struct) -> String {
 }
 
 fn declare_struct(_gen: &Generator, struct_name: &str, strct: &Struct) -> String {
+	// TODO: we can only implement Add, Sub if the struct has no Type::Constant
+	let derives = "Copy, Clone, Debug, PartialEq, PartialOrd, derive_more::Neg, derive_more::Add, derive_more::Sub\n";
 	let members = strct
 		.iter()
 		.map(|(member_name, member_type)| format!("\tpub {}: {},", member_name, member_type.name))
 		.join("\n");
-	format!("pub struct {} {{\n{}\n}}\n", struct_name, members)
+	format!(
+		"\
+	#[derive({})]\n\
+	pub struct {} {{\n\
+			{}\n\
+	}}\n	",
+		derives, struct_name, members
+	)
 }
 
 fn impl_struct_product(gen: &Generator, lhs: &(&str, &Struct), rhs: &(&str, &Struct), product: Product) -> String {
@@ -266,14 +280,14 @@ fn impl_struct_product(gen: &Generator, lhs: &(&str, &Struct), rhs: &(&str, &Str
 				Trait = product.trait_name(),
 				function_name = product.trait_function_name(),
 				Output = output_struct.struct_name,
-				code = expr.rust(),
+				code = expr.rust(&gen.ro),
 			),
 			_ => format!(
 				"// Omitted: {} {} {} = {}",
 				lhs.0,
 				product.trait_function_name(),
 				rhs.0,
-				expr.rust()
+				expr.rust(&gen.ro)
 			),
 		}
 	} else {
@@ -285,7 +299,7 @@ fn impl_struct_product(gen: &Generator, lhs: &(&str, &Struct), rhs: &(&str, &Str
 					lhs.0,
 					product.trait_function_name(),
 					rhs.0,
-					expr.rust()
+					expr.rust(&gen.ro)
 				);
 			}
 		};
@@ -308,7 +322,7 @@ impl {Trait}<{Rhs}> for {Lhs} {{
 			Trait = product.trait_name(),
 			function_name = product.trait_function_name(),
 			Output = output_type_name,
-			code = expr.rust(),
+			code = expr.rust(&gen.ro),
 		)
 	}
 }

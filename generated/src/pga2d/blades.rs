@@ -1,39 +1,69 @@
-use derive_more::{Add, Mul, Neg, Sub};
-
 use super::*;
 
 /// The scalar type (real numbers).
 /// Squares to 1.
-#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub, Mul)]
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    PartialEq,
+    PartialOrd,
+    derive_more::Neg,
+    derive_more::Add,
+    derive_more::Sub,
+    derive_more::Mul,
+)]
 pub struct R(pub f64);
 
 /// Squares to 1.
-#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub)]
+#[derive(
+    Copy, Clone, Debug, PartialEq, PartialOrd, derive_more::Neg, derive_more::Add, derive_more::Sub,
+)]
 pub struct X(pub f64);
 
 /// Squares to 1.
-#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub)]
+#[derive(
+    Copy, Clone, Debug, PartialEq, PartialOrd, derive_more::Neg, derive_more::Add, derive_more::Sub,
+)]
 pub struct Y(pub f64);
 
 /// Squares to 0.
-#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub)]
+#[derive(
+    Copy, Clone, Debug, PartialEq, PartialOrd, derive_more::Neg, derive_more::Add, derive_more::Sub,
+)]
 pub struct W(pub f64);
 
 /// Squares to 0.
-#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub)]
+#[derive(
+    Copy, Clone, Debug, PartialEq, PartialOrd, derive_more::Neg, derive_more::Add, derive_more::Sub,
+)]
 pub struct YW(pub f64);
 
 /// Squares to 0.
-#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub)]
+#[derive(
+    Copy, Clone, Debug, PartialEq, PartialOrd, derive_more::Neg, derive_more::Add, derive_more::Sub,
+)]
 pub struct WX(pub f64);
 
 /// Squares to -1.
-#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub)]
+#[derive(
+    Copy, Clone, Debug, PartialEq, PartialOrd, derive_more::Neg, derive_more::Add, derive_more::Sub,
+)]
 pub struct XY(pub f64);
 
 /// The pseudo-scalar.
 /// Squares to 0.
-#[derive(Copy, Clone, Debug, PartialEq, Neg, Add, Sub, Mul)]
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    PartialEq,
+    PartialOrd,
+    derive_more::Neg,
+    derive_more::Add,
+    derive_more::Sub,
+    derive_more::Mul,
+)]
 pub struct XYW(pub f64);
 
 // ---------------------------------------------------------------------

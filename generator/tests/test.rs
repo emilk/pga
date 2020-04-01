@@ -78,7 +78,7 @@ fn tokenize(s: &str) -> Vec<&str> {
 #[test]
 fn test_pga3d_lengyel() {
 	let (g, t) = grammars::pga3d_lengyel();
-	let rust = |expr: Expr| expr.simplify(Some(&g)).typify(&t, &g).rust();
+	let rust = |expr: Expr| expr.simplify(Some(&g)).typify(&t, &g).rust_ops();
 	let unit_blades = t.unit_blades();
 	// println!("{}", multiplication_tables(&unit_blades, &rust));
 
@@ -90,7 +90,7 @@ fn test_pga3d_lengyel() {
 | Right complement | E4 | e234  | e314  | e124  | e321  | -e23 | -e31 | -e12 | -e41 | -e42 | -e43 | -e1   | -e2   | -e3   | -e4   | 1  |
 | Left complement  | E4 | -e234 | -e314 | -e124 | -e321 | -e23 | -e31 | -e12 | -e41 | -e42 | -e43 | e1    | e2    | e3    | e4    | 1  |
 | Reverse          | 1  | e1    | e2    | e3    | e4    | -e41 | -e42 | -e43 | -e23 | -e31 | -e12 | -e234 | -e314 | -e124 | -e321 | E4 |
-| Antireverse      | 1  | -e1   | -e2   | -e3   | -e4   | -e41 | -e42 | -e43 | -e23 | -e31 | -e12 | e234  | e314  | e124  | e321  | E4 |
+| Anti-reverse     | 1  | -e1   | -e2   | -e3   | -e4   | -e41 | -e42 | -e43 | -e23 | -e31 | -e12 | e234  | e314  | e124  | e321  | E4 |
 "
 	);
 
@@ -170,16 +170,20 @@ Line {
 #[test]
 fn test_pga2d() {
 	let (g, t) = grammars::pga2d();
-	let rust = |expr: Expr| expr.simplify(Some(&g)).typify(&t, &g).rust();
+	let rust = |expr: Expr| expr.simplify(Some(&g)).typify(&t, &g).rust_ops();
 
 	// let unit_blades = t.unit_blades();
 	// println!("{}", multiplication_tables(&unit_blades, &rust));
 
-	assert_eq_ignoring_whitespace!(t.get("WX").unit().rust(), "-_e0 ^ _e2", "Ugly output without typify");
+	assert_eq_ignoring_whitespace!(
+		t.get("WX").unit().rust_ops(),
+		"-_e0 ^ _e2",
+		"Ugly output without typify"
+	);
 	assert_eq_ignoring_whitespace!(rust(t.get("WX").unit()), "WX");
 
 	assert_eq_ignoring_whitespace!(
-		Expr::dot(vec![t.get("XY").unit()]).simplify(Some(&g)).rust(),
+		Expr::dot(vec![t.get("XY").unit()]).simplify(Some(&g)).rust_ops(),
 		"_e0 ^ _e1"
 	);
 	assert_eq_ignoring_whitespace!(rust(Expr::dot(vec![t.get("XY").unit(), Expr::one()])), "XY");
@@ -193,7 +197,7 @@ fn test_pga2d() {
 		Expr::wedge(vec![y_type.unit(), x_type.unit()]),
 	]);
 	assert_eq_ignoring_whitespace!(
-		expr.rust(),
+		expr.rust_ops(),
 		"_e0 ^ _e1 + _e1 ^ _e0",
 		"Hard to read without running typify"
 	);
@@ -227,13 +231,13 @@ Point {
 	assert_eq_ignoring_whitespace!(
 		rust(Expr::geometric(vec![
 			Expr::var(0, "p", point),
-			Expr::var(1, "p", point)
+			Expr::var(0, "p", point)
 		])),
 		r"p.x * p.x + p.y * p.y"
 	);
 
 	assert_eq_ignoring_whitespace!(
-		rust(Expr::geometric(vec![Expr::var(0, "l", line), Expr::var(1, "l", line)])),
+		rust(Expr::geometric(vec![Expr::var(0, "l", line), Expr::var(0, "l", line)])),
 		r"l.xy * l.xy"
 	);
 }

@@ -1,4 +1,5 @@
 mod blade;
+pub mod documentation;
 mod expr;
 pub mod grammars;
 pub mod markdown;

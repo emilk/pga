@@ -131,6 +131,10 @@ impl Expr {
 	}
 }
 
-fn indent(s: &str) -> String {
-	s.lines().map(|line| format!("    {}", line)).join("\n")
+pub fn indent(s: &str) -> String {
+	with_line_prefixes("    ", s)
+}
+
+pub fn with_line_prefixes(prefix: &str, s: &str) -> String {
+	s.lines().map(|line| format!("{}{}", prefix, line)).join("\n")
 }

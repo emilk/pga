@@ -1,3 +1,85 @@
+//! # Blade types
+//! The blades that make up this geometric algebra.
+//!
+//! ## Unary operations
+//! | Op \ Blade       | 1   | X  | Y  | W  | YW  | WX  | XY  | XYW  |
+//! | ---------------- | --- | -- | -- | -- | --- | --- | --- | ---- |
+//! | Right complement | XYW | YW | WX | XY | X   | Y   | W   | 1    |
+//! | Left complement  | XYW | YW | WX | XY | X   | Y   | W   | 1    |
+//! | Reverse          | 1   | X  | Y  | W  | -YW | -WX | -XY | -XYW |
+//! | Anti-reverse     | -1  | -X | -Y | -W | YW  | WX  | XY  | XYW  |
+//!
+//!
+//! ## Multiplication tables
+//! ### Geometric multiplication table
+//!
+//! |     | 1   | X   | Y   | W   | YW  | WX  | XY  | XYW |
+//! | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+//! | 1   | 1   | X   | Y   | W   | YW  | WX  | XY  | XYW |
+//! | X   | X   | 1   | XY  | -WX | XYW | -W  | Y   | YW  |
+//! | Y   | Y   | -XY | 1   | YW  | W   | XYW | -X  | WX  |
+//! | W   | W   | WX  | -YW | 0   | 0   | 0   | XYW | 0   |
+//! | YW  | YW  | XYW | -W  | 0   | 0   | 0   | WX  | 0   |
+//! | WX  | WX  | W   | XYW | 0   | 0   | 0   | -YW | 0   |
+//! | XY  | XY  | -Y  | X   | XYW | -WX | YW  | -1  | -W  |
+//! | XYW | XYW | YW  | WX  | 0   | 0   | 0   | -W  | 0   |
+//!
+//!
+//! ### AntiGeometric multiplication table
+//!
+//! |     | 1   | X   | Y   | W   | YW  | WX  | XY  | XYW |
+//! | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+//! | 1   | 1   | X   | Y   | W   | YW  | WX  | XY  | XYW |
+//! | X   | X   | 1   | XY  | -WX | XYW | -W  | Y   | YW  |
+//! | Y   | Y   | -XY | 1   | YW  | W   | XYW | -X  | WX  |
+//! | W   | W   | WX  | -YW | 0   | 0   | 0   | XYW | 0   |
+//! | YW  | YW  | XYW | -W  | 0   | 0   | 0   | WX  | 0   |
+//! | WX  | WX  | W   | XYW | 0   | 0   | 0   | -YW | 0   |
+//! | XY  | XY  | -Y  | X   | XYW | -WX | YW  | -1  | -W  |
+//! | XYW | XYW | YW  | WX  | 0   | 0   | 0   | -W  | 0   |
+//!
+//!
+//! ### Dot multiplication table
+//!
+//! |     | 1   | X   | Y   | W   | YW  | WX  | XY  | XYW |
+//! | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+//! | 1   | 1   | X   | Y   | W   | YW  | WX  | XY  | XYW |
+//! | X   | X   | 1   | XY  | -WX | XYW | -W  | Y   | YW  |
+//! | Y   | Y   | -XY | 1   | YW  | W   | XYW | -X  | WX  |
+//! | W   | W   | WX  | -YW | 0   | 0   | 0   | XYW | 0   |
+//! | YW  | YW  | XYW | -W  | 0   | 0   | 0   | WX  | 0   |
+//! | WX  | WX  | W   | XYW | 0   | 0   | 0   | -YW | 0   |
+//! | XY  | XY  | -Y  | X   | XYW | -WX | YW  | -1  | -W  |
+//! | XYW | XYW | YW  | WX  | 0   | 0   | 0   | -W  | 0   |
+//!
+//!
+//! ### Wedge multiplication table
+//!
+//! |     | 1   | X   | Y   | W   | YW  | WX  | XY  | XYW |
+//! | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+//! | 1   | 1   | X   | Y   | W   | YW  | WX  | XY  | XYW |
+//! | X   | X   | 1   | XY  | -WX | XYW | -W  | Y   | YW  |
+//! | Y   | Y   | -XY | 1   | YW  | W   | XYW | -X  | WX  |
+//! | W   | W   | WX  | -YW | 0   | 0   | 0   | XYW | 0   |
+//! | YW  | YW  | XYW | -W  | 0   | 0   | 0   | WX  | 0   |
+//! | WX  | WX  | W   | XYW | 0   | 0   | 0   | -YW | 0   |
+//! | XY  | XY  | -Y  | X   | XYW | -WX | YW  | -1  | -W  |
+//! | XYW | XYW | YW  | WX  | 0   | 0   | 0   | -W  | 0   |
+//!
+//!
+//! ### AntiWedge multiplication table
+//!
+//! |     | 1   | X   | Y   | W   | YW  | WX  | XY  | XYW |
+//! | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+//! | 1   | 1   | X   | Y   | W   | YW  | WX  | XY  | XYW |
+//! | X   | X   | 1   | XY  | -WX | XYW | -W  | Y   | YW  |
+//! | Y   | Y   | -XY | 1   | YW  | W   | XYW | -X  | WX  |
+//! | W   | W   | WX  | -YW | 0   | 0   | 0   | XYW | 0   |
+//! | YW  | YW  | XYW | -W  | 0   | 0   | 0   | WX  | 0   |
+//! | WX  | WX  | W   | XYW | 0   | 0   | 0   | -YW | 0   |
+//! | XY  | XY  | -Y  | X   | XYW | -WX | YW  | -1  | -W  |
+//! | XYW | XYW | YW  | WX  | 0   | 0   | 0   | -W  | 0   |
+
 use super::*;
 
 /// The scalar type (real numbers).

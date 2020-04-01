@@ -2,7 +2,7 @@ use std::{collections::BTreeSet, error::Error, fs, io::prelude::*, path::Path};
 
 use {itertools::Itertools, strum::IntoEnumIterator};
 
-use generator::*;
+use generator::{documentation::*, *};
 
 const CODE_SEPARATOR: &str = "// ---------------------------------------------------------------------\n";
 
@@ -23,6 +23,14 @@ struct Generator {
 	types: Types,
 	settings: Settings,
 	ro: RustOptions,
+}
+
+impl Generator {
+	fn rust(&self, expr: Expr) -> String {
+		expr.simplify(Some(&self.grammar))
+			.typify(&self.types, &self.grammar)
+			.rust(&self.ro)
+	}
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -102,11 +110,31 @@ fn cargo_fmt(path: &Path) -> Result<(), Box<dyn Error>> {
 
 fn blades_file(gen: &Generator) -> String {
 	format!(
-		"{}\n\n{}\n\n{}{}\n",
+		"{}\n\n{}\n\n{}\n\n{}{}\n",
+		with_line_prefixes("//! ", &blades_documentation(gen).trim()),
 		"use super::*;",
 		declare_blades(gen),
 		CODE_SEPARATOR,
 		impl_blade_ops(gen),
+	)
+}
+
+fn blades_documentation(gen: &Generator) -> String {
+	let rust = |expr| gen.rust(expr);
+	let unit_blades = gen.types.unit_blades();
+	format!(
+		"\
+	# Blade types\n\
+	The blades that make up this geometric algebra.\n\
+	\n\
+	## Unary operations\n\
+	{}\n\
+	\n\
+	## Multiplication tables\n\
+	{}\n\
+	",
+		unary_table(&unit_blades, &rust),
+		multiplication_tables(&unit_blades, &rust)
 	)
 }
 
@@ -263,11 +291,10 @@ fn impl_struct_product(gen: &Generator, lhs: &(&str, &Struct), rhs: &(&str, &Str
 	];
 	let expr = Expr::Prod(product, factors);
 	let expr = expr.simplify(Some(&gen.grammar)).typify(&gen.types, &gen.grammar);
-
-	if true {
-		match &expr {
-			Expr::StructInstance(output_struct) => format!(
-				r"
+	let code = expr.rust(&gen.ro);
+	match type_name(gen, &expr) {
+		Some(output_type_name) => format!(
+			r"
 		impl {Trait}<{Rhs}> for {Lhs} {{
 			type Output = {Output};
 			fn {function_name}(self, rhs: {Rhs}) -> Self::Output {{
@@ -275,54 +302,40 @@ fn impl_struct_product(gen: &Generator, lhs: &(&str, &Struct), rhs: &(&str, &Str
 			}}
 		}}
 		",
-				Lhs = lhs.0,
-				Rhs = rhs.0,
-				Trait = product.trait_name(),
-				function_name = product.trait_function_name(),
-				Output = output_struct.struct_name,
-				code = expr.rust(&gen.ro),
-			),
-			_ => format!(
-				"// Omitted: {} {} {} = {}",
-				lhs.0,
-				product.trait_function_name(),
-				rhs.0,
-				expr.rust(&gen.ro)
-			),
-		}
-	} else {
-		let output_type = match expr.typ(Some(&gen.grammar)) {
-			Some(typ) => typ,
-			None => {
-				return format!(
-					"// Omitted: {} {} {} = {}",
-					lhs.0,
-					product.trait_function_name(),
-					rhs.0,
-					expr.rust(&gen.ro)
-				);
-			}
-		};
-		if output_type.is_zero() {
-			return format!("// Omitted: {} {} {} = 0", lhs.0, product.symbol(), rhs.0);
-		}
-		let output_type_name = gen.types.type_name(&output_type);
-
-		format!(
-			r"
-impl {Trait}<{Rhs}> for {Lhs} {{
-	type Output = {Output};
-	fn {function_name}(self, rhs: {Rhs}) -> Self::Output {{
-		{code}
-	}}
-}}
-",
 			Lhs = lhs.0,
 			Rhs = rhs.0,
 			Trait = product.trait_name(),
 			function_name = product.trait_function_name(),
 			Output = output_type_name,
-			code = expr.rust(&gen.ro),
-		)
+			code = code,
+		),
+		None => format!(
+			"// Omitted: {} {} {} = {}",
+			lhs.0,
+			product.trait_function_name(),
+			rhs.0,
+			code
+		),
+	}
+}
+
+/// Returns None if the type is Zero or unknown
+fn type_name(gen: &Generator, expr: &Expr) -> Option<String> {
+	if true {
+		// Hacky path
+		match &expr {
+			Expr::StructInstance(output_struct) => Some(output_struct.struct_name.clone()),
+			_ => {
+				None // TODO: handle blades (Expr::Var)
+			}
+		}
+	} else {
+		// TODO: debug this path
+		let output_type = expr.typ(Some(&gen.grammar))?;
+		if output_type.is_zero() {
+			None
+		} else {
+			Some(gen.types.type_name(&output_type).to_owned())
+		}
 	}
 }

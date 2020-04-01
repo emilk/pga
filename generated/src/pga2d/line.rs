@@ -1,6 +1,12 @@
-//! TODO: documentation
+//! # Line
 //!
-//! TODO: describe what operators are available for the struct.
+//! ## Operations
+//! ```text
+//! Line.anti_wedge(Line) -> Point
+//! Line.dot(Point) -> Point
+//! Point.dot(Line) -> Point
+//! ```
+
 use super::*;
 
 #[derive(

@@ -18,7 +18,7 @@ impl Expr {
 	pub fn typify(mut self, t: &Types, g: &Grammar) -> Self {
 		if let Expr::Sum(terms) = &self {
 			// eprintln!("typify Sum: {}", self.rust());
-			if let Some(value) = as_value(&terms, Some(g)) {
+			if let Some(value) = as_value(&terms, Some(g), Some(t)) {
 				if let Some(s) = find_struct(&value, t) {
 					// eprintln!("typify Sum {} as struct {}", self.rust(), s.struct_name);
 					self = Expr::StructInstance(s);
@@ -64,11 +64,11 @@ impl Expr {
 	}
 }
 
-fn as_value(terms: &[Expr], g: Option<&Grammar>) -> Option<Value> {
+fn as_value(terms: &[Expr], g: Option<&Grammar>, t: Option<&Types>) -> Option<Value> {
 	let mut parts: BTreeMap<Blade, Vec<Expr>> = Default::default();
 	for term in terms {
 		// eprintln!("as_value {} typ: {:?}", term.rust(), term.typ(g));
-		let typ = term.typ(g)?;
+		let typ = term.typ(g, t)?;
 		if !typ.is_zero() {
 			match typ {
 				Type::Constant(sblade) | Type::SBlade(sblade) => {

@@ -49,6 +49,19 @@ fn main() -> Result<(), Box<dyn Error>> {
 		ro: RustOptions { operators: false },
 	};
 
+	if false {
+		// Test:
+		let line = gen.types.get_struct("Line");
+		let point = gen.types.get_struct("Point");
+		dbg!(strct::struct_product_type_signature(
+			&gen,
+			&("Line", line),
+			&("Point", point),
+			Product::Dot
+		));
+		panic!("Planned");
+	}
+
 	fs::create_dir_all(out_dir)?;
 
 	let mut mod_file_contents = include_str!("../templates/lib.rs").to_owned();
@@ -355,7 +368,7 @@ mod strct {
 		)
 	}
 
-	fn struct_product_type_signature(
+	pub fn struct_product_type_signature(
 		gen: &Generator,
 		lhs: &(&str, &Struct),
 		rhs: &(&str, &Struct),
@@ -375,7 +388,7 @@ mod strct {
 	fn impl_struct_product(gen: &Generator, lhs: &(&str, &Struct), rhs: &(&str, &Struct), product: Product) -> String {
 		let factors = vec![
 			Expr::var(0, "self", &Type::strct(lhs.1)),
-			Expr::var(1, "rhs", &Type::strct(rhs.1)),
+			Expr::var(1, "rhs", &Type::strct(rhs.1)), // TODO: name this snake_case(rhs.0) iff lhs type != rhs.type
 		];
 		let expr = Expr::Prod(product, factors);
 		let expr = expr.simplify(Some(&gen.grammar)).typify(&gen.types, &gen.grammar);
@@ -383,6 +396,7 @@ mod strct {
 		match type_name(gen, &expr) {
 			Some(output_type_name) => format!(
 				r"
+		// {comment}
 		impl {Trait}<{Rhs}> for {Lhs} {{
 			type Output = {Output};
 			fn {function_name}(self, rhs: {Rhs}) -> Self::Output {{
@@ -390,6 +404,7 @@ mod strct {
 			}}
 		}}
 		",
+				comment = struct_product_type_signature(gen, lhs, rhs, product).unwrap(),
 				Lhs = lhs.0,
 				Rhs = rhs.0,
 				Trait = product.trait_name(),
@@ -402,7 +417,7 @@ mod strct {
 				lhs.0,
 				product.trait_function_name(),
 				rhs.0,
-				code
+				code.replace('\n', " ")
 			),
 		}
 	}
@@ -410,21 +425,13 @@ mod strct {
 
 /// Returns None if the type is Zero or unknown
 fn type_name(gen: &Generator, expr: &Expr) -> Option<String> {
-	if true {
-		// Hacky path
-		match &expr {
-			Expr::StructInstance(output_struct) => Some(output_struct.struct_name.clone()),
-			_ => {
-				None // TODO: handle blades (Expr::Var)
-			}
-		}
+	// println!("type_name({})", expr.rust(&gen.ro));
+	let output_type = expr.typ(Some(&gen.grammar), Some(&gen.types));
+	// println!("type_name({}) output_type: {:?}", expr.rust(&gen.ro), output_type);
+	let output_type = output_type?;
+	if output_type.is_zero() {
+		None
 	} else {
-		// TODO: debug this path
-		let output_type = expr.typ(Some(&gen.grammar))?;
-		if output_type.is_zero() {
-			None
-		} else {
-			Some(gen.types.type_name(&output_type).to_owned())
-		}
+		Some(gen.types.type_name(&output_type).to_owned())
 	}
 }

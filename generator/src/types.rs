@@ -3,12 +3,12 @@ use indexmap::IndexMap;
 use crate::*;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct MemberType {
+pub struct StructMember {
 	pub name: String,
 	pub typ: Type,
 }
 
-pub type Struct = IndexMap<String, MemberType>;
+pub type Struct = IndexMap<String, StructMember>;
 
 /// In order of preference (first match).
 #[derive(Clone, Debug, Default)]
@@ -37,7 +37,7 @@ impl Types {
 			.map(|(member, type_name)| {
 				(
 					member.to_string(),
-					MemberType {
+					StructMember {
 						name: type_name.to_string(),
 						typ: self.get(type_name).clone(),
 					},
@@ -56,6 +56,12 @@ impl Types {
 			.unwrap_or_else(|| panic!("Failed to find type '{}'", name))
 	}
 
+	pub fn get_struct(&self, name: &str) -> &Struct {
+		self.structs
+			.get(name)
+			.unwrap_or_else(|| panic!("Failed to find struct '{}'", name))
+	}
+
 	/// Maps blades to cannocial sign and name,
 	pub fn get_blade(&self, blade: &Blade) -> Option<&(i32, String)> {
 		self.blades.get(blade)
@@ -65,6 +71,11 @@ impl Types {
 		match typ {
 			Type::SBlade(sblade) if sblade.is_zero() => "Zero",
 			Type::SBlade(sblade) => self.get_blade(&sblade.blade).unwrap().1.as_str(),
+			Type::Struct(_) => self
+				.structs()
+				.find(|(_, strct)| &Type::strct(strct) == typ)
+				.map(|(name, _)| name)
+				.unwrap(),
 			_ => todo!("Get name of type {:?}", typ),
 		}
 	}

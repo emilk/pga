@@ -84,20 +84,20 @@ impl Type {
 }
 
 impl Expr {
-	pub fn typ(&self, g: Option<&Grammar>, t: Option<&Types>) -> Option<Type> {
+	pub fn typ(&self, g: Option<&Grammar>) -> Option<Type> {
 		match self {
 			Expr::Var { typ, .. } => Some(typ.clone()),
 			Expr::Term(_, 0) => Some(Type::zero()),
-			Expr::Term(expr, _) => expr.typ(g, t),
+			Expr::Term(expr, _) => expr.typ(g),
 			Expr::Vec(vi) => Some(Type::vec(*vi)),
-			Expr::Unary(unary, expr) => expr.typ(g, t).and_then(|t| t.unary(*unary, g)),
+			Expr::Unary(unary, expr) => expr.typ(g).and_then(|t| t.unary(*unary, g)),
 			Expr::Sum(terms) => {
 				if terms.is_empty() {
 					Some(Type::zero())
 				} else {
 					let mut types = std::collections::BTreeSet::new();
 					for e in terms {
-						types.insert(e.typ(g, t)?);
+						types.insert(e.typ(g)?);
 					}
 					assert!(!types.is_empty());
 					if types.len() == 1 {
@@ -107,26 +107,19 @@ impl Expr {
 					}
 				}
 			}
-			Expr::Prod(product, factors) => product_type(*product, factors, g, t),
-			Expr::StructInstance(StructInstance { struct_name, .. }) => Some(Type::strct(t?.get_struct(struct_name))),
-			// Expr::StructInstance(StructInstance { members, .. }) => {
-			// 	let members: Option<Vec<(String, Type)>> = members
-			// 		.iter()
-			// 		.map(|(name, expr)| Some((name.to_string(), expr.typ(g, t)?)))
-			// 		.collect();
-			// 	members.map(Type::Struct)
-			// }
+			Expr::Prod(product, factors) => product_type(*product, factors, g),
+			Expr::StructInstance(StructInstance { strct, .. }) => Some(Type::strct(strct)),
 		}
 	}
 }
 
-fn product_type(product: Product, factors: &[Expr], g: Option<&Grammar>, t: Option<&Types>) -> Option<Type> {
+fn product_type(product: Product, factors: &[Expr], g: Option<&Grammar>) -> Option<Type> {
 	if factors.is_empty() {
 		Some(Type::scalar()) // TODO: Type::One ?
 	} else if factors.len() == 1 {
-		factors[0].typ(g, t)
+		factors[0].typ(g)
 	} else {
-		let types: Option<Vec<Type>> = factors.iter().map(|f| f.typ(g, t)).collect();
+		let types: Option<Vec<Type>> = factors.iter().map(|f| f.typ(g)).collect();
 		let types = types?;
 		if types.iter().any(Type::is_zero) {
 			return Some(Type::zero());

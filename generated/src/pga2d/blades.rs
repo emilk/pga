@@ -86,108 +86,108 @@ use super::*;
 
 /// The scalar type (real numbers).
 /// Squares to 1.
-#[derive(Copy, Clone, Debug, PartialEq, PartialOrd, Neg, Add, Sub, Mul)]
-pub struct R(pub f64);
+#[derive(Copy, Clone, Debug, Default, PartialEq, PartialOrd, Neg, Add, Sub, Mul)]
+pub struct S(pub f64);
 
 /// Squares to 1.
-#[derive(Copy, Clone, Debug, PartialEq, PartialOrd, Neg, Add, Sub)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, PartialOrd, Neg, Add, Sub)]
 pub struct X(pub f64);
 
 /// Squares to 1.
-#[derive(Copy, Clone, Debug, PartialEq, PartialOrd, Neg, Add, Sub)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, PartialOrd, Neg, Add, Sub)]
 pub struct Y(pub f64);
 
 /// Squares to 0.
-#[derive(Copy, Clone, Debug, PartialEq, PartialOrd, Neg, Add, Sub)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, PartialOrd, Neg, Add, Sub)]
 pub struct W(pub f64);
 
 /// Squares to 0.
-#[derive(Copy, Clone, Debug, PartialEq, PartialOrd, Neg, Add, Sub)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, PartialOrd, Neg, Add, Sub)]
 pub struct YW(pub f64);
 
 /// Squares to 0.
-#[derive(Copy, Clone, Debug, PartialEq, PartialOrd, Neg, Add, Sub)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, PartialOrd, Neg, Add, Sub)]
 pub struct WX(pub f64);
 
 /// Squares to -1.
-#[derive(Copy, Clone, Debug, PartialEq, PartialOrd, Neg, Add, Sub)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, PartialOrd, Neg, Add, Sub)]
 pub struct XY(pub f64);
 
 /// The pseudo-scalar.
 /// Squares to 0.
-#[derive(Copy, Clone, Debug, PartialEq, PartialOrd, Neg, Add, Sub)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, PartialOrd, Neg, Add, Sub)]
 pub struct XYW(pub f64);
 
 // ---------------------------------------------------------------------
 // impl Geometric for blades:
 
-impl Geometric<R> for R {
-    type Output = R;
-    fn geometric(self, rhs: R) -> Self::Output {
-        R(self.0 * rhs.0)
+impl Geometric<S> for S {
+    type Output = S;
+    fn geometric(self, rhs: S) -> Self::Output {
+        S(self.0 * rhs.0)
     }
 }
 
-impl Geometric<X> for R {
+impl Geometric<X> for S {
     type Output = X;
     fn geometric(self, rhs: X) -> Self::Output {
         X(self.0 * rhs.0)
     }
 }
 
-impl Geometric<Y> for R {
+impl Geometric<Y> for S {
     type Output = Y;
     fn geometric(self, rhs: Y) -> Self::Output {
         Y(self.0 * rhs.0)
     }
 }
 
-impl Geometric<W> for R {
+impl Geometric<W> for S {
     type Output = W;
     fn geometric(self, rhs: W) -> Self::Output {
         W(self.0 * rhs.0)
     }
 }
 
-impl Geometric<YW> for R {
+impl Geometric<YW> for S {
     type Output = YW;
     fn geometric(self, rhs: YW) -> Self::Output {
         YW(self.0 * rhs.0)
     }
 }
 
-impl Geometric<WX> for R {
+impl Geometric<WX> for S {
     type Output = WX;
     fn geometric(self, rhs: WX) -> Self::Output {
         WX(self.0 * rhs.0)
     }
 }
 
-impl Geometric<XY> for R {
+impl Geometric<XY> for S {
     type Output = XY;
     fn geometric(self, rhs: XY) -> Self::Output {
         XY(self.0 * rhs.0)
     }
 }
 
-impl Geometric<XYW> for R {
+impl Geometric<XYW> for S {
     type Output = XYW;
     fn geometric(self, rhs: XYW) -> Self::Output {
         XYW(self.0 * rhs.0)
     }
 }
 
-impl Geometric<R> for X {
+impl Geometric<S> for X {
     type Output = X;
-    fn geometric(self, rhs: R) -> Self::Output {
+    fn geometric(self, rhs: S) -> Self::Output {
         X(self.0 * rhs.0)
     }
 }
 
 impl Geometric<X> for X {
-    type Output = R;
+    type Output = S;
     fn geometric(self, rhs: X) -> Self::Output {
-        R(self.0 * rhs.0)
+        S(self.0 * rhs.0)
     }
 }
 
@@ -233,9 +233,9 @@ impl Geometric<XYW> for X {
     }
 }
 
-impl Geometric<R> for Y {
+impl Geometric<S> for Y {
     type Output = Y;
-    fn geometric(self, rhs: R) -> Self::Output {
+    fn geometric(self, rhs: S) -> Self::Output {
         Y(self.0 * rhs.0)
     }
 }
@@ -248,9 +248,9 @@ impl Geometric<X> for Y {
 }
 
 impl Geometric<Y> for Y {
-    type Output = R;
+    type Output = S;
     fn geometric(self, rhs: Y) -> Self::Output {
-        R(self.0 * rhs.0)
+        S(self.0 * rhs.0)
     }
 }
 
@@ -289,9 +289,9 @@ impl Geometric<XYW> for Y {
     }
 }
 
-impl Geometric<R> for W {
+impl Geometric<S> for W {
     type Output = W;
-    fn geometric(self, rhs: R) -> Self::Output {
+    fn geometric(self, rhs: S) -> Self::Output {
         W(self.0 * rhs.0)
     }
 }
@@ -345,9 +345,9 @@ impl Geometric<XYW> for W {
     }
 }
 
-impl Geometric<R> for YW {
+impl Geometric<S> for YW {
     type Output = YW;
-    fn geometric(self, rhs: R) -> Self::Output {
+    fn geometric(self, rhs: S) -> Self::Output {
         YW(self.0 * rhs.0)
     }
 }
@@ -401,9 +401,9 @@ impl Geometric<XYW> for YW {
     }
 }
 
-impl Geometric<R> for WX {
+impl Geometric<S> for WX {
     type Output = WX;
-    fn geometric(self, rhs: R) -> Self::Output {
+    fn geometric(self, rhs: S) -> Self::Output {
         WX(self.0 * rhs.0)
     }
 }
@@ -457,9 +457,9 @@ impl Geometric<XYW> for WX {
     }
 }
 
-impl Geometric<R> for XY {
+impl Geometric<S> for XY {
     type Output = XY;
-    fn geometric(self, rhs: R) -> Self::Output {
+    fn geometric(self, rhs: S) -> Self::Output {
         XY(self.0 * rhs.0)
     }
 }
@@ -500,9 +500,9 @@ impl Geometric<WX> for XY {
 }
 
 impl Geometric<XY> for XY {
-    type Output = R;
+    type Output = S;
     fn geometric(self, rhs: XY) -> Self::Output {
-        R(-self.0 * rhs.0)
+        S(-self.0 * rhs.0)
     }
 }
 
@@ -513,9 +513,9 @@ impl Geometric<XYW> for XY {
     }
 }
 
-impl Geometric<R> for XYW {
+impl Geometric<S> for XYW {
     type Output = XYW;
-    fn geometric(self, rhs: R) -> Self::Output {
+    fn geometric(self, rhs: S) -> Self::Output {
         XYW(self.0 * rhs.0)
     }
 }
@@ -572,65 +572,65 @@ impl Geometric<XYW> for XYW {
 // ---------------------------------------------------------------------
 // impl AntiGeometric for blades:
 
-impl AntiGeometric<R> for R {
+impl AntiGeometric<S> for S {
     type Output = Zero;
-    fn anti_geometric(self, _rhs: R) -> Self::Output {
+    fn anti_geometric(self, _rhs: S) -> Self::Output {
         Zero {}
     }
 }
 
-impl AntiGeometric<X> for R {
+impl AntiGeometric<X> for S {
     type Output = Zero;
     fn anti_geometric(self, _rhs: X) -> Self::Output {
         Zero {}
     }
 }
 
-impl AntiGeometric<Y> for R {
+impl AntiGeometric<Y> for S {
     type Output = Zero;
     fn anti_geometric(self, _rhs: Y) -> Self::Output {
         Zero {}
     }
 }
 
-impl AntiGeometric<W> for R {
+impl AntiGeometric<W> for S {
     type Output = XY;
     fn anti_geometric(self, rhs: W) -> Self::Output {
         XY(-self.0 * rhs.0)
     }
 }
 
-impl AntiGeometric<YW> for R {
+impl AntiGeometric<YW> for S {
     type Output = X;
     fn anti_geometric(self, rhs: YW) -> Self::Output {
         X(self.0 * rhs.0)
     }
 }
 
-impl AntiGeometric<WX> for R {
+impl AntiGeometric<WX> for S {
     type Output = Y;
     fn anti_geometric(self, rhs: WX) -> Self::Output {
         Y(self.0 * rhs.0)
     }
 }
 
-impl AntiGeometric<XY> for R {
+impl AntiGeometric<XY> for S {
     type Output = Zero;
     fn anti_geometric(self, _rhs: XY) -> Self::Output {
         Zero {}
     }
 }
 
-impl AntiGeometric<XYW> for R {
-    type Output = R;
+impl AntiGeometric<XYW> for S {
+    type Output = S;
     fn anti_geometric(self, rhs: XYW) -> Self::Output {
-        R(self.0 * rhs.0)
+        S(self.0 * rhs.0)
     }
 }
 
-impl AntiGeometric<R> for X {
+impl AntiGeometric<S> for X {
     type Output = Zero;
-    fn anti_geometric(self, _rhs: R) -> Self::Output {
+    fn anti_geometric(self, _rhs: S) -> Self::Output {
         Zero {}
     }
 }
@@ -657,9 +657,9 @@ impl AntiGeometric<W> for X {
 }
 
 impl AntiGeometric<YW> for X {
-    type Output = R;
+    type Output = S;
     fn anti_geometric(self, rhs: YW) -> Self::Output {
-        R(self.0 * rhs.0)
+        S(self.0 * rhs.0)
     }
 }
 
@@ -684,9 +684,9 @@ impl AntiGeometric<XYW> for X {
     }
 }
 
-impl AntiGeometric<R> for Y {
+impl AntiGeometric<S> for Y {
     type Output = Zero;
-    fn anti_geometric(self, _rhs: R) -> Self::Output {
+    fn anti_geometric(self, _rhs: S) -> Self::Output {
         Zero {}
     }
 }
@@ -720,9 +720,9 @@ impl AntiGeometric<YW> for Y {
 }
 
 impl AntiGeometric<WX> for Y {
-    type Output = R;
+    type Output = S;
     fn anti_geometric(self, rhs: WX) -> Self::Output {
-        R(self.0 * rhs.0)
+        S(self.0 * rhs.0)
     }
 }
 
@@ -740,9 +740,9 @@ impl AntiGeometric<XYW> for Y {
     }
 }
 
-impl AntiGeometric<R> for W {
+impl AntiGeometric<S> for W {
     type Output = XY;
-    fn anti_geometric(self, rhs: R) -> Self::Output {
+    fn anti_geometric(self, rhs: S) -> Self::Output {
         XY(-self.0 * rhs.0)
     }
 }
@@ -783,9 +783,9 @@ impl AntiGeometric<WX> for W {
 }
 
 impl AntiGeometric<XY> for W {
-    type Output = R;
+    type Output = S;
     fn anti_geometric(self, rhs: XY) -> Self::Output {
-        R(self.0 * rhs.0)
+        S(self.0 * rhs.0)
     }
 }
 
@@ -796,17 +796,17 @@ impl AntiGeometric<XYW> for W {
     }
 }
 
-impl AntiGeometric<R> for YW {
+impl AntiGeometric<S> for YW {
     type Output = X;
-    fn anti_geometric(self, rhs: R) -> Self::Output {
+    fn anti_geometric(self, rhs: S) -> Self::Output {
         X(self.0 * rhs.0)
     }
 }
 
 impl AntiGeometric<X> for YW {
-    type Output = R;
+    type Output = S;
     fn anti_geometric(self, rhs: X) -> Self::Output {
-        R(self.0 * rhs.0)
+        S(self.0 * rhs.0)
     }
 }
 
@@ -852,9 +852,9 @@ impl AntiGeometric<XYW> for YW {
     }
 }
 
-impl AntiGeometric<R> for WX {
+impl AntiGeometric<S> for WX {
     type Output = Y;
-    fn anti_geometric(self, rhs: R) -> Self::Output {
+    fn anti_geometric(self, rhs: S) -> Self::Output {
         Y(self.0 * rhs.0)
     }
 }
@@ -867,9 +867,9 @@ impl AntiGeometric<X> for WX {
 }
 
 impl AntiGeometric<Y> for WX {
-    type Output = R;
+    type Output = S;
     fn anti_geometric(self, rhs: Y) -> Self::Output {
-        R(self.0 * rhs.0)
+        S(self.0 * rhs.0)
     }
 }
 
@@ -908,9 +908,9 @@ impl AntiGeometric<XYW> for WX {
     }
 }
 
-impl AntiGeometric<R> for XY {
+impl AntiGeometric<S> for XY {
     type Output = Zero;
-    fn anti_geometric(self, _rhs: R) -> Self::Output {
+    fn anti_geometric(self, _rhs: S) -> Self::Output {
         Zero {}
     }
 }
@@ -930,9 +930,9 @@ impl AntiGeometric<Y> for XY {
 }
 
 impl AntiGeometric<W> for XY {
-    type Output = R;
+    type Output = S;
     fn anti_geometric(self, rhs: W) -> Self::Output {
-        R(self.0 * rhs.0)
+        S(self.0 * rhs.0)
     }
 }
 
@@ -964,10 +964,10 @@ impl AntiGeometric<XYW> for XY {
     }
 }
 
-impl AntiGeometric<R> for XYW {
-    type Output = R;
-    fn anti_geometric(self, rhs: R) -> Self::Output {
-        R(self.0 * rhs.0)
+impl AntiGeometric<S> for XYW {
+    type Output = S;
+    fn anti_geometric(self, rhs: S) -> Self::Output {
+        S(self.0 * rhs.0)
     }
 }
 
@@ -1023,73 +1023,73 @@ impl AntiGeometric<XYW> for XYW {
 // ---------------------------------------------------------------------
 // impl Dot for blades:
 
-impl Dot<R> for R {
-    type Output = R;
-    fn dot(self, rhs: R) -> Self::Output {
-        R(self.0 * rhs.0)
+impl Dot<S> for S {
+    type Output = S;
+    fn dot(self, rhs: S) -> Self::Output {
+        S(self.0 * rhs.0)
     }
 }
 
-impl Dot<X> for R {
+impl Dot<X> for S {
     type Output = X;
     fn dot(self, rhs: X) -> Self::Output {
         X(self.0 * rhs.0)
     }
 }
 
-impl Dot<Y> for R {
+impl Dot<Y> for S {
     type Output = Y;
     fn dot(self, rhs: Y) -> Self::Output {
         Y(self.0 * rhs.0)
     }
 }
 
-impl Dot<W> for R {
+impl Dot<W> for S {
     type Output = W;
     fn dot(self, rhs: W) -> Self::Output {
         W(self.0 * rhs.0)
     }
 }
 
-impl Dot<YW> for R {
+impl Dot<YW> for S {
     type Output = YW;
     fn dot(self, rhs: YW) -> Self::Output {
         YW(self.0 * rhs.0)
     }
 }
 
-impl Dot<WX> for R {
+impl Dot<WX> for S {
     type Output = WX;
     fn dot(self, rhs: WX) -> Self::Output {
         WX(self.0 * rhs.0)
     }
 }
 
-impl Dot<XY> for R {
+impl Dot<XY> for S {
     type Output = XY;
     fn dot(self, rhs: XY) -> Self::Output {
         XY(self.0 * rhs.0)
     }
 }
 
-impl Dot<XYW> for R {
+impl Dot<XYW> for S {
     type Output = XYW;
     fn dot(self, rhs: XYW) -> Self::Output {
         XYW(self.0 * rhs.0)
     }
 }
 
-impl Dot<R> for X {
+impl Dot<S> for X {
     type Output = X;
-    fn dot(self, rhs: R) -> Self::Output {
+    fn dot(self, rhs: S) -> Self::Output {
         X(self.0 * rhs.0)
     }
 }
 
 impl Dot<X> for X {
-    type Output = R;
+    type Output = S;
     fn dot(self, rhs: X) -> Self::Output {
-        R(self.0 * rhs.0)
+        S(self.0 * rhs.0)
     }
 }
 
@@ -1135,9 +1135,9 @@ impl Dot<XYW> for X {
     }
 }
 
-impl Dot<R> for Y {
+impl Dot<S> for Y {
     type Output = Y;
-    fn dot(self, rhs: R) -> Self::Output {
+    fn dot(self, rhs: S) -> Self::Output {
         Y(self.0 * rhs.0)
     }
 }
@@ -1150,9 +1150,9 @@ impl Dot<X> for Y {
 }
 
 impl Dot<Y> for Y {
-    type Output = R;
+    type Output = S;
     fn dot(self, rhs: Y) -> Self::Output {
-        R(self.0 * rhs.0)
+        S(self.0 * rhs.0)
     }
 }
 
@@ -1191,9 +1191,9 @@ impl Dot<XYW> for Y {
     }
 }
 
-impl Dot<R> for W {
+impl Dot<S> for W {
     type Output = W;
-    fn dot(self, rhs: R) -> Self::Output {
+    fn dot(self, rhs: S) -> Self::Output {
         W(self.0 * rhs.0)
     }
 }
@@ -1247,9 +1247,9 @@ impl Dot<XYW> for W {
     }
 }
 
-impl Dot<R> for YW {
+impl Dot<S> for YW {
     type Output = YW;
-    fn dot(self, rhs: R) -> Self::Output {
+    fn dot(self, rhs: S) -> Self::Output {
         YW(self.0 * rhs.0)
     }
 }
@@ -1303,9 +1303,9 @@ impl Dot<XYW> for YW {
     }
 }
 
-impl Dot<R> for WX {
+impl Dot<S> for WX {
     type Output = WX;
-    fn dot(self, rhs: R) -> Self::Output {
+    fn dot(self, rhs: S) -> Self::Output {
         WX(self.0 * rhs.0)
     }
 }
@@ -1359,9 +1359,9 @@ impl Dot<XYW> for WX {
     }
 }
 
-impl Dot<R> for XY {
+impl Dot<S> for XY {
     type Output = XY;
-    fn dot(self, rhs: R) -> Self::Output {
+    fn dot(self, rhs: S) -> Self::Output {
         XY(self.0 * rhs.0)
     }
 }
@@ -1402,9 +1402,9 @@ impl Dot<WX> for XY {
 }
 
 impl Dot<XY> for XY {
-    type Output = R;
+    type Output = S;
     fn dot(self, rhs: XY) -> Self::Output {
-        R(-self.0 * rhs.0)
+        S(-self.0 * rhs.0)
     }
 }
 
@@ -1415,9 +1415,9 @@ impl Dot<XYW> for XY {
     }
 }
 
-impl Dot<R> for XYW {
+impl Dot<S> for XYW {
     type Output = XYW;
-    fn dot(self, rhs: R) -> Self::Output {
+    fn dot(self, rhs: S) -> Self::Output {
         XYW(self.0 * rhs.0)
     }
 }
@@ -1474,65 +1474,65 @@ impl Dot<XYW> for XYW {
 // ---------------------------------------------------------------------
 // impl Wedge for blades:
 
-impl Wedge<R> for R {
-    type Output = R;
-    fn wedge(self, rhs: R) -> Self::Output {
-        R(self.0 * rhs.0)
+impl Wedge<S> for S {
+    type Output = S;
+    fn wedge(self, rhs: S) -> Self::Output {
+        S(self.0 * rhs.0)
     }
 }
 
-impl Wedge<X> for R {
+impl Wedge<X> for S {
     type Output = X;
     fn wedge(self, rhs: X) -> Self::Output {
         X(self.0 * rhs.0)
     }
 }
 
-impl Wedge<Y> for R {
+impl Wedge<Y> for S {
     type Output = Y;
     fn wedge(self, rhs: Y) -> Self::Output {
         Y(self.0 * rhs.0)
     }
 }
 
-impl Wedge<W> for R {
+impl Wedge<W> for S {
     type Output = W;
     fn wedge(self, rhs: W) -> Self::Output {
         W(self.0 * rhs.0)
     }
 }
 
-impl Wedge<YW> for R {
+impl Wedge<YW> for S {
     type Output = YW;
     fn wedge(self, rhs: YW) -> Self::Output {
         YW(self.0 * rhs.0)
     }
 }
 
-impl Wedge<WX> for R {
+impl Wedge<WX> for S {
     type Output = WX;
     fn wedge(self, rhs: WX) -> Self::Output {
         WX(self.0 * rhs.0)
     }
 }
 
-impl Wedge<XY> for R {
+impl Wedge<XY> for S {
     type Output = XY;
     fn wedge(self, rhs: XY) -> Self::Output {
         XY(self.0 * rhs.0)
     }
 }
 
-impl Wedge<XYW> for R {
+impl Wedge<XYW> for S {
     type Output = XYW;
     fn wedge(self, rhs: XYW) -> Self::Output {
         XYW(self.0 * rhs.0)
     }
 }
 
-impl Wedge<R> for X {
+impl Wedge<S> for X {
     type Output = X;
-    fn wedge(self, rhs: R) -> Self::Output {
+    fn wedge(self, rhs: S) -> Self::Output {
         X(self.0 * rhs.0)
     }
 }
@@ -1586,9 +1586,9 @@ impl Wedge<XYW> for X {
     }
 }
 
-impl Wedge<R> for Y {
+impl Wedge<S> for Y {
     type Output = Y;
-    fn wedge(self, rhs: R) -> Self::Output {
+    fn wedge(self, rhs: S) -> Self::Output {
         Y(self.0 * rhs.0)
     }
 }
@@ -1642,9 +1642,9 @@ impl Wedge<XYW> for Y {
     }
 }
 
-impl Wedge<R> for W {
+impl Wedge<S> for W {
     type Output = W;
-    fn wedge(self, rhs: R) -> Self::Output {
+    fn wedge(self, rhs: S) -> Self::Output {
         W(self.0 * rhs.0)
     }
 }
@@ -1698,9 +1698,9 @@ impl Wedge<XYW> for W {
     }
 }
 
-impl Wedge<R> for YW {
+impl Wedge<S> for YW {
     type Output = YW;
-    fn wedge(self, rhs: R) -> Self::Output {
+    fn wedge(self, rhs: S) -> Self::Output {
         YW(self.0 * rhs.0)
     }
 }
@@ -1754,9 +1754,9 @@ impl Wedge<XYW> for YW {
     }
 }
 
-impl Wedge<R> for WX {
+impl Wedge<S> for WX {
     type Output = WX;
-    fn wedge(self, rhs: R) -> Self::Output {
+    fn wedge(self, rhs: S) -> Self::Output {
         WX(self.0 * rhs.0)
     }
 }
@@ -1810,9 +1810,9 @@ impl Wedge<XYW> for WX {
     }
 }
 
-impl Wedge<R> for XY {
+impl Wedge<S> for XY {
     type Output = XY;
-    fn wedge(self, rhs: R) -> Self::Output {
+    fn wedge(self, rhs: S) -> Self::Output {
         XY(self.0 * rhs.0)
     }
 }
@@ -1866,9 +1866,9 @@ impl Wedge<XYW> for XY {
     }
 }
 
-impl Wedge<R> for XYW {
+impl Wedge<S> for XYW {
     type Output = XYW;
-    fn wedge(self, rhs: R) -> Self::Output {
+    fn wedge(self, rhs: S) -> Self::Output {
         XYW(self.0 * rhs.0)
     }
 }
@@ -1925,65 +1925,65 @@ impl Wedge<XYW> for XYW {
 // ---------------------------------------------------------------------
 // impl AntiWedge for blades:
 
-impl AntiWedge<R> for R {
+impl AntiWedge<S> for S {
     type Output = Zero;
-    fn anti_wedge(self, _rhs: R) -> Self::Output {
+    fn anti_wedge(self, _rhs: S) -> Self::Output {
         Zero {}
     }
 }
 
-impl AntiWedge<X> for R {
+impl AntiWedge<X> for S {
     type Output = Zero;
     fn anti_wedge(self, _rhs: X) -> Self::Output {
         Zero {}
     }
 }
 
-impl AntiWedge<Y> for R {
+impl AntiWedge<Y> for S {
     type Output = Zero;
     fn anti_wedge(self, _rhs: Y) -> Self::Output {
         Zero {}
     }
 }
 
-impl AntiWedge<W> for R {
+impl AntiWedge<W> for S {
     type Output = Zero;
     fn anti_wedge(self, _rhs: W) -> Self::Output {
         Zero {}
     }
 }
 
-impl AntiWedge<YW> for R {
+impl AntiWedge<YW> for S {
     type Output = Zero;
     fn anti_wedge(self, _rhs: YW) -> Self::Output {
         Zero {}
     }
 }
 
-impl AntiWedge<WX> for R {
+impl AntiWedge<WX> for S {
     type Output = Zero;
     fn anti_wedge(self, _rhs: WX) -> Self::Output {
         Zero {}
     }
 }
 
-impl AntiWedge<XY> for R {
+impl AntiWedge<XY> for S {
     type Output = Zero;
     fn anti_wedge(self, _rhs: XY) -> Self::Output {
         Zero {}
     }
 }
 
-impl AntiWedge<XYW> for R {
-    type Output = R;
+impl AntiWedge<XYW> for S {
+    type Output = S;
     fn anti_wedge(self, rhs: XYW) -> Self::Output {
-        R(self.0 * rhs.0)
+        S(self.0 * rhs.0)
     }
 }
 
-impl AntiWedge<R> for X {
+impl AntiWedge<S> for X {
     type Output = Zero;
-    fn anti_wedge(self, _rhs: R) -> Self::Output {
+    fn anti_wedge(self, _rhs: S) -> Self::Output {
         Zero {}
     }
 }
@@ -2010,9 +2010,9 @@ impl AntiWedge<W> for X {
 }
 
 impl AntiWedge<YW> for X {
-    type Output = R;
+    type Output = S;
     fn anti_wedge(self, rhs: YW) -> Self::Output {
-        R(self.0 * rhs.0)
+        S(self.0 * rhs.0)
     }
 }
 
@@ -2037,9 +2037,9 @@ impl AntiWedge<XYW> for X {
     }
 }
 
-impl AntiWedge<R> for Y {
+impl AntiWedge<S> for Y {
     type Output = Zero;
-    fn anti_wedge(self, _rhs: R) -> Self::Output {
+    fn anti_wedge(self, _rhs: S) -> Self::Output {
         Zero {}
     }
 }
@@ -2073,9 +2073,9 @@ impl AntiWedge<YW> for Y {
 }
 
 impl AntiWedge<WX> for Y {
-    type Output = R;
+    type Output = S;
     fn anti_wedge(self, rhs: WX) -> Self::Output {
-        R(self.0 * rhs.0)
+        S(self.0 * rhs.0)
     }
 }
 
@@ -2093,9 +2093,9 @@ impl AntiWedge<XYW> for Y {
     }
 }
 
-impl AntiWedge<R> for W {
+impl AntiWedge<S> for W {
     type Output = Zero;
-    fn anti_wedge(self, _rhs: R) -> Self::Output {
+    fn anti_wedge(self, _rhs: S) -> Self::Output {
         Zero {}
     }
 }
@@ -2136,9 +2136,9 @@ impl AntiWedge<WX> for W {
 }
 
 impl AntiWedge<XY> for W {
-    type Output = R;
+    type Output = S;
     fn anti_wedge(self, rhs: XY) -> Self::Output {
-        R(self.0 * rhs.0)
+        S(self.0 * rhs.0)
     }
 }
 
@@ -2149,17 +2149,17 @@ impl AntiWedge<XYW> for W {
     }
 }
 
-impl AntiWedge<R> for YW {
+impl AntiWedge<S> for YW {
     type Output = Zero;
-    fn anti_wedge(self, _rhs: R) -> Self::Output {
+    fn anti_wedge(self, _rhs: S) -> Self::Output {
         Zero {}
     }
 }
 
 impl AntiWedge<X> for YW {
-    type Output = R;
+    type Output = S;
     fn anti_wedge(self, rhs: X) -> Self::Output {
-        R(self.0 * rhs.0)
+        S(self.0 * rhs.0)
     }
 }
 
@@ -2205,9 +2205,9 @@ impl AntiWedge<XYW> for YW {
     }
 }
 
-impl AntiWedge<R> for WX {
+impl AntiWedge<S> for WX {
     type Output = Zero;
-    fn anti_wedge(self, _rhs: R) -> Self::Output {
+    fn anti_wedge(self, _rhs: S) -> Self::Output {
         Zero {}
     }
 }
@@ -2220,9 +2220,9 @@ impl AntiWedge<X> for WX {
 }
 
 impl AntiWedge<Y> for WX {
-    type Output = R;
+    type Output = S;
     fn anti_wedge(self, rhs: Y) -> Self::Output {
-        R(self.0 * rhs.0)
+        S(self.0 * rhs.0)
     }
 }
 
@@ -2261,9 +2261,9 @@ impl AntiWedge<XYW> for WX {
     }
 }
 
-impl AntiWedge<R> for XY {
+impl AntiWedge<S> for XY {
     type Output = Zero;
-    fn anti_wedge(self, _rhs: R) -> Self::Output {
+    fn anti_wedge(self, _rhs: S) -> Self::Output {
         Zero {}
     }
 }
@@ -2283,9 +2283,9 @@ impl AntiWedge<Y> for XY {
 }
 
 impl AntiWedge<W> for XY {
-    type Output = R;
+    type Output = S;
     fn anti_wedge(self, rhs: W) -> Self::Output {
-        R(self.0 * rhs.0)
+        S(self.0 * rhs.0)
     }
 }
 
@@ -2317,10 +2317,10 @@ impl AntiWedge<XYW> for XY {
     }
 }
 
-impl AntiWedge<R> for XYW {
-    type Output = R;
-    fn anti_wedge(self, rhs: R) -> Self::Output {
-        R(self.0 * rhs.0)
+impl AntiWedge<S> for XYW {
+    type Output = S;
+    fn anti_wedge(self, rhs: S) -> Self::Output {
+        S(self.0 * rhs.0)
     }
 }
 

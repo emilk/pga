@@ -33,10 +33,23 @@ pub enum Expr {
 }
 
 /// An instance of a struct, e.g. `Point {  x: ..., y: ... }` etc.
-#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct StructInstance {
 	pub struct_name: String,
+	pub strct: Struct,
 	pub members: Vec<(String, Expr)>,
+}
+
+impl std::cmp::Ord for StructInstance {
+	fn cmp(&self, other: &StructInstance) -> std::cmp::Ordering {
+		self.members.cmp(&other.members)
+	}
+}
+
+impl std::cmp::PartialOrd for StructInstance {
+	fn partial_cmp(&self, other: &StructInstance) -> Option<std::cmp::Ordering> {
+		Some(self.cmp(other))
+	}
 }
 
 impl Expr {

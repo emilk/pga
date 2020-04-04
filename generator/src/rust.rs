@@ -114,7 +114,9 @@ impl Expr {
 					}
 				}
 			}
-			Expr::StructInstance(StructInstance { struct_name, members }) => {
+			Expr::StructInstance(StructInstance {
+				struct_name, members, ..
+			}) => {
 				let maxw = members.iter().map(|(name, _)| name.len()).max().unwrap_or_default();
 				RustExpr::atom(format!(
 					"{} {{\n{}\n}}",
@@ -122,7 +124,14 @@ impl Expr {
 					indent(
 						&members
 							.iter()
-							.map(|(name, expr)| format!("{:maxw$}: {},", name, expr.rust(ro), maxw = maxw))
+							.map(|(name, expr)| {
+								let code = if expr.is_zero() {
+									"Default::default()".to_owned()
+								} else {
+									expr.rust(ro)
+								};
+								format!("{:maxw$}: {},", name, code, maxw = maxw)
+							})
 							.join("\n")
 					)
 				))

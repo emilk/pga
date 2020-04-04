@@ -18,7 +18,7 @@ impl Expr {
 	pub fn typify(mut self, t: &Types, g: &Grammar) -> Self {
 		if let Expr::Sum(terms) = &self {
 			// eprintln!("typify Sum: {}", self.rust());
-			if let Some(value) = as_value(&terms, Some(g), Some(t)) {
+			if let Some(value) = as_value(&terms, Some(g)) {
 				if let Some(s) = find_struct(&value, t) {
 					// eprintln!("typify Sum {} as struct {}", self.rust(), s.struct_name);
 					self = Expr::StructInstance(s);
@@ -56,19 +56,24 @@ impl Expr {
 			Expr::Unary(unary, expr) => Expr::Unary(unary, expr.typify(t, g).into()),
 			Expr::Sum(terms) => Expr::Sum(terms.into_iter().map(|e| e.typify(t, g)).collect()),
 			Expr::Prod(prod, factors) => Expr::Prod(prod, factors.into_iter().map(|e| e.typify(t, g)).collect()),
-			Expr::StructInstance(StructInstance { struct_name, members }) => Expr::StructInstance(StructInstance {
+			Expr::StructInstance(StructInstance {
 				struct_name,
+				strct,
+				members,
+			}) => Expr::StructInstance(StructInstance {
+				struct_name,
+				strct,
 				members: members.into_iter().map(|(name, e)| (name, e.typify(t, g))).collect(),
 			}),
 		}
 	}
 }
 
-fn as_value(terms: &[Expr], g: Option<&Grammar>, t: Option<&Types>) -> Option<Value> {
+fn as_value(terms: &[Expr], g: Option<&Grammar>) -> Option<Value> {
 	let mut parts: BTreeMap<Blade, Vec<Expr>> = Default::default();
 	for term in terms {
 		// eprintln!("as_value {} typ: {:?}", term.rust(), term.typ(g));
-		let typ = term.typ(g, t)?;
+		let typ = term.typ(g)?;
 		if !typ.is_zero() {
 			match typ {
 				Type::Constant(sblade) | Type::SBlade(sblade) => {
@@ -123,6 +128,7 @@ fn as_struct_instance(struct_name: &str, strct: &Struct, value: &Value) -> Optio
 	if value.keys().all(|b| is_blade_in_struct(strct, b)) {
 		Some(StructInstance {
 			struct_name: struct_name.to_owned(),
+			strct: strct.clone(),
 			members: strct
 				.iter()
 				.map(|(name, mem)| (name.to_string(), find_term(&mem.typ).unwrap_or_else(Expr::zero)))

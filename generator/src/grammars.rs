@@ -6,7 +6,7 @@ pub fn pga2d() -> (Grammar, Types) {
 	let x = VecIdx(0);
 	let y = VecIdx(1);
 	let w = VecIdx(2);
-	t.insert_blade("R", SBlade::scalar());
+	t.insert_blade("S", SBlade::scalar());
 	t.insert_blade("X", SBlade::vec(x));
 	t.insert_blade("Y", SBlade::vec(y));
 	t.insert_blade("W", SBlade::vec(w));
@@ -15,9 +15,87 @@ pub fn pga2d() -> (Grammar, Types) {
 	t.insert_blade("XY", SBlade::from_unsorted(&[x, y]));
 	t.insert_blade("XYW", SBlade::from_unsorted(&[x, y, w]));
 
+	// TODO: Coord { x: X, y: Y, z: Z, w: 1)
+	t.insert_struct("Dir", &[("x", "X"), ("y", "Y")]);
 	t.insert_struct("Point", &[("x", "X"), ("y", "Y"), ("w", "W")]);
 
 	t.insert_struct("Line", &[("yw", "YW"), ("wx", "WX"), ("xy", "XY")]);
+
+	// TODO: is this correct?
+	t.insert_struct("Translator", &[("s", "S"), ("yw", "YW"), ("wx", "WX")]);
+	t.insert_struct("Rotor", &[("s", "S"), ("xy", "XY")]);
+	t.insert_struct("Motor", &[("s", "S"), ("yw", "YW"), ("wx", "WX"), ("xy", "XY")]);
+	// TODO: Is this a Motor? Or a Transform?
+	// t.insert_struct(
+	// 	"Transform",
+	// 	&[("s", "S"), ("yw", "YW"), ("wx", "WX"), ("xy", "XY"), ("xyw", "XYW")],
+	// );
+
+	(g, t)
+}
+
+/// Using the Eric Lengyel system, but with X,Y,Z,W instead of e1,e2,e3,e4
+/// See http://terathon.com/blog/projective-geometric-algebra-done-right/
+pub fn pga3d() -> (Grammar, Types) {
+	let g = Grammar(vec![1, 1, 1, 0]);
+	let mut t = Types::default();
+	let x = VecIdx(0);
+	let y = VecIdx(1);
+	let z = VecIdx(2);
+	let w = VecIdx(3);
+
+	t.insert_blade("S", SBlade::scalar());
+	t.insert_blade("X", SBlade::vec(x));
+	t.insert_blade("Y", SBlade::vec(y));
+	t.insert_blade("Z", SBlade::vec(z));
+	t.insert_blade("W", SBlade::vec(w));
+	t.insert_blade("WX", SBlade::from_unsorted(&[w, x]));
+	t.insert_blade("WY", SBlade::from_unsorted(&[w, y]));
+	t.insert_blade("WZ", SBlade::from_unsorted(&[w, z]));
+	t.insert_blade("YZ", SBlade::from_unsorted(&[y, z]));
+	t.insert_blade("ZX", SBlade::from_unsorted(&[z, x]));
+	t.insert_blade("XY", SBlade::from_unsorted(&[x, y]));
+	t.insert_blade("YZW", SBlade::from_unsorted(&[y, z, w]));
+	t.insert_blade("ZXW", SBlade::from_unsorted(&[z, x, w]));
+	t.insert_blade("XYW", SBlade::from_unsorted(&[x, y, w]));
+	t.insert_blade("ZYX", SBlade::from_unsorted(&[z, y, x]));
+	t.insert_blade("XYZW", SBlade::from_unsorted(&[x, y, z, w]));
+
+	// TODO: Coord { x: X, y: Y, z: Z, w: 1)
+	t.insert_struct("Dir", &[("x", "X"), ("y", "Y"), ("z", "Z")]);
+	t.insert_struct("Point", &[("x", "X"), ("y", "Y"), ("z", "Z"), ("w", "W")]);
+
+	t.insert_struct(
+		"Line",
+		&[
+			("vx", "WX"),
+			("vy", "WY"),
+			("vz", "WZ"),
+			("mx", "YZ"),
+			("my", "ZX"),
+			("mz", "XY"),
+		],
+	);
+
+	t.insert_struct("Plane", &[("nx", "YZW"), ("ny", "ZXW"), ("nz", "XYW"), ("d", "ZYX")]);
+
+	t.insert_struct("Translator", &[("x", "YZ"), ("y", "ZX"), ("z", "XY"), ("xyzw", "XYZW")]);
+	// Quaternion
+	t.insert_struct("Rotor", &[("x", "WX"), ("y", "WY"), ("z", "WZ"), ("w", "XYZW")]);
+	// Dual quaternion
+	t.insert_struct(
+		"Motor",
+		&[
+			("rx", "WX"),
+			("ry", "WY"),
+			("rz", "WZ"),
+			("rw", "XYZW"),
+			("ux", "YZW"),
+			("uy", "ZXW"),
+			("uz", "XYW"),
+			("uw", "S"),
+		],
+	);
 
 	(g, t)
 }

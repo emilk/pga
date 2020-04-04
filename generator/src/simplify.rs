@@ -227,8 +227,8 @@ fn sort_factors(product: Product, factors: &mut [Expr], g: Option<&Grammar>) -> 
 		for i in 1..factors.len() {
 			if factors[i - 1] > factors[i] {
 				// We want to swap them. Can we?
-				let lt = factors[i - 1].typ(g, None);
-				let rt = factors[i].typ(g, None);
+				let lt = factors[i - 1].typ(g);
+				let rt = factors[i].typ(g);
 				if let Some(sign_change) = commutativeness(product, lt, rt, g) {
 					factors.swap(i - 1, i);
 					did_swap = true;
@@ -260,8 +260,7 @@ fn collapse_factors(product: Product, factors: &mut Vec<Expr>, g: &Grammar) -> i
 			}
 		}
 
-		if let (Some(Type::SBlade(lb)), Some(Type::SBlade(rb))) =
-			(factors[i].typ(Some(g), None), factors[i + 1].typ(Some(g), None))
+		if let (Some(Type::SBlade(lb)), Some(Type::SBlade(rb))) = (factors[i].typ(Some(g)), factors[i + 1].typ(Some(g)))
 		{
 			if SBlade::binary_product(&lb, product, &rb, g).is_zero() {
 				factors.clear();

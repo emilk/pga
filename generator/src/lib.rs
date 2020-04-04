@@ -151,8 +151,8 @@ impl Product {
 
 	pub fn trait_function_name(self) -> &'static str {
 		match self {
-			Product::Geometric => "geometric",
-			Product::AntiGeometric => "anti_geometric",
+			Product::Geometric => "geometric",          // TODO: shorten
+			Product::AntiGeometric => "anti_geometric", // TODO: shorten
 			Product::Dot => "dot",
 			Product::Wedge => "wedge",
 			Product::AntiWedge => "anti_wedge",

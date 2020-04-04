@@ -36,11 +36,16 @@ impl Generator {
 fn main() -> Result<(), Box<dyn Error>> {
 	let mut args = pico_args::Arguments::from_env();
 
-	// let grammar: String = args.value_from_str(["-g", "--grammar"])?;
+	let grammar: String = args.value_from_str(["-g", "--grammar"])?;
 	let out_dir: String = args.value_from_str(["-o", "--out_dir"])?;
 	let out_dir = Path::new(&out_dir);
 
-	let (grammar, types) = generator::grammars::pga2d();
+	let (grammar, types) = match grammar.as_str() {
+		"pga2d" => generator::grammars::pga2d(),
+		"pga3d" => generator::grammars::pga3d(),
+		_ => panic!("Unknown grammar: '{}'", grammar),
+	};
+
 	let settings = Settings::default();
 	let gen = Generator {
 		grammar,
@@ -186,7 +191,7 @@ mod blades {
 		let squares_to = squares_to.sign;
 		code += &format!("/// Squares to {}.\n", squares_to);
 
-		let mut derives = "Copy, Clone, Debug, PartialEq, PartialOrd, Neg, Add, Sub".to_string();
+		let mut derives = "Copy, Clone, Debug, Default, PartialEq, PartialOrd, Neg, Add, Sub".to_string();
 		if is_scalar {
 			derives += ", Mul"; // NOTE: NOT the pseudoscalar (it may scale to zero)
 		}
@@ -240,7 +245,10 @@ mod blades {
 				function_name = product.trait_function_name(),
 			)
 		} else {
-			let (sign, output_sblade_name) = gen.types.get_blade(&product_type.blade).unwrap();
+			let (sign, output_sblade_name) = gen
+				.types
+				.get_blade(&product_type.blade)
+				.unwrap_or_else(|| panic!("unknown blade: {:?}", product_type.blade));
 			let sign = product_type.sign * sign;
 			assert_eq!(sign.abs(), 1);
 
@@ -353,7 +361,7 @@ mod strct {
 	fn declare_struct(_gen: &Generator, struct_name: &str, strct: &Struct) -> String {
 		// TODO: we can only implement Add, Sub if the struct has no Type::Constant
 		let derives =
-			"Copy, Clone, Debug, PartialEq, PartialOrd, derive_more::Neg, derive_more::Add, derive_more::Sub\n";
+			"Copy, Clone, Debug, Default, PartialEq, PartialOrd, derive_more::Neg, derive_more::Add, derive_more::Sub\n";
 		let members = strct
 			.iter()
 			.map(|(member_name, member_type)| format!("\tpub {}: {},", member_name, member_type.name))
@@ -426,7 +434,7 @@ mod strct {
 /// Returns None if the type is Zero or unknown
 fn type_name(gen: &Generator, expr: &Expr) -> Option<String> {
 	// println!("type_name({})", expr.rust(&gen.ro));
-	let output_type = expr.typ(Some(&gen.grammar), Some(&gen.types));
+	let output_type = expr.typ(Some(&gen.grammar));
 	// println!("type_name({}) output_type: {:?}", expr.rust(&gen.ro), output_type);
 	let output_type = output_type?;
 	if output_type.is_zero() {

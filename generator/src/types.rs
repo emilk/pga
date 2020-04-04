@@ -2,7 +2,7 @@ use indexmap::IndexMap;
 
 use crate::*;
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub struct StructMember {
 	pub name: String,
 	pub typ: Type,
@@ -16,7 +16,7 @@ pub struct Types {
 	// types: Vec<Typedef>,
 	types: IndexMap<String, Type>,
 
-	/// Mapes struct to their declarations
+	/// Maps struct names to their declarations
 	structs: IndexMap<String, Struct>,
 
 	/// Maps blades to cannocial sign and name,

@@ -61,6 +61,50 @@ pub struct Point {
 }
 
 // ---------------------------------------------------------------------
+
+impl RCompl for Point {
+    type Output = Line;
+    fn rcompl(self) -> Self::Output {
+        Line {
+            yw: self.x.rcompl(),
+            wx: -self.y.rcompl(),
+            xy: self.w.rcompl(),
+        }
+    }
+}
+
+impl LCompl for Point {
+    type Output = Line;
+    fn lcompl(self) -> Self::Output {
+        Line {
+            yw: self.x.lcompl(),
+            wx: -self.y.lcompl(),
+            xy: self.w.lcompl(),
+        }
+    }
+}
+
+impl Reverse for Point {
+    fn rev(self) -> Self {
+        Point {
+            x: self.x.rev(),
+            y: self.y.rev(),
+            w: self.w.rev(),
+        }
+    }
+}
+
+impl AntiReverse for Point {
+    fn arev(self) -> Self {
+        Point {
+            x: -self.x.arev(),
+            y: -self.y.arev(),
+            w: -self.w.arev(),
+        }
+    }
+}
+
+// ---------------------------------------------------------------------
 // Point OP Dir:
 
 // Point.geometric(Dir) -> Motor

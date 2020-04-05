@@ -50,6 +50,54 @@ pub struct Plane {
 }
 
 // ---------------------------------------------------------------------
+
+impl RCompl for Plane {
+    type Output = Point;
+    fn rcompl(self) -> Self::Output {
+        Point {
+            x: -self.nx.rcompl(),
+            y: -self.ny.rcompl(),
+            z: -self.nz.rcompl(),
+            w: -self.d.rcompl(),
+        }
+    }
+}
+
+impl LCompl for Plane {
+    type Output = Point;
+    fn lcompl(self) -> Self::Output {
+        Point {
+            x: self.nx.lcompl(),
+            y: self.ny.lcompl(),
+            z: self.nz.lcompl(),
+            w: self.d.lcompl(),
+        }
+    }
+}
+
+impl Reverse for Plane {
+    fn rev(self) -> Self {
+        Plane {
+            nx: -self.nx.rev(),
+            ny: self.ny.rev(),
+            nz: -self.nz.rev(),
+            d: self.d.rev(),
+        }
+    }
+}
+
+impl AntiReverse for Plane {
+    fn arev(self) -> Self {
+        Plane {
+            nx: self.nx.arev(),
+            ny: -self.ny.arev(),
+            nz: self.nz.arev(),
+            d: -self.d.arev(),
+        }
+    }
+}
+
+// ---------------------------------------------------------------------
 // Plane OP Dir:
 
 // Omitted: Plane geometric Dir = self.d.geometric(rhs.x) + self.d.geometric(rhs.y) + self.d.geometric(rhs.z) + self.nx.geometric(rhs.x) + self.nx.geometric(rhs.y) + self.nx.geometric(rhs.z) + self.ny.geometric(rhs.x) + self.ny.geometric(rhs.y) + self.ny.geometric(rhs.z) + self.nz.geometric(rhs.x) + self.nz.geometric(rhs.y) + self.nz.geometric(rhs.z)

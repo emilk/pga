@@ -67,6 +67,32 @@ pub struct Motor {
 }
 
 // ---------------------------------------------------------------------
+// Omitted: Motor.rcompl() -> self.s.rcompl() + self.wx.rcompl() + self.xy.rcompl() + self.yw.rcompl()
+// Omitted: Motor.lcompl() -> self.s.lcompl() + self.wx.lcompl() + self.xy.lcompl() + self.yw.lcompl()
+
+impl Reverse for Motor {
+    fn rev(self) -> Self {
+        Motor {
+            s: self.s.rev(),
+            yw: -self.yw.rev(),
+            wx: self.wx.rev(),
+            xy: -self.xy.rev(),
+        }
+    }
+}
+
+impl AntiReverse for Motor {
+    fn arev(self) -> Self {
+        Motor {
+            s: -self.s.arev(),
+            yw: self.yw.arev(),
+            wx: -self.wx.arev(),
+            xy: self.xy.arev(),
+        }
+    }
+}
+
+// ---------------------------------------------------------------------
 // Motor OP Dir:
 
 // Omitted: Motor geometric Dir = self.s.geometric(rhs.x) + self.s.geometric(rhs.y) + self.wx.geometric(rhs.x) + self.wx.geometric(rhs.y) + self.xy.geometric(rhs.x) + self.xy.geometric(rhs.y) + self.yw.geometric(rhs.x) + self.yw.geometric(rhs.y)

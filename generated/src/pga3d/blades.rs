@@ -191,6 +191,434 @@ pub struct ZYX(pub f64);
 pub struct XYZW(pub f64);
 
 // ---------------------------------------------------------------------
+// impl RCompl for blades:
+
+impl RCompl for S {
+    type Output = XYZW;
+    fn rcompl(self) -> Self::Output {
+        XYZW(self.0)
+    }
+}
+
+impl RCompl for X {
+    type Output = YZW;
+    fn rcompl(self) -> Self::Output {
+        YZW(self.0)
+    }
+}
+
+impl RCompl for Y {
+    type Output = ZXW;
+    fn rcompl(self) -> Self::Output {
+        ZXW(self.0)
+    }
+}
+
+impl RCompl for Z {
+    type Output = XYW;
+    fn rcompl(self) -> Self::Output {
+        XYW(self.0)
+    }
+}
+
+impl RCompl for W {
+    type Output = ZYX;
+    fn rcompl(self) -> Self::Output {
+        ZYX(self.0)
+    }
+}
+
+impl RCompl for WX {
+    type Output = YZ;
+    fn rcompl(self) -> Self::Output {
+        YZ(-self.0)
+    }
+}
+
+impl RCompl for WY {
+    type Output = ZX;
+    fn rcompl(self) -> Self::Output {
+        ZX(-self.0)
+    }
+}
+
+impl RCompl for WZ {
+    type Output = XY;
+    fn rcompl(self) -> Self::Output {
+        XY(-self.0)
+    }
+}
+
+impl RCompl for YZ {
+    type Output = WX;
+    fn rcompl(self) -> Self::Output {
+        WX(-self.0)
+    }
+}
+
+impl RCompl for ZX {
+    type Output = WY;
+    fn rcompl(self) -> Self::Output {
+        WY(-self.0)
+    }
+}
+
+impl RCompl for XY {
+    type Output = WZ;
+    fn rcompl(self) -> Self::Output {
+        WZ(-self.0)
+    }
+}
+
+impl RCompl for YZW {
+    type Output = X;
+    fn rcompl(self) -> Self::Output {
+        X(-self.0)
+    }
+}
+
+impl RCompl for ZXW {
+    type Output = Y;
+    fn rcompl(self) -> Self::Output {
+        Y(-self.0)
+    }
+}
+
+impl RCompl for XYW {
+    type Output = Z;
+    fn rcompl(self) -> Self::Output {
+        Z(-self.0)
+    }
+}
+
+impl RCompl for ZYX {
+    type Output = W;
+    fn rcompl(self) -> Self::Output {
+        W(-self.0)
+    }
+}
+
+impl RCompl for XYZW {
+    type Output = S;
+    fn rcompl(self) -> Self::Output {
+        S(self.0)
+    }
+}
+
+// ---------------------------------------------------------------------
+// impl LCompl for blades:
+
+impl LCompl for S {
+    type Output = XYZW;
+    fn lcompl(self) -> Self::Output {
+        XYZW(self.0)
+    }
+}
+
+impl LCompl for X {
+    type Output = YZW;
+    fn lcompl(self) -> Self::Output {
+        YZW(-self.0)
+    }
+}
+
+impl LCompl for Y {
+    type Output = ZXW;
+    fn lcompl(self) -> Self::Output {
+        ZXW(-self.0)
+    }
+}
+
+impl LCompl for Z {
+    type Output = XYW;
+    fn lcompl(self) -> Self::Output {
+        XYW(-self.0)
+    }
+}
+
+impl LCompl for W {
+    type Output = ZYX;
+    fn lcompl(self) -> Self::Output {
+        ZYX(-self.0)
+    }
+}
+
+impl LCompl for WX {
+    type Output = YZ;
+    fn lcompl(self) -> Self::Output {
+        YZ(-self.0)
+    }
+}
+
+impl LCompl for WY {
+    type Output = ZX;
+    fn lcompl(self) -> Self::Output {
+        ZX(-self.0)
+    }
+}
+
+impl LCompl for WZ {
+    type Output = XY;
+    fn lcompl(self) -> Self::Output {
+        XY(-self.0)
+    }
+}
+
+impl LCompl for YZ {
+    type Output = WX;
+    fn lcompl(self) -> Self::Output {
+        WX(-self.0)
+    }
+}
+
+impl LCompl for ZX {
+    type Output = WY;
+    fn lcompl(self) -> Self::Output {
+        WY(-self.0)
+    }
+}
+
+impl LCompl for XY {
+    type Output = WZ;
+    fn lcompl(self) -> Self::Output {
+        WZ(-self.0)
+    }
+}
+
+impl LCompl for YZW {
+    type Output = X;
+    fn lcompl(self) -> Self::Output {
+        X(self.0)
+    }
+}
+
+impl LCompl for ZXW {
+    type Output = Y;
+    fn lcompl(self) -> Self::Output {
+        Y(self.0)
+    }
+}
+
+impl LCompl for XYW {
+    type Output = Z;
+    fn lcompl(self) -> Self::Output {
+        Z(self.0)
+    }
+}
+
+impl LCompl for ZYX {
+    type Output = W;
+    fn lcompl(self) -> Self::Output {
+        W(self.0)
+    }
+}
+
+impl LCompl for XYZW {
+    type Output = S;
+    fn lcompl(self) -> Self::Output {
+        S(self.0)
+    }
+}
+
+// ---------------------------------------------------------------------
+// impl Reverse for blades:
+
+impl Reverse for S {
+    fn rev(self) -> Self {
+        self
+    }
+}
+
+impl Reverse for X {
+    fn rev(self) -> Self {
+        self
+    }
+}
+
+impl Reverse for Y {
+    fn rev(self) -> Self {
+        self
+    }
+}
+
+impl Reverse for Z {
+    fn rev(self) -> Self {
+        self
+    }
+}
+
+impl Reverse for W {
+    fn rev(self) -> Self {
+        self
+    }
+}
+
+impl Reverse for WX {
+    fn rev(self) -> Self {
+        -self
+    }
+}
+
+impl Reverse for WY {
+    fn rev(self) -> Self {
+        -self
+    }
+}
+
+impl Reverse for WZ {
+    fn rev(self) -> Self {
+        -self
+    }
+}
+
+impl Reverse for YZ {
+    fn rev(self) -> Self {
+        -self
+    }
+}
+
+impl Reverse for ZX {
+    fn rev(self) -> Self {
+        -self
+    }
+}
+
+impl Reverse for XY {
+    fn rev(self) -> Self {
+        -self
+    }
+}
+
+impl Reverse for YZW {
+    fn rev(self) -> Self {
+        -self
+    }
+}
+
+impl Reverse for ZXW {
+    fn rev(self) -> Self {
+        -self
+    }
+}
+
+impl Reverse for XYW {
+    fn rev(self) -> Self {
+        -self
+    }
+}
+
+impl Reverse for ZYX {
+    fn rev(self) -> Self {
+        -self
+    }
+}
+
+impl Reverse for XYZW {
+    fn rev(self) -> Self {
+        self
+    }
+}
+
+// ---------------------------------------------------------------------
+// impl AntiReverse for blades:
+
+impl AntiReverse for S {
+    fn arev(self) -> Self {
+        self
+    }
+}
+
+impl AntiReverse for X {
+    fn arev(self) -> Self {
+        -self
+    }
+}
+
+impl AntiReverse for Y {
+    fn arev(self) -> Self {
+        -self
+    }
+}
+
+impl AntiReverse for Z {
+    fn arev(self) -> Self {
+        -self
+    }
+}
+
+impl AntiReverse for W {
+    fn arev(self) -> Self {
+        -self
+    }
+}
+
+impl AntiReverse for WX {
+    fn arev(self) -> Self {
+        -self
+    }
+}
+
+impl AntiReverse for WY {
+    fn arev(self) -> Self {
+        -self
+    }
+}
+
+impl AntiReverse for WZ {
+    fn arev(self) -> Self {
+        -self
+    }
+}
+
+impl AntiReverse for YZ {
+    fn arev(self) -> Self {
+        -self
+    }
+}
+
+impl AntiReverse for ZX {
+    fn arev(self) -> Self {
+        -self
+    }
+}
+
+impl AntiReverse for XY {
+    fn arev(self) -> Self {
+        -self
+    }
+}
+
+impl AntiReverse for YZW {
+    fn arev(self) -> Self {
+        self
+    }
+}
+
+impl AntiReverse for ZXW {
+    fn arev(self) -> Self {
+        self
+    }
+}
+
+impl AntiReverse for XYW {
+    fn arev(self) -> Self {
+        self
+    }
+}
+
+impl AntiReverse for ZYX {
+    fn arev(self) -> Self {
+        self
+    }
+}
+
+impl AntiReverse for XYZW {
+    fn arev(self) -> Self {
+        self
+    }
+}
+
+// ---------------------------------------------------------------------
 // impl Geometric for blades:
 
 impl Geometric<S> for S {

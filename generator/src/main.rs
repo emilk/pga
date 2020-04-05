@@ -107,7 +107,7 @@ fn write_file(unformatted_contents: &str, final_path: &Path) -> Result<(), Box<d
 
 	// Only write file if it has actually changed:
 	if matches!(fs::read_to_string(final_path), Ok(existing_contents) if existing_contents == formatted_contents) {
-		eprintln!("No change to '{}'", final_path.display());
+		// eprintln!("No change to '{}'", final_path.display());
 		return Ok(());
 	}
 
@@ -140,11 +140,15 @@ mod blades {
 		\n\
 		{}\n\n\
 		{}\n\
+		{}\n\n\
+		{}\n\
 		{}\n",
 			documentation,
 			declare_blades(gen),
 			CODE_SEPARATOR,
-			impl_blade_ops(gen),
+			impl_blade_unaryops(gen),
+			CODE_SEPARATOR,
+			impl_blade_products(gen),
 		)
 	}
 
@@ -200,19 +204,83 @@ mod blades {
 		format!("{}pub struct {}(pub {});", code, name, gen.settings.float_type)
 	}
 
-	fn impl_blade_ops(gen: &Generator) -> String {
-		Product::iter()
-			.map(|prod| {
+	fn impl_blade_unaryops(gen: &Generator) -> String {
+		Unary::iter()
+			.map(|unary| {
 				format!(
 					"// impl {} for blades:\n\n{}",
-					prod.trait_name(),
-					impl_blade_ops_product(gen, prod)
+					unary.trait_name(),
+					gen.types
+						.sblades()
+						.iter()
+						.map(|(sblade_name, sblade)| { impl_blade_unary(gen, sblade_name, sblade, unary) })
+						.join("\n\n")
 				)
 			})
 			.join(&format!("\n\n{}\n", CODE_SEPARATOR))
 	}
 
-	fn impl_blade_ops_product(gen: &Generator, product: Product) -> String {
+	fn impl_blade_unary(gen: &Generator, sblade_name: &str, sblade: &SBlade, unary: Unary) -> String {
+		let result_type = sblade.unary(unary, &gen.grammar);
+
+		if result_type.is_zero() {
+			format!(" // Omitted: {}.{}() -> 0", sblade_name, unary.trait_function_name(),)
+		} else {
+			let (sign, output_sblade_name) = gen
+				.types
+				.get_blade(&result_type.blade)
+				.unwrap_or_else(|| panic!("unknown blade: {:?}", result_type.blade));
+			let sign = result_type.sign * sign;
+			assert_eq!(sign.abs(), 1);
+			let sign = if sign == -1 { "-" } else { "" };
+
+			if unary.trait_has_output_type() {
+				format!(
+					r"
+		impl {Trait} for {sblade_name} {{
+			type Output = {Output};
+			fn {function_name}(self) -> Self::Output {{
+				{Output}({sign} self.0)
+			}}
+		}}
+		",
+					sblade_name = sblade_name,
+					Trait = unary.trait_name(),
+					function_name = unary.trait_function_name(),
+					Output = output_sblade_name,
+					sign = sign,
+				)
+			} else {
+				format!(
+					r"
+		impl {Trait} for {sblade_name} {{
+			fn {function_name}(self) -> Self {{
+				{sign} self
+			}}
+		}}
+		",
+					sblade_name = sblade_name,
+					Trait = unary.trait_name(),
+					function_name = unary.trait_function_name(),
+					sign = sign,
+				)
+			}
+		}
+	}
+
+	fn impl_blade_products(gen: &Generator) -> String {
+		Product::iter()
+			.map(|prod| {
+				format!(
+					"// impl {} for blades:\n\n{}",
+					prod.trait_name(),
+					impl_product_for_blades(gen, prod)
+				)
+			})
+			.join(&format!("\n\n{}\n", CODE_SEPARATOR))
+	}
+
+	fn impl_product_for_blades(gen: &Generator, product: Product) -> String {
 		gen.types
 			.sblades()
 			.iter()
@@ -278,6 +346,10 @@ mod strct {
 	pub fn file(gen: &Generator, struct_name: &str, strct: &Struct) -> String {
 		let documentation = with_line_prefixes("//! ", &documentation(gen, struct_name, strct).trim());
 
+		let unaryops = Unary::iter()
+			.map(|unary| impl_struct_unary(gen, struct_name, strct, unary))
+			.join("\n");
+
 		let binops = gen
 			.types
 			.structs()
@@ -299,11 +371,15 @@ mod strct {
 		use super::*;\n\n\
 		{}\n\
 		{}\n\
+		{}\n\
+		{}\n\
 		{}\n",
 			documentation,
 			declare_struct(gen, struct_name, strct),
 			CODE_SEPARATOR,
-			binops
+			unaryops,
+			CODE_SEPARATOR,
+			binops,
 		)
 	}
 
@@ -374,6 +450,54 @@ mod strct {
 	}}\n	",
 			derives, struct_name, members
 		)
+	}
+
+	pub fn impl_struct_unary(gen: &Generator, struct_name: &str, strct: &Struct, unary: Unary) -> String {
+		let var = Expr::var(0, "self", &Type::strct(strct));
+		let expr = Expr::unary(unary, var);
+		let expr = expr.simplify(Some(&gen.grammar)).typify(&gen.types, &gen.grammar);
+		let code = expr.rust(&gen.ro);
+		match type_name(gen, &expr) {
+			Some(output_type_name) => {
+				if unary.trait_has_output_type() {
+					format!(
+						r"
+				impl {Trait} for {struct_name} {{
+					type Output = {Output};
+					fn {function_name}(self) -> Self::Output {{
+						{code}
+					}}
+				}}
+				",
+						struct_name = struct_name,
+						Trait = unary.trait_name(),
+						function_name = unary.trait_function_name(),
+						Output = output_type_name,
+						code = code,
+					)
+				} else {
+					format!(
+						r"
+				impl {Trait} for {struct_name} {{
+					fn {function_name}(self) -> Self {{
+						{code}
+					}}
+				}}
+				",
+						struct_name = struct_name,
+						Trait = unary.trait_name(),
+						function_name = unary.trait_function_name(),
+						code = code,
+					)
+				}
+			}
+			None => format!(
+				"// Omitted: {}.{}() -> {}",
+				struct_name,
+				unary.trait_function_name(),
+				code.replace('\n', " ")
+			),
+		}
 	}
 
 	pub fn struct_product_type_signature(

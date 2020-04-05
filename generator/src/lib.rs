@@ -126,6 +126,28 @@ impl Unary {
 			Unary::AntiReverse => Unary::AntiReverse,
 		}
 	}
+
+	pub fn trait_name(self) -> &'static str {
+		match self {
+			Unary::LCompl => "LCompl",
+			Unary::RCompl => "RCompl",
+			Unary::Reverse => "Reverse",
+			Unary::AntiReverse => "AntiReverse",
+		}
+	}
+
+	pub fn trait_function_name(self) -> &'static str {
+		match self {
+			Unary::LCompl => "lcompl",
+			Unary::RCompl => "rcompl",
+			Unary::Reverse => "rev",
+			Unary::AntiReverse => "arev",
+		}
+	}
+
+	pub fn trait_has_output_type(self) -> bool {
+		matches!(self, Unary::LCompl | Unary::RCompl)
+	}
 }
 
 impl Product {

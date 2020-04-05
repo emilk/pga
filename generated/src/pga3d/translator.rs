@@ -54,6 +54,62 @@ pub struct Translator {
 }
 
 // ---------------------------------------------------------------------
+
+impl RCompl for Translator {
+    type Output = Motor;
+    fn rcompl(self) -> Self::Output {
+        Motor {
+            rx: self.x.rcompl(),
+            ry: self.y.rcompl(),
+            rz: self.z.rcompl(),
+            rw: Default::default(),
+            ux: Default::default(),
+            uy: Default::default(),
+            uz: Default::default(),
+            uw: self.xyzw.rcompl(),
+        }
+    }
+}
+
+impl LCompl for Translator {
+    type Output = Motor;
+    fn lcompl(self) -> Self::Output {
+        Motor {
+            rx: self.x.lcompl(),
+            ry: self.y.lcompl(),
+            rz: self.z.lcompl(),
+            rw: Default::default(),
+            ux: Default::default(),
+            uy: Default::default(),
+            uz: Default::default(),
+            uw: self.xyzw.lcompl(),
+        }
+    }
+}
+
+impl Reverse for Translator {
+    fn rev(self) -> Self {
+        Translator {
+            x: -self.x.rev(),
+            y: self.y.rev(),
+            z: -self.z.rev(),
+            xyzw: self.xyzw.rev(),
+        }
+    }
+}
+
+impl AntiReverse for Translator {
+    fn arev(self) -> Self {
+        Translator {
+            x: -self.x.arev(),
+            y: self.y.arev(),
+            z: -self.z.arev(),
+            xyzw: self.xyzw.arev(),
+        }
+    }
+}
+
+// ---------------------------------------------------------------------
 // Translator OP Dir:
 
 // Omitted: Translator geometric Dir = self.x.geometric(rhs.x) + self.x.geometric(rhs.y) + self.x.geometric(rhs.z) + self.xyzw.geometric(rhs.x) + self.xyzw.geometric(rhs.y) + self.xyzw.geometric(rhs.z) + self.y.geometric(rhs.x) + self.y.geometric(rhs.y) + self.y.geometric(rhs.z) + self.z.geometric(rhs.x) + self.z.geometric(rhs.y) + self.z.geometric(rhs.z)

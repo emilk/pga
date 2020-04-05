@@ -1,10 +1,15 @@
 /// A value multiplied by its complement is the pseudoscalar.
-pub trait Complement {
+pub trait LCompl {
     type Output;
 
     /// Left compliment.
     /// self.lcompl() * self == pseudo-scalar
     fn lcompl(self) -> Self::Output;
+}
+
+/// A value multiplied by its complement is the pseudoscalar.
+pub trait RCompl {
+    type Output;
 
     /// Right compliment.
     /// self * self.rcompl() == pseudo-scalar
@@ -14,21 +19,21 @@ pub trait Complement {
 }
 
 /// Reverse the order of the vector indices:
-/// e1.reverse()   = e1
-/// e12.reverse()  = e21  = -e12
-/// e012.reverse() = e210 = -e012
+/// e1.rev()   = e1
+/// e12.rev()  = e21  = -e12
+/// e012.rev() = e210 = -e012
 /// Used for sandwich products
 pub trait Reverse {
-    fn reverse(self) -> Self;
+    fn rev(self) -> Self;
 }
 
 pub trait AntiReverse {
-    /// self.lcompl().reverse().rcompl()
-    fn anti_reverse(self) -> Self;
+    /// self.lcompl().rev().rcompl()
+    fn arev(self) -> Self;
 }
 
 /// x.squared() = x * x
-/// Note that all values square to a scalar.
+/// Note that all values square to a scalar (could always be zero though).
 pub trait Square {
     fn square(self) -> f64;
 }

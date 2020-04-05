@@ -69,6 +69,50 @@ pub struct Line {
 }
 
 // ---------------------------------------------------------------------
+
+impl RCompl for Line {
+    type Output = Point;
+    fn rcompl(self) -> Self::Output {
+        Point {
+            x: self.yw.rcompl(),
+            y: self.wx.rcompl(),
+            w: self.xy.rcompl(),
+        }
+    }
+}
+
+impl LCompl for Line {
+    type Output = Point;
+    fn lcompl(self) -> Self::Output {
+        Point {
+            x: self.yw.lcompl(),
+            y: self.wx.lcompl(),
+            w: self.xy.lcompl(),
+        }
+    }
+}
+
+impl Reverse for Line {
+    fn rev(self) -> Self {
+        Line {
+            yw: -self.yw.rev(),
+            wx: self.wx.rev(),
+            xy: -self.xy.rev(),
+        }
+    }
+}
+
+impl AntiReverse for Line {
+    fn arev(self) -> Self {
+        Line {
+            yw: self.yw.arev(),
+            wx: -self.wx.arev(),
+            xy: self.xy.arev(),
+        }
+    }
+}
+
+// ---------------------------------------------------------------------
 // Line OP Dir:
 
 // Omitted: Line geometric Dir = self.wx.geometric(rhs.x) + self.wx.geometric(rhs.y) + self.xy.geometric(rhs.x) + self.xy.geometric(rhs.y) + self.yw.geometric(rhs.x) + self.yw.geometric(rhs.y)

@@ -59,6 +59,48 @@ pub struct Dir {
 }
 
 // ---------------------------------------------------------------------
+
+impl RCompl for Dir {
+    type Output = Line;
+    fn rcompl(self) -> Self::Output {
+        Line {
+            yw: self.x.rcompl(),
+            wx: -self.y.rcompl(),
+            xy: Default::default(),
+        }
+    }
+}
+
+impl LCompl for Dir {
+    type Output = Line;
+    fn lcompl(self) -> Self::Output {
+        Line {
+            yw: self.x.lcompl(),
+            wx: -self.y.lcompl(),
+            xy: Default::default(),
+        }
+    }
+}
+
+impl Reverse for Dir {
+    fn rev(self) -> Self {
+        Dir {
+            x: self.x.rev(),
+            y: self.y.rev(),
+        }
+    }
+}
+
+impl AntiReverse for Dir {
+    fn arev(self) -> Self {
+        Dir {
+            x: -self.x.arev(),
+            y: -self.y.arev(),
+        }
+    }
+}
+
+// ---------------------------------------------------------------------
 // Dir OP Dir:
 
 // Dir.geometric(Dir) -> Rotor

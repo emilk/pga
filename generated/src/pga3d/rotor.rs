@@ -55,6 +55,32 @@ pub struct Rotor {
 }
 
 // ---------------------------------------------------------------------
+// Omitted: Rotor.rcompl() -> self.w.rcompl() + self.x.rcompl() + self.y.rcompl() + self.z.rcompl()
+// Omitted: Rotor.lcompl() -> self.w.lcompl() + self.x.lcompl() + self.y.lcompl() + self.z.lcompl()
+
+impl Reverse for Rotor {
+    fn rev(self) -> Self {
+        Rotor {
+            x: self.x.rev(),
+            y: self.y.rev(),
+            z: self.z.rev(),
+            w: self.w.rev(),
+        }
+    }
+}
+
+impl AntiReverse for Rotor {
+    fn arev(self) -> Self {
+        Rotor {
+            x: self.x.arev(),
+            y: self.y.arev(),
+            z: self.z.arev(),
+            w: self.w.arev(),
+        }
+    }
+}
+
+// ---------------------------------------------------------------------
 // Rotor OP Dir:
 
 // Omitted: Rotor geometric Dir = self.w.geometric(rhs.x) + self.w.geometric(rhs.y) + self.w.geometric(rhs.z) + self.x.geometric(rhs.x) + self.x.geometric(rhs.y) + self.x.geometric(rhs.z) + self.y.geometric(rhs.x) + self.y.geometric(rhs.y) + self.y.geometric(rhs.z) + self.z.geometric(rhs.x) + self.z.geometric(rhs.y) + self.z.geometric(rhs.z)

@@ -45,6 +45,40 @@ pub struct Motor {
 }
 
 // ---------------------------------------------------------------------
+// Omitted: Motor.rcompl() -> self.rw.rcompl() + self.rx.rcompl() + self.ry.rcompl() + self.rz.rcompl() + self.uw.rcompl() + self.ux.rcompl() + self.uy.rcompl() + self.uz.rcompl()
+// Omitted: Motor.lcompl() -> self.rw.lcompl() + self.rx.lcompl() + self.ry.lcompl() + self.rz.lcompl() + self.uw.lcompl() + self.ux.lcompl() + self.uy.lcompl() + self.uz.lcompl()
+
+impl Reverse for Motor {
+    fn rev(self) -> Self {
+        Motor {
+            rx: self.rx.rev(),
+            ry: self.ry.rev(),
+            rz: self.rz.rev(),
+            rw: self.rw.rev(),
+            ux: -self.ux.rev(),
+            uy: self.uy.rev(),
+            uz: -self.uz.rev(),
+            uw: self.uw.rev(),
+        }
+    }
+}
+
+impl AntiReverse for Motor {
+    fn arev(self) -> Self {
+        Motor {
+            rx: self.rx.arev(),
+            ry: self.ry.arev(),
+            rz: self.rz.arev(),
+            rw: self.rw.arev(),
+            ux: self.ux.arev(),
+            uy: -self.uy.arev(),
+            uz: self.uz.arev(),
+            uw: self.uw.arev(),
+        }
+    }
+}
+
+// ---------------------------------------------------------------------
 // Motor OP Dir:
 
 // Omitted: Motor geometric Dir = self.rw.geometric(rhs.x) + self.rw.geometric(rhs.y) + self.rw.geometric(rhs.z) + self.rx.geometric(rhs.x) + self.rx.geometric(rhs.y) + self.rx.geometric(rhs.z) + self.ry.geometric(rhs.x) + self.ry.geometric(rhs.y) + self.ry.geometric(rhs.z) + self.rz.geometric(rhs.x) + self.rz.geometric(rhs.y) + self.rz.geometric(rhs.z) + self.uw.geometric(rhs.x) + self.uw.geometric(rhs.y) + self.uw.geometric(rhs.z) + self.ux.geometric(rhs.x) + self.ux.geometric(rhs.y) + self.ux.geometric(rhs.z) + self.uy.geometric(rhs.x) + self.uy.geometric(rhs.y) + self.uy.geometric(rhs.z) + self.uz.geometric(rhs.x) + self.uz.geometric(rhs.y) + self.uz.geometric(rhs.z)

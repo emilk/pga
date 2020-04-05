@@ -65,6 +65,30 @@ pub struct Translator {
 }
 
 // ---------------------------------------------------------------------
+// Omitted: Translator.rcompl() -> self.s.rcompl() + self.wx.rcompl() + self.yw.rcompl()
+// Omitted: Translator.lcompl() -> self.s.lcompl() + self.wx.lcompl() + self.yw.lcompl()
+
+impl Reverse for Translator {
+    fn rev(self) -> Self {
+        Translator {
+            s: self.s.rev(),
+            yw: -self.yw.rev(),
+            wx: self.wx.rev(),
+        }
+    }
+}
+
+impl AntiReverse for Translator {
+    fn arev(self) -> Self {
+        Translator {
+            s: -self.s.arev(),
+            yw: self.yw.arev(),
+            wx: -self.wx.arev(),
+        }
+    }
+}
+
+// ---------------------------------------------------------------------
 // Translator OP Dir:
 
 // Omitted: Translator geometric Dir = self.s.geometric(rhs.x) + self.s.geometric(rhs.y) + self.wx.geometric(rhs.x) + self.wx.geometric(rhs.y) + self.yw.geometric(rhs.x) + self.yw.geometric(rhs.y)

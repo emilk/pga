@@ -55,6 +55,54 @@ pub struct Point {
 }
 
 // ---------------------------------------------------------------------
+
+impl RCompl for Point {
+    type Output = Plane;
+    fn rcompl(self) -> Self::Output {
+        Plane {
+            nx: self.x.rcompl(),
+            ny: -self.y.rcompl(),
+            nz: self.z.rcompl(),
+            d: -self.w.rcompl(),
+        }
+    }
+}
+
+impl LCompl for Point {
+    type Output = Plane;
+    fn lcompl(self) -> Self::Output {
+        Plane {
+            nx: -self.x.lcompl(),
+            ny: self.y.lcompl(),
+            nz: -self.z.lcompl(),
+            d: self.w.lcompl(),
+        }
+    }
+}
+
+impl Reverse for Point {
+    fn rev(self) -> Self {
+        Point {
+            x: self.x.rev(),
+            y: self.y.rev(),
+            z: self.z.rev(),
+            w: self.w.rev(),
+        }
+    }
+}
+
+impl AntiReverse for Point {
+    fn arev(self) -> Self {
+        Point {
+            x: -self.x.arev(),
+            y: -self.y.arev(),
+            z: -self.z.arev(),
+            w: -self.w.arev(),
+        }
+    }
+}
+
+// ---------------------------------------------------------------------
 // Point OP Dir:
 
 // Omitted: Point geometric Dir = self.w.geometric(rhs.x) + self.w.geometric(rhs.y) + self.w.geometric(rhs.z) + self.x.geometric(rhs.x) + self.x.geometric(rhs.y) + self.x.geometric(rhs.z) + self.y.geometric(rhs.x) + self.y.geometric(rhs.y) + self.y.geometric(rhs.z) + self.z.geometric(rhs.x) + self.z.geometric(rhs.y) + self.z.geometric(rhs.z)

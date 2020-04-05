@@ -53,6 +53,62 @@ pub struct Line {
 }
 
 // ---------------------------------------------------------------------
+
+impl RCompl for Line {
+    type Output = Line;
+    fn rcompl(self) -> Self::Output {
+        Line {
+            vx: self.mx.rcompl(),
+            vy: self.my.rcompl(),
+            vz: self.mz.rcompl(),
+            mx: -self.vx.rcompl(),
+            my: self.vy.rcompl(),
+            mz: -self.vz.rcompl(),
+        }
+    }
+}
+
+impl LCompl for Line {
+    type Output = Line;
+    fn lcompl(self) -> Self::Output {
+        Line {
+            vx: self.mx.lcompl(),
+            vy: self.my.lcompl(),
+            vz: self.mz.lcompl(),
+            mx: -self.vx.lcompl(),
+            my: self.vy.lcompl(),
+            mz: -self.vz.lcompl(),
+        }
+    }
+}
+
+impl Reverse for Line {
+    fn rev(self) -> Self {
+        Line {
+            vx: self.vx.rev(),
+            vy: self.vy.rev(),
+            vz: self.vz.rev(),
+            mx: -self.mx.rev(),
+            my: self.my.rev(),
+            mz: -self.mz.rev(),
+        }
+    }
+}
+
+impl AntiReverse for Line {
+    fn arev(self) -> Self {
+        Line {
+            vx: self.vx.arev(),
+            vy: self.vy.arev(),
+            vz: self.vz.arev(),
+            mx: -self.mx.arev(),
+            my: self.my.arev(),
+            mz: -self.mz.arev(),
+        }
+    }
+}
+
+// ---------------------------------------------------------------------
 // Line OP Dir:
 
 // Omitted: Line geometric Dir = self.mx.geometric(rhs.x) + self.mx.geometric(rhs.y) + self.mx.geometric(rhs.z) + self.my.geometric(rhs.x) + self.my.geometric(rhs.y) + self.my.geometric(rhs.z) + self.mz.geometric(rhs.x) + self.mz.geometric(rhs.y) + self.mz.geometric(rhs.z) + self.vx.geometric(rhs.x) + self.vx.geometric(rhs.y) + self.vx.geometric(rhs.z) + self.vy.geometric(rhs.x) + self.vy.geometric(rhs.y) + self.vy.geometric(rhs.z) + self.vz.geometric(rhs.x) + self.vz.geometric(rhs.y) + self.vz.geometric(rhs.z)

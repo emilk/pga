@@ -85,8 +85,8 @@ impl LCompl for Dir {
 impl Reverse for Dir {
     fn rev(self) -> Self {
         Dir {
-            x: self.x.rev(),
-            y: self.y.rev(),
+            x: self.x,
+            y: self.y,
         }
     }
 }
@@ -94,8 +94,8 @@ impl Reverse for Dir {
 impl AntiReverse for Dir {
     fn arev(self) -> Self {
         Dir {
-            x: -self.x.arev(),
-            y: -self.y.arev(),
+            x: -self.x,
+            y: -self.y,
         }
     }
 }

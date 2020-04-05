@@ -78,10 +78,10 @@ impl LCompl for Plane {
 impl Reverse for Plane {
     fn rev(self) -> Self {
         Plane {
-            nx: -self.nx.rev(),
-            ny: self.ny.rev(),
-            nz: -self.nz.rev(),
-            d: self.d.rev(),
+            nx: -self.nx,
+            ny: self.ny,
+            nz: -self.nz,
+            d: self.d,
         }
     }
 }
@@ -89,10 +89,10 @@ impl Reverse for Plane {
 impl AntiReverse for Plane {
     fn arev(self) -> Self {
         Plane {
-            nx: self.nx.arev(),
-            ny: -self.ny.arev(),
-            nz: self.nz.arev(),
-            d: -self.d.arev(),
+            nx: self.nx,
+            ny: -self.ny,
+            nz: self.nz,
+            d: -self.d,
         }
     }
 }

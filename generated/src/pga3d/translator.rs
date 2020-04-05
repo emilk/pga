@@ -90,10 +90,10 @@ impl LCompl for Translator {
 impl Reverse for Translator {
     fn rev(self) -> Self {
         Translator {
-            x: -self.x.rev(),
-            y: self.y.rev(),
-            z: -self.z.rev(),
-            xyzw: self.xyzw.rev(),
+            x: -self.x,
+            y: self.y,
+            z: -self.z,
+            xyzw: self.xyzw,
         }
     }
 }
@@ -101,10 +101,10 @@ impl Reverse for Translator {
 impl AntiReverse for Translator {
     fn arev(self) -> Self {
         Translator {
-            x: -self.x.arev(),
-            y: self.y.arev(),
-            z: -self.z.arev(),
-            xyzw: self.xyzw.arev(),
+            x: -self.x,
+            y: self.y,
+            z: -self.z,
+            xyzw: self.xyzw,
         }
     }
 }

@@ -61,10 +61,10 @@ pub struct Rotor {
 impl Reverse for Rotor {
     fn rev(self) -> Self {
         Rotor {
-            x: self.x.rev(),
-            y: self.y.rev(),
-            z: self.z.rev(),
-            w: self.w.rev(),
+            x: self.x,
+            y: self.y,
+            z: self.z,
+            w: self.w,
         }
     }
 }
@@ -72,10 +72,10 @@ impl Reverse for Rotor {
 impl AntiReverse for Rotor {
     fn arev(self) -> Self {
         Rotor {
-            x: self.x.arev(),
-            y: self.y.arev(),
-            z: self.z.arev(),
-            w: self.w.arev(),
+            x: self.x,
+            y: self.y,
+            z: self.z,
+            w: self.w,
         }
     }
 }

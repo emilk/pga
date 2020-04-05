@@ -51,14 +51,14 @@ pub struct Motor {
 impl Reverse for Motor {
     fn rev(self) -> Self {
         Motor {
-            rx: self.rx.rev(),
-            ry: self.ry.rev(),
-            rz: self.rz.rev(),
-            rw: self.rw.rev(),
-            ux: -self.ux.rev(),
-            uy: self.uy.rev(),
-            uz: -self.uz.rev(),
-            uw: self.uw.rev(),
+            rx: self.rx,
+            ry: self.ry,
+            rz: self.rz,
+            rw: self.rw,
+            ux: -self.ux,
+            uy: self.uy,
+            uz: -self.uz,
+            uw: self.uw,
         }
     }
 }
@@ -66,14 +66,14 @@ impl Reverse for Motor {
 impl AntiReverse for Motor {
     fn arev(self) -> Self {
         Motor {
-            rx: self.rx.arev(),
-            ry: self.ry.arev(),
-            rz: self.rz.arev(),
-            rw: self.rw.arev(),
-            ux: self.ux.arev(),
-            uy: -self.uy.arev(),
-            uz: self.uz.arev(),
-            uw: self.uw.arev(),
+            rx: self.rx,
+            ry: self.ry,
+            rz: self.rz,
+            rw: self.rw,
+            ux: self.ux,
+            uy: -self.uy,
+            uz: self.uz,
+            uw: self.uw,
         }
     }
 }

@@ -71,9 +71,9 @@ pub struct Translator {
 impl Reverse for Translator {
     fn rev(self) -> Self {
         Translator {
-            s: self.s.rev(),
-            yw: -self.yw.rev(),
-            wx: self.wx.rev(),
+            s: self.s,
+            yw: -self.yw,
+            wx: self.wx,
         }
     }
 }
@@ -81,9 +81,9 @@ impl Reverse for Translator {
 impl AntiReverse for Translator {
     fn arev(self) -> Self {
         Translator {
-            s: -self.s.arev(),
-            yw: self.yw.arev(),
-            wx: -self.wx.arev(),
+            s: -self.s,
+            yw: self.yw,
+            wx: -self.wx,
         }
     }
 }

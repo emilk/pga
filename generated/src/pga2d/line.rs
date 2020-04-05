@@ -95,9 +95,9 @@ impl LCompl for Line {
 impl Reverse for Line {
     fn rev(self) -> Self {
         Line {
-            yw: -self.yw.rev(),
-            wx: self.wx.rev(),
-            xy: -self.xy.rev(),
+            yw: -self.yw,
+            wx: self.wx,
+            xy: -self.xy,
         }
     }
 }
@@ -105,9 +105,9 @@ impl Reverse for Line {
 impl AntiReverse for Line {
     fn arev(self) -> Self {
         Line {
-            yw: self.yw.arev(),
-            wx: -self.wx.arev(),
-            xy: self.xy.arev(),
+            yw: self.yw,
+            wx: -self.wx,
+            xy: self.xy,
         }
     }
 }

@@ -48,18 +48,43 @@ impl Expr {
 			.simplify(g),
 			Expr::Var { .. } => self,
 			Expr::Vec(_) => self,
-			Expr::Unary(unary, expr) => match expr.simplify(g) {
-				// e.g. x.lcompl().rcompl() => x
-				Expr::Unary(inner_unary, expr) if inner_unary == unary.undoer() => *expr,
+			Expr::Unary(unary, expr) => {
+				let expr = expr.simplify(g);
 
-				// distributive property
-				// (a + b).unary() = a.unary() + b.unary()
-				Expr::Sum(terms) => {
-					Expr::Sum(terms.into_iter().map(|t| Expr::Unary(unary, t.into())).collect()).simplify(g)
+				// Check if the unary op is just a sign change (for reverse and anti-reverse):
+				if let Some(g) = g {
+					if let Some(typ) = expr.typ(Some(g)).and_then(Type::into_sblade) {
+						let unary_typ = typ.unary(unary, g);
+						if unary_typ.sign == 0 {
+							return Expr::zero();
+						} else if typ.blade == unary_typ.blade {
+							return match typ.sign * unary_typ.sign {
+								1 => expr,                                           // unary op is a no-op,
+								-1 => Expr::Term(expr.into(), -1).simplify(Some(g)), // unary op is a sign change
+								_ => unreachable!(),
+							};
+						}
+					}
 				}
 
-				expr => Expr::Unary(unary, expr.into()),
-			},
+				match expr {
+					Expr::Term(expr, scalar) => {
+						// (e * s).unary() = e.unary() * s
+						Expr::Term(Expr::Unary(unary, expr).into(), scalar).simplify(g)
+					}
+
+					// e.g. x.lcompl().rcompl() => x
+					Expr::Unary(inner_unary, expr) if inner_unary == unary.undoer() => *expr,
+
+					// distributive property
+					// (a + b).unary() = a.unary() + b.unary()
+					Expr::Sum(terms) => {
+						Expr::Sum(terms.into_iter().map(|t| Expr::Unary(unary, t.into())).collect()).simplify(g)
+					}
+
+					expr => Expr::Unary(unary, expr.into()),
+				}
+			}
 
 			Expr::Term(expr, mut scalar) => {
 				let expr: Expr = match expr.simplify(g) {
@@ -125,7 +150,9 @@ impl Expr {
 
 				simplify_product(product, factors, g)
 			}
-			Expr::StructInstance(_) => self,
+			Expr::StructInstance(_) => {
+				panic!("You should NOT call typify() before calling simplify()");
+			}
 		}
 	}
 

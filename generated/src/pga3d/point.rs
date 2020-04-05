@@ -83,10 +83,10 @@ impl LCompl for Point {
 impl Reverse for Point {
     fn rev(self) -> Self {
         Point {
-            x: self.x.rev(),
-            y: self.y.rev(),
-            z: self.z.rev(),
-            w: self.w.rev(),
+            x: self.x,
+            y: self.y,
+            z: self.z,
+            w: self.w,
         }
     }
 }
@@ -94,10 +94,10 @@ impl Reverse for Point {
 impl AntiReverse for Point {
     fn arev(self) -> Self {
         Point {
-            x: -self.x.arev(),
-            y: -self.y.arev(),
-            z: -self.z.arev(),
-            w: -self.w.arev(),
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+            w: -self.w,
         }
     }
 }

@@ -94,10 +94,14 @@ impl Expr {
 					}
 					expr => expr,
 				};
+
 				if scalar == 0 || expr.is_zero() {
 					Self::zero()
 				} else if scalar == 1 {
 					expr
+				} else if let Expr::Sum(terms) = expr {
+					// (a + b) * s = a * s + b * s
+					Expr::Sum(terms.into_iter().map(|expr| Expr::Term(expr.into(), scalar)).collect()).simplify(g)
 				} else {
 					Expr::Term(expr.into(), scalar)
 				}

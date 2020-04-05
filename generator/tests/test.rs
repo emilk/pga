@@ -103,11 +103,11 @@ fn test_pga3d_lengyel() {
 		rust(Expr::wedge(vec![Expr::var(0, "p", &point), Expr::var(1, "q", &point)])),
 		"
 Line {
-    vx: p.x ^ e4 - q.x ^ e4,
-    vy: p.y ^ e4 - q.y ^ e4,
-    vz: p.z ^ e4 - q.z ^ e4,
+    vx: -p.x ^ e4 + q.x ^ e4,
+    vy: -p.y ^ e4 + q.y ^ e4,
+    vz: -p.z ^ e4 + q.z ^ e4,
     mx: p.y ^ q.z - p.z ^ q.y,
-    my: p.x ^ q.z - p.z ^ q.x,
+    my: -p.x ^ q.z + p.z ^ q.x,
     mz: p.x ^ q.y - p.y ^ q.x,
 }
 	"
@@ -156,7 +156,7 @@ fn test_pga2d() {
 		r"
 Line {
     yw: -l.w ^ r.y + l.y ^ r.w,
-    wx: -l.w ^ r.x + l.x ^ r.w,
+    wx: l.w ^ r.x - l.x ^ r.w,
     xy: l.x ^ r.y - l.y ^ r.x,
 }"
 		.trim()
@@ -186,5 +186,25 @@ Point {
 	assert_eq_ignoring_whitespace!(
 		rust(Expr::geometric(vec![Expr::var(0, "l", line), Expr::var(0, "l", line)])),
 		r"l.xy * l.xy"
+	);
+}
+
+#[test]
+fn test_pga2d_rcompl() {
+	let (g, t) = grammars::pga2d();
+	let rust = |expr: Expr| expr.simplify(Some(&g)).typify(&t, &g).rust_ops();
+	let point = t.get("Point");
+	let expr = Expr::unary(Unary::RCompl, Expr::var(0, "l", point));
+	dbg!(expr.clone().rust_ops());
+	dbg!(expr.clone().simplify(Some(&g)).rust_ops());
+	assert_eq_ignoring_whitespace!(
+		rust(expr),
+		r"
+Line {
+    yw: l.x.rcompl(),
+    wx: l.y.rcompl(),
+    xy: l.w.rcompl(),
+}"
+		.trim()
 	);
 }

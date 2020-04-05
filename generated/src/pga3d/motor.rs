@@ -51,12 +51,12 @@ pub struct Motor {
 impl Reverse for Motor {
     fn rev(self) -> Self {
         Motor {
-            rx: self.rx,
-            ry: self.ry,
-            rz: self.rz,
+            rx: -self.rx,
+            ry: -self.ry,
+            rz: -self.rz,
             rw: self.rw,
             ux: -self.ux,
-            uy: self.uy,
+            uy: -self.uy,
             uz: -self.uz,
             uw: self.uw,
         }
@@ -66,12 +66,12 @@ impl Reverse for Motor {
 impl AntiReverse for Motor {
     fn arev(self) -> Self {
         Motor {
-            rx: self.rx,
-            ry: self.ry,
-            rz: self.rz,
+            rx: -self.rx,
+            ry: -self.ry,
+            rz: -self.rz,
             rw: self.rw,
             ux: self.ux,
-            uy: -self.uy,
+            uy: self.uy,
             uz: self.uz,
             uw: self.uw,
         }
@@ -118,9 +118,9 @@ impl Wedge<Plane> for Motor {
     fn wedge(self, rhs: Plane) -> Self::Output {
         Plane {
             nx: self.uw.wedge(rhs.nx),
-            ny: -self.uw.wedge(rhs.ny),
+            ny: self.uw.wedge(rhs.ny),
             nz: self.uw.wedge(rhs.nz),
-            d: -self.uw.wedge(rhs.d),
+            d: self.uw.wedge(rhs.d),
         }
     }
 }
@@ -140,7 +140,7 @@ impl Wedge<Translator> for Motor {
     fn wedge(self, rhs: Translator) -> Self::Output {
         Translator {
             x: self.uw.wedge(rhs.x),
-            y: -self.uw.wedge(rhs.y),
+            y: self.uw.wedge(rhs.y),
             z: self.uw.wedge(rhs.z),
             xyzw: -self.rx.wedge(rhs.x) - self.ry.wedge(rhs.y) - self.rz.wedge(rhs.z)
                 + self.uw.wedge(rhs.xyzw),
@@ -158,9 +158,9 @@ impl Geometric<Rotor> for Motor {
     type Output = Rotor;
     fn geometric(self, rhs: Rotor) -> Self::Output {
         Rotor {
-            x: -self.uw.geometric(rhs.x),
-            y: -self.uw.geometric(rhs.y),
-            z: -self.uw.geometric(rhs.z),
+            x: self.uw.geometric(rhs.x),
+            y: self.uw.geometric(rhs.y),
+            z: self.uw.geometric(rhs.z),
             w: self.uw.geometric(rhs.w),
         }
     }
@@ -173,9 +173,9 @@ impl Dot<Rotor> for Motor {
     type Output = Rotor;
     fn dot(self, rhs: Rotor) -> Self::Output {
         Rotor {
-            x: -self.uw.dot(rhs.x),
-            y: -self.uw.dot(rhs.y),
-            z: -self.uw.dot(rhs.z),
+            x: self.uw.dot(rhs.x),
+            y: self.uw.dot(rhs.y),
+            z: self.uw.dot(rhs.z),
             w: self.uw.dot(rhs.w),
         }
     }
@@ -186,9 +186,9 @@ impl Wedge<Rotor> for Motor {
     type Output = Rotor;
     fn wedge(self, rhs: Rotor) -> Self::Output {
         Rotor {
-            x: -self.uw.wedge(rhs.x),
-            y: -self.uw.wedge(rhs.y),
-            z: -self.uw.wedge(rhs.z),
+            x: self.uw.wedge(rhs.x),
+            y: self.uw.wedge(rhs.y),
+            z: self.uw.wedge(rhs.z),
             w: self.uw.wedge(rhs.w),
         }
     }
@@ -204,12 +204,12 @@ impl Geometric<Motor> for Motor {
     type Output = Motor;
     fn geometric(self, rhs: Motor) -> Self::Output {
         Motor {
-            rx: -self.rx.geometric(rhs.uw) - self.uw.geometric(rhs.rx),
-            ry: -self.ry.geometric(rhs.uw) - self.uw.geometric(rhs.ry),
-            rz: -self.rz.geometric(rhs.uw) - self.uw.geometric(rhs.rz),
+            rx: self.rx.geometric(rhs.uw) + self.uw.geometric(rhs.rx),
+            ry: self.ry.geometric(rhs.uw) + self.uw.geometric(rhs.ry),
+            rz: self.rz.geometric(rhs.uw) + self.uw.geometric(rhs.rz),
             rw: self.rw.geometric(rhs.uw) + self.uw.geometric(rhs.rw),
             ux: self.uw.geometric(rhs.ux) + self.ux.geometric(rhs.uw),
-            uy: -self.uw.geometric(rhs.uy) - self.uy.geometric(rhs.uw),
+            uy: self.uw.geometric(rhs.uy) + self.uy.geometric(rhs.uw),
             uz: self.uw.geometric(rhs.uz) + self.uz.geometric(rhs.uw),
             uw: self.uw.geometric(rhs.uw),
         }
@@ -223,12 +223,12 @@ impl Dot<Motor> for Motor {
     type Output = Motor;
     fn dot(self, rhs: Motor) -> Self::Output {
         Motor {
-            rx: -self.rx.dot(rhs.uw) - self.uw.dot(rhs.rx),
-            ry: -self.ry.dot(rhs.uw) - self.uw.dot(rhs.ry),
-            rz: -self.rz.dot(rhs.uw) - self.uw.dot(rhs.rz),
+            rx: self.rx.dot(rhs.uw) + self.uw.dot(rhs.rx),
+            ry: self.ry.dot(rhs.uw) + self.uw.dot(rhs.ry),
+            rz: self.rz.dot(rhs.uw) + self.uw.dot(rhs.rz),
             rw: self.rw.dot(rhs.uw) + self.uw.dot(rhs.rw),
             ux: self.uw.dot(rhs.ux) + self.ux.dot(rhs.uw),
-            uy: -self.uw.dot(rhs.uy) - self.uy.dot(rhs.uw),
+            uy: self.uw.dot(rhs.uy) + self.uy.dot(rhs.uw),
             uz: self.uw.dot(rhs.uz) + self.uz.dot(rhs.uw),
             uw: self.uw.dot(rhs.uw),
         }
@@ -240,12 +240,12 @@ impl Wedge<Motor> for Motor {
     type Output = Motor;
     fn wedge(self, rhs: Motor) -> Self::Output {
         Motor {
-            rx: -self.rx.wedge(rhs.uw) - self.uw.wedge(rhs.rx),
-            ry: -self.ry.wedge(rhs.uw) - self.uw.wedge(rhs.ry),
-            rz: -self.rz.wedge(rhs.uw) - self.uw.wedge(rhs.rz),
+            rx: self.rx.wedge(rhs.uw) + self.uw.wedge(rhs.rx),
+            ry: self.ry.wedge(rhs.uw) + self.uw.wedge(rhs.ry),
+            rz: self.rz.wedge(rhs.uw) + self.uw.wedge(rhs.rz),
             rw: self.rw.wedge(rhs.uw) + self.uw.wedge(rhs.rw),
             ux: self.uw.wedge(rhs.ux) + self.ux.wedge(rhs.uw),
-            uy: -self.uw.wedge(rhs.uy) - self.uy.wedge(rhs.uw),
+            uy: self.uw.wedge(rhs.uy) + self.uy.wedge(rhs.uw),
             uz: self.uw.wedge(rhs.uz) + self.uz.wedge(rhs.uw),
             uw: self.uw.wedge(rhs.uw),
         }

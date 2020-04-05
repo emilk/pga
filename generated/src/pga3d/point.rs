@@ -61,9 +61,9 @@ impl RCompl for Point {
     fn rcompl(self) -> Self::Output {
         Plane {
             nx: self.x.rcompl(),
-            ny: -self.y.rcompl(),
+            ny: self.y.rcompl(),
             nz: self.z.rcompl(),
-            d: -self.w.rcompl(),
+            d: self.w.rcompl(),
         }
     }
 }
@@ -73,9 +73,9 @@ impl LCompl for Point {
     fn lcompl(self) -> Self::Output {
         Plane {
             nx: -self.x.lcompl(),
-            ny: self.y.lcompl(),
+            ny: -self.y.lcompl(),
             nz: -self.z.lcompl(),
-            d: self.w.lcompl(),
+            d: -self.w.lcompl(),
         }
     }
 }
@@ -116,7 +116,7 @@ impl AntiGeometric<Dir> for Point {
             vy: Default::default(),
             vz: Default::default(),
             mx: self.w.anti_geometric(rhs.x),
-            my: -self.w.anti_geometric(rhs.y),
+            my: self.w.anti_geometric(rhs.y),
             mz: self.w.anti_geometric(rhs.z),
         }
     }
@@ -135,11 +135,11 @@ impl Wedge<Dir> for Point {
     type Output = Line;
     fn wedge(self, rhs: Dir) -> Self::Output {
         Line {
-            vx: -self.w.wedge(rhs.x),
-            vy: -self.w.wedge(rhs.y),
-            vz: -self.w.wedge(rhs.z),
+            vx: self.w.wedge(rhs.x),
+            vy: self.w.wedge(rhs.y),
+            vz: self.w.wedge(rhs.z),
             mx: self.y.wedge(rhs.z) - self.z.wedge(rhs.y),
-            my: self.x.wedge(rhs.z) - self.z.wedge(rhs.x),
+            my: -self.x.wedge(rhs.z) + self.z.wedge(rhs.x),
             mz: self.x.wedge(rhs.y) - self.y.wedge(rhs.x),
         }
     }
@@ -158,7 +158,7 @@ impl AntiGeometric<Point> for Point {
     fn anti_geometric(self, rhs: Point) -> Self::Output {
         Translator {
             x: self.w.anti_geometric(rhs.x) - self.x.anti_geometric(rhs.w),
-            y: -self.w.anti_geometric(rhs.y) + self.y.anti_geometric(rhs.w),
+            y: self.w.anti_geometric(rhs.y) - self.y.anti_geometric(rhs.w),
             z: self.w.anti_geometric(rhs.z) - self.z.anti_geometric(rhs.w),
             xyzw: -self.w.anti_geometric(rhs.w),
         }
@@ -178,11 +178,11 @@ impl Wedge<Point> for Point {
     type Output = Line;
     fn wedge(self, rhs: Point) -> Self::Output {
         Line {
-            vx: -self.w.wedge(rhs.x) + self.x.wedge(rhs.w),
-            vy: -self.w.wedge(rhs.y) + self.y.wedge(rhs.w),
-            vz: -self.w.wedge(rhs.z) + self.z.wedge(rhs.w),
+            vx: self.w.wedge(rhs.x) - self.x.wedge(rhs.w),
+            vy: self.w.wedge(rhs.y) - self.y.wedge(rhs.w),
+            vz: self.w.wedge(rhs.z) - self.z.wedge(rhs.w),
             mx: self.y.wedge(rhs.z) - self.z.wedge(rhs.y),
-            my: self.x.wedge(rhs.z) - self.z.wedge(rhs.x),
+            my: -self.x.wedge(rhs.z) + self.z.wedge(rhs.x),
             mz: self.x.wedge(rhs.y) - self.y.wedge(rhs.x),
         }
     }
@@ -215,9 +215,9 @@ impl Wedge<Line> for Point {
     fn wedge(self, rhs: Line) -> Self::Output {
         Plane {
             nx: self.w.wedge(rhs.mx) - self.y.wedge(rhs.vz) + self.z.wedge(rhs.vy),
-            ny: -self.w.wedge(rhs.my) - self.x.wedge(rhs.vz) + self.z.wedge(rhs.vx),
+            ny: self.w.wedge(rhs.my) + self.x.wedge(rhs.vz) - self.z.wedge(rhs.vx),
             nz: self.w.wedge(rhs.mz) - self.x.wedge(rhs.vy) + self.y.wedge(rhs.vx),
-            d: self.x.wedge(rhs.mx) + self.y.wedge(rhs.my) + self.z.wedge(rhs.mz),
+            d: -self.x.wedge(rhs.mx) - self.y.wedge(rhs.my) - self.z.wedge(rhs.mz),
         }
     }
 }
@@ -235,11 +235,11 @@ impl Dot<Plane> for Point {
     type Output = Line;
     fn dot(self, rhs: Plane) -> Self::Output {
         Line {
-            vx: -self.y.dot(rhs.nz) + self.z.dot(rhs.ny),
-            vy: self.x.dot(rhs.nz) - self.z.dot(rhs.nx),
-            vz: -self.x.dot(rhs.ny) + self.y.dot(rhs.nx),
+            vx: self.y.dot(rhs.nz) - self.z.dot(rhs.ny),
+            vy: -self.x.dot(rhs.nz) + self.z.dot(rhs.nx),
+            vz: self.x.dot(rhs.ny) - self.y.dot(rhs.nx),
             mx: -self.x.dot(rhs.d),
-            my: self.y.dot(rhs.d),
+            my: -self.y.dot(rhs.d),
             mz: -self.z.dot(rhs.d),
         }
     }
@@ -290,9 +290,9 @@ impl Wedge<Translator> for Point {
     fn wedge(self, rhs: Translator) -> Self::Output {
         Plane {
             nx: self.w.wedge(rhs.x),
-            ny: -self.w.wedge(rhs.y),
+            ny: self.w.wedge(rhs.y),
             nz: self.w.wedge(rhs.z),
-            d: self.x.wedge(rhs.x) + self.y.wedge(rhs.y) + self.z.wedge(rhs.z),
+            d: -self.x.wedge(rhs.x) - self.y.wedge(rhs.y) - self.z.wedge(rhs.z),
         }
     }
 }
@@ -323,7 +323,7 @@ impl Wedge<Rotor> for Point {
     fn wedge(self, rhs: Rotor) -> Self::Output {
         Plane {
             nx: -self.y.wedge(rhs.z) + self.z.wedge(rhs.y),
-            ny: -self.x.wedge(rhs.z) + self.z.wedge(rhs.x),
+            ny: self.x.wedge(rhs.z) - self.z.wedge(rhs.x),
             nz: -self.x.wedge(rhs.y) + self.y.wedge(rhs.x),
             d: Default::default(),
         }

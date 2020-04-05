@@ -59,9 +59,9 @@ impl RCompl for Translator {
     type Output = Motor;
     fn rcompl(self) -> Self::Output {
         Motor {
-            rx: self.x.rcompl(),
-            ry: self.y.rcompl(),
-            rz: self.z.rcompl(),
+            rx: -self.x.rcompl(),
+            ry: -self.y.rcompl(),
+            rz: -self.z.rcompl(),
             rw: Default::default(),
             ux: Default::default(),
             uy: Default::default(),
@@ -75,9 +75,9 @@ impl LCompl for Translator {
     type Output = Motor;
     fn lcompl(self) -> Self::Output {
         Motor {
-            rx: self.x.lcompl(),
-            ry: self.y.lcompl(),
-            rz: self.z.lcompl(),
+            rx: -self.x.lcompl(),
+            ry: -self.y.lcompl(),
+            rz: -self.z.lcompl(),
             rw: Default::default(),
             ux: Default::default(),
             uy: Default::default(),
@@ -91,7 +91,7 @@ impl Reverse for Translator {
     fn rev(self) -> Self {
         Translator {
             x: -self.x,
-            y: self.y,
+            y: -self.y,
             z: -self.z,
             xyzw: self.xyzw,
         }
@@ -102,7 +102,7 @@ impl AntiReverse for Translator {
     fn arev(self) -> Self {
         Translator {
             x: -self.x,
-            y: self.y,
+            y: -self.y,
             z: -self.z,
             xyzw: self.xyzw,
         }
@@ -174,9 +174,9 @@ impl Wedge<Point> for Translator {
     fn wedge(self, rhs: Point) -> Self::Output {
         Plane {
             nx: self.x.wedge(rhs.w),
-            ny: -self.y.wedge(rhs.w),
+            ny: self.y.wedge(rhs.w),
             nz: self.z.wedge(rhs.w),
-            d: self.x.wedge(rhs.x) + self.y.wedge(rhs.y) + self.z.wedge(rhs.z),
+            d: -self.x.wedge(rhs.x) - self.y.wedge(rhs.y) - self.z.wedge(rhs.z),
         }
     }
 }
@@ -205,9 +205,9 @@ impl Dot<Line> for Translator {
     type Output = Motor;
     fn dot(self, rhs: Line) -> Self::Output {
         Motor {
-            rx: -self.xyzw.dot(rhs.mx),
-            ry: -self.xyzw.dot(rhs.my),
-            rz: -self.xyzw.dot(rhs.mz),
+            rx: self.xyzw.dot(rhs.mx),
+            ry: self.xyzw.dot(rhs.my),
+            rz: self.xyzw.dot(rhs.mz),
             rw: Default::default(),
             ux: Default::default(),
             uy: Default::default(),
@@ -260,7 +260,7 @@ impl AntiGeometric<Translator> for Translator {
     fn anti_geometric(self, rhs: Translator) -> Self::Output {
         Translator {
             x: self.x.anti_geometric(rhs.xyzw) + self.xyzw.anti_geometric(rhs.x),
-            y: -self.xyzw.anti_geometric(rhs.y) - self.y.anti_geometric(rhs.xyzw),
+            y: self.xyzw.anti_geometric(rhs.y) + self.y.anti_geometric(rhs.xyzw),
             z: self.xyzw.anti_geometric(rhs.z) + self.z.anti_geometric(rhs.xyzw),
             xyzw: self.xyzw.anti_geometric(rhs.xyzw),
         }
@@ -272,9 +272,9 @@ impl Dot<Translator> for Translator {
     type Output = Motor;
     fn dot(self, rhs: Translator) -> Self::Output {
         Motor {
-            rx: -self.x.dot(rhs.xyzw) - self.xyzw.dot(rhs.x),
-            ry: -self.xyzw.dot(rhs.y) - self.y.dot(rhs.xyzw),
-            rz: -self.xyzw.dot(rhs.z) - self.z.dot(rhs.xyzw),
+            rx: self.x.dot(rhs.xyzw) + self.xyzw.dot(rhs.x),
+            ry: self.xyzw.dot(rhs.y) + self.y.dot(rhs.xyzw),
+            rz: self.xyzw.dot(rhs.z) + self.z.dot(rhs.xyzw),
             rw: Default::default(),
             ux: Default::default(),
             uy: Default::default(),
@@ -292,7 +292,7 @@ impl AntiWedge<Translator> for Translator {
     fn anti_wedge(self, rhs: Translator) -> Self::Output {
         Translator {
             x: self.x.anti_wedge(rhs.xyzw) + self.xyzw.anti_wedge(rhs.x),
-            y: -self.xyzw.anti_wedge(rhs.y) - self.y.anti_wedge(rhs.xyzw),
+            y: self.xyzw.anti_wedge(rhs.y) + self.y.anti_wedge(rhs.xyzw),
             z: self.xyzw.anti_wedge(rhs.z) + self.z.anti_wedge(rhs.xyzw),
             xyzw: self.xyzw.anti_wedge(rhs.xyzw),
         }
@@ -307,9 +307,9 @@ impl Geometric<Rotor> for Translator {
     type Output = Rotor;
     fn geometric(self, rhs: Rotor) -> Self::Output {
         Rotor {
-            x: -self.x.geometric(rhs.w) + self.y.geometric(rhs.z) - self.z.geometric(rhs.y),
-            y: -self.x.geometric(rhs.z) - self.y.geometric(rhs.w) + self.z.geometric(rhs.x),
-            z: self.x.geometric(rhs.y) - self.y.geometric(rhs.x) - self.z.geometric(rhs.w),
+            x: self.x.geometric(rhs.w) - self.y.geometric(rhs.z) + self.z.geometric(rhs.y),
+            y: self.x.geometric(rhs.z) + self.y.geometric(rhs.w) - self.z.geometric(rhs.x),
+            z: -self.x.geometric(rhs.y) + self.y.geometric(rhs.x) + self.z.geometric(rhs.w),
             w: -self.x.geometric(rhs.x) - self.y.geometric(rhs.y) - self.z.geometric(rhs.z),
         }
     }
@@ -322,9 +322,9 @@ impl Dot<Rotor> for Translator {
     type Output = Line;
     fn dot(self, rhs: Rotor) -> Self::Output {
         Line {
-            vx: -self.x.dot(rhs.w),
-            vy: -self.y.dot(rhs.w),
-            vz: -self.z.dot(rhs.w),
+            vx: self.x.dot(rhs.w),
+            vy: self.y.dot(rhs.w),
+            vz: self.z.dot(rhs.w),
             mx: Default::default(),
             my: Default::default(),
             mz: Default::default(),
@@ -355,7 +355,7 @@ impl Wedge<Motor> for Translator {
     fn wedge(self, rhs: Motor) -> Self::Output {
         Translator {
             x: self.x.wedge(rhs.uw),
-            y: -self.y.wedge(rhs.uw),
+            y: self.y.wedge(rhs.uw),
             z: self.z.wedge(rhs.uw),
             xyzw: -self.x.wedge(rhs.rx) + self.xyzw.wedge(rhs.uw)
                 - self.y.wedge(rhs.ry)

@@ -177,7 +177,7 @@ impl Geometric<Line> for Rotor {
         Motor {
             s: -self.xy.geometric(rhs.xy),
             yw: self.s.geometric(rhs.yw) + self.xy.geometric(rhs.wx),
-            wx: -self.s.geometric(rhs.wx) + self.xy.geometric(rhs.yw),
+            wx: self.s.geometric(rhs.wx) - self.xy.geometric(rhs.yw),
             xy: self.s.geometric(rhs.xy),
         }
     }
@@ -201,7 +201,7 @@ impl Dot<Line> for Rotor {
         Motor {
             s: -self.xy.dot(rhs.xy),
             yw: self.s.dot(rhs.yw),
-            wx: -self.s.dot(rhs.wx),
+            wx: self.s.dot(rhs.wx),
             xy: self.s.dot(rhs.xy),
         }
     }
@@ -213,7 +213,7 @@ impl Wedge<Line> for Rotor {
     fn wedge(self, rhs: Line) -> Self::Output {
         Line {
             yw: self.s.wedge(rhs.yw),
-            wx: -self.s.wedge(rhs.wx),
+            wx: self.s.wedge(rhs.wx),
             xy: self.s.wedge(rhs.xy),
         }
     }
@@ -240,7 +240,7 @@ impl Geometric<Translator> for Rotor {
         Motor {
             s: self.s.geometric(rhs.s),
             yw: self.s.geometric(rhs.yw) + self.xy.geometric(rhs.wx),
-            wx: -self.s.geometric(rhs.wx) + self.xy.geometric(rhs.yw),
+            wx: self.s.geometric(rhs.wx) - self.xy.geometric(rhs.yw),
             xy: self.xy.geometric(rhs.s),
         }
     }
@@ -264,7 +264,7 @@ impl Dot<Translator> for Rotor {
         Motor {
             s: self.s.dot(rhs.s),
             yw: self.s.dot(rhs.yw),
-            wx: -self.s.dot(rhs.wx),
+            wx: self.s.dot(rhs.wx),
             xy: self.xy.dot(rhs.s),
         }
     }
@@ -277,7 +277,7 @@ impl Wedge<Translator> for Rotor {
         Motor {
             s: self.s.wedge(rhs.s),
             yw: self.s.wedge(rhs.yw),
-            wx: -self.s.wedge(rhs.wx),
+            wx: self.s.wedge(rhs.wx),
             xy: self.xy.wedge(rhs.s),
         }
     }
@@ -344,7 +344,7 @@ impl Geometric<Motor> for Rotor {
         Motor {
             s: self.s.geometric(rhs.s) - self.xy.geometric(rhs.xy),
             yw: self.s.geometric(rhs.yw) + self.xy.geometric(rhs.wx),
-            wx: -self.s.geometric(rhs.wx) + self.xy.geometric(rhs.yw),
+            wx: self.s.geometric(rhs.wx) - self.xy.geometric(rhs.yw),
             xy: self.s.geometric(rhs.xy) + self.xy.geometric(rhs.s),
         }
     }
@@ -368,7 +368,7 @@ impl Dot<Motor> for Rotor {
         Motor {
             s: self.s.dot(rhs.s) - self.xy.dot(rhs.xy),
             yw: self.s.dot(rhs.yw),
-            wx: -self.s.dot(rhs.wx),
+            wx: self.s.dot(rhs.wx),
             xy: self.s.dot(rhs.xy) + self.xy.dot(rhs.s),
         }
     }
@@ -381,7 +381,7 @@ impl Wedge<Motor> for Rotor {
         Motor {
             s: self.s.wedge(rhs.s),
             yw: self.s.wedge(rhs.yw),
-            wx: -self.s.wedge(rhs.wx),
+            wx: self.s.wedge(rhs.wx),
             xy: self.s.wedge(rhs.xy) + self.xy.wedge(rhs.s),
         }
     }

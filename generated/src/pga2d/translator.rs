@@ -73,7 +73,7 @@ impl Reverse for Translator {
         Translator {
             s: self.s,
             yw: -self.yw,
-            wx: self.wx,
+            wx: -self.wx,
         }
     }
 }
@@ -83,7 +83,7 @@ impl AntiReverse for Translator {
         Translator {
             s: -self.s,
             yw: self.yw,
-            wx: -self.wx,
+            wx: self.wx,
         }
     }
 }
@@ -138,7 +138,7 @@ impl AntiGeometric<Point> for Translator {
         Motor {
             s: self.wx.anti_geometric(rhs.y) + self.yw.anti_geometric(rhs.x),
             yw: -self.wx.anti_geometric(rhs.w),
-            wx: -self.yw.anti_geometric(rhs.w),
+            wx: self.yw.anti_geometric(rhs.w),
             xy: -self.s.anti_geometric(rhs.w) + self.wx.anti_geometric(rhs.x)
                 - self.yw.anti_geometric(rhs.y),
         }
@@ -176,7 +176,7 @@ impl Geometric<Line> for Translator {
     fn geometric(self, rhs: Line) -> Self::Output {
         Line {
             yw: self.s.geometric(rhs.yw) - self.wx.geometric(rhs.xy),
-            wx: -self.s.geometric(rhs.wx) - self.yw.geometric(rhs.xy),
+            wx: self.s.geometric(rhs.wx) + self.yw.geometric(rhs.xy),
             xy: self.s.geometric(rhs.xy),
         }
     }
@@ -190,7 +190,7 @@ impl Dot<Line> for Translator {
     fn dot(self, rhs: Line) -> Self::Output {
         Line {
             yw: self.s.dot(rhs.yw),
-            wx: -self.s.dot(rhs.wx),
+            wx: self.s.dot(rhs.wx),
             xy: self.s.dot(rhs.xy),
         }
     }
@@ -202,7 +202,7 @@ impl Wedge<Line> for Translator {
     fn wedge(self, rhs: Line) -> Self::Output {
         Line {
             yw: self.s.wedge(rhs.yw),
-            wx: -self.s.wedge(rhs.wx),
+            wx: self.s.wedge(rhs.wx),
             xy: self.s.wedge(rhs.xy),
         }
     }
@@ -230,7 +230,7 @@ impl Geometric<Translator> for Translator {
         Translator {
             s: self.s.geometric(rhs.s),
             yw: self.s.geometric(rhs.yw) + self.yw.geometric(rhs.s),
-            wx: -self.s.geometric(rhs.wx) - self.wx.geometric(rhs.s),
+            wx: self.s.geometric(rhs.wx) + self.wx.geometric(rhs.s),
         }
     }
 }
@@ -244,7 +244,7 @@ impl Dot<Translator> for Translator {
         Translator {
             s: self.s.dot(rhs.s),
             yw: self.s.dot(rhs.yw) + self.yw.dot(rhs.s),
-            wx: -self.s.dot(rhs.wx) - self.wx.dot(rhs.s),
+            wx: self.s.dot(rhs.wx) + self.wx.dot(rhs.s),
         }
     }
 }
@@ -256,7 +256,7 @@ impl Wedge<Translator> for Translator {
         Translator {
             s: self.s.wedge(rhs.s),
             yw: self.s.wedge(rhs.yw) + self.yw.wedge(rhs.s),
-            wx: -self.s.wedge(rhs.wx) - self.wx.wedge(rhs.s),
+            wx: self.s.wedge(rhs.wx) + self.wx.wedge(rhs.s),
         }
     }
 }
@@ -273,7 +273,7 @@ impl Geometric<Rotor> for Translator {
         Motor {
             s: self.s.geometric(rhs.s),
             yw: -self.wx.geometric(rhs.xy) + self.yw.geometric(rhs.s),
-            wx: -self.wx.geometric(rhs.s) - self.yw.geometric(rhs.xy),
+            wx: self.wx.geometric(rhs.s) + self.yw.geometric(rhs.xy),
             xy: self.s.geometric(rhs.xy),
         }
     }
@@ -297,7 +297,7 @@ impl Dot<Rotor> for Translator {
         Motor {
             s: self.s.dot(rhs.s),
             yw: self.yw.dot(rhs.s),
-            wx: -self.wx.dot(rhs.s),
+            wx: self.wx.dot(rhs.s),
             xy: self.s.dot(rhs.xy),
         }
     }
@@ -310,7 +310,7 @@ impl Wedge<Rotor> for Translator {
         Motor {
             s: self.s.wedge(rhs.s),
             yw: self.yw.wedge(rhs.s),
-            wx: -self.wx.wedge(rhs.s),
+            wx: self.wx.wedge(rhs.s),
             xy: self.s.wedge(rhs.xy),
         }
     }
@@ -337,7 +337,7 @@ impl Geometric<Motor> for Translator {
         Motor {
             s: self.s.geometric(rhs.s),
             yw: self.s.geometric(rhs.yw) - self.wx.geometric(rhs.xy) + self.yw.geometric(rhs.s),
-            wx: -self.s.geometric(rhs.wx) - self.wx.geometric(rhs.s) - self.yw.geometric(rhs.xy),
+            wx: self.s.geometric(rhs.wx) + self.wx.geometric(rhs.s) + self.yw.geometric(rhs.xy),
             xy: self.s.geometric(rhs.xy),
         }
     }
@@ -352,7 +352,7 @@ impl Dot<Motor> for Translator {
         Motor {
             s: self.s.dot(rhs.s),
             yw: self.s.dot(rhs.yw) + self.yw.dot(rhs.s),
-            wx: -self.s.dot(rhs.wx) - self.wx.dot(rhs.s),
+            wx: self.s.dot(rhs.wx) + self.wx.dot(rhs.s),
             xy: self.s.dot(rhs.xy),
         }
     }
@@ -365,7 +365,7 @@ impl Wedge<Motor> for Translator {
         Motor {
             s: self.s.wedge(rhs.s),
             yw: self.s.wedge(rhs.yw) + self.yw.wedge(rhs.s),
-            wx: -self.s.wedge(rhs.wx) - self.wx.wedge(rhs.s),
+            wx: self.s.wedge(rhs.wx) + self.wx.wedge(rhs.s),
             xy: self.s.wedge(rhs.xy),
         }
     }

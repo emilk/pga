@@ -67,7 +67,7 @@ impl RCompl for Point {
     fn rcompl(self) -> Self::Output {
         Line {
             yw: self.x.rcompl(),
-            wx: -self.y.rcompl(),
+            wx: self.y.rcompl(),
             xy: self.w.rcompl(),
         }
     }
@@ -78,7 +78,7 @@ impl LCompl for Point {
     fn lcompl(self) -> Self::Output {
         Line {
             yw: self.x.lcompl(),
-            wx: -self.y.lcompl(),
+            wx: self.y.lcompl(),
             xy: self.w.lcompl(),
         }
     }
@@ -114,7 +114,7 @@ impl Geometric<Dir> for Point {
         Motor {
             s: self.x.geometric(rhs.x) + self.y.geometric(rhs.y),
             yw: -self.w.geometric(rhs.y),
-            wx: -self.w.geometric(rhs.x),
+            wx: self.w.geometric(rhs.x),
             xy: self.x.geometric(rhs.y) - self.y.geometric(rhs.x),
         }
     }
@@ -145,7 +145,7 @@ impl Wedge<Dir> for Point {
     fn wedge(self, rhs: Dir) -> Self::Output {
         Line {
             yw: -self.w.wedge(rhs.y),
-            wx: -self.w.wedge(rhs.x),
+            wx: self.w.wedge(rhs.x),
             xy: self.x.wedge(rhs.y) - self.y.wedge(rhs.x),
         }
     }
@@ -163,7 +163,7 @@ impl Geometric<Point> for Point {
         Motor {
             s: self.x.geometric(rhs.x) + self.y.geometric(rhs.y),
             yw: -self.w.geometric(rhs.y) + self.y.geometric(rhs.w),
-            wx: -self.w.geometric(rhs.x) + self.x.geometric(rhs.w),
+            wx: self.w.geometric(rhs.x) - self.x.geometric(rhs.w),
             xy: self.x.geometric(rhs.y) - self.y.geometric(rhs.x),
         }
     }
@@ -185,7 +185,7 @@ impl Wedge<Point> for Point {
     fn wedge(self, rhs: Point) -> Self::Output {
         Line {
             yw: -self.w.wedge(rhs.y) + self.y.wedge(rhs.w),
-            wx: -self.w.wedge(rhs.x) + self.x.wedge(rhs.w),
+            wx: self.w.wedge(rhs.x) - self.x.wedge(rhs.w),
             xy: self.x.wedge(rhs.y) - self.y.wedge(rhs.x),
         }
     }
@@ -207,7 +207,7 @@ impl AntiGeometric<Line> for Point {
                 + self.x.anti_geometric(rhs.yw)
                 + self.y.anti_geometric(rhs.wx),
             yw: self.w.anti_geometric(rhs.wx),
-            wx: self.w.anti_geometric(rhs.yw),
+            wx: -self.w.anti_geometric(rhs.yw),
             xy: -self.x.anti_geometric(rhs.wx) + self.y.anti_geometric(rhs.yw),
         }
     }
@@ -253,7 +253,7 @@ impl AntiGeometric<Translator> for Point {
         Motor {
             s: self.x.anti_geometric(rhs.yw) + self.y.anti_geometric(rhs.wx),
             yw: self.w.anti_geometric(rhs.wx),
-            wx: self.w.anti_geometric(rhs.yw),
+            wx: -self.w.anti_geometric(rhs.yw),
             xy: -self.w.anti_geometric(rhs.s) - self.x.anti_geometric(rhs.wx)
                 + self.y.anti_geometric(rhs.yw),
         }
@@ -334,7 +334,7 @@ impl AntiGeometric<Motor> for Point {
                 + self.x.anti_geometric(rhs.yw)
                 + self.y.anti_geometric(rhs.wx),
             yw: self.w.anti_geometric(rhs.wx),
-            wx: self.w.anti_geometric(rhs.yw),
+            wx: -self.w.anti_geometric(rhs.yw),
             xy: -self.w.anti_geometric(rhs.s) - self.x.anti_geometric(rhs.wx)
                 + self.y.anti_geometric(rhs.yw),
         }

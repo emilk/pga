@@ -61,9 +61,9 @@ pub struct Rotor {
 impl Reverse for Rotor {
     fn rev(self) -> Self {
         Rotor {
-            x: self.x,
-            y: self.y,
-            z: self.z,
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
             w: self.w,
         }
     }
@@ -72,9 +72,9 @@ impl Reverse for Rotor {
 impl AntiReverse for Rotor {
     fn arev(self) -> Self {
         Rotor {
-            x: self.x,
-            y: self.y,
-            z: self.z,
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
             w: self.w,
         }
     }
@@ -93,7 +93,7 @@ impl Wedge<Dir> for Rotor {
     fn wedge(self, rhs: Dir) -> Self::Output {
         Plane {
             nx: self.y.wedge(rhs.z) - self.z.wedge(rhs.y),
-            ny: self.x.wedge(rhs.z) - self.z.wedge(rhs.x),
+            ny: -self.x.wedge(rhs.z) + self.z.wedge(rhs.x),
             nz: self.x.wedge(rhs.y) - self.y.wedge(rhs.x),
             d: Default::default(),
         }
@@ -125,7 +125,7 @@ impl Wedge<Point> for Rotor {
     fn wedge(self, rhs: Point) -> Self::Output {
         Plane {
             nx: self.y.wedge(rhs.z) - self.z.wedge(rhs.y),
-            ny: self.x.wedge(rhs.z) - self.z.wedge(rhs.x),
+            ny: -self.x.wedge(rhs.z) + self.z.wedge(rhs.x),
             nz: self.x.wedge(rhs.y) - self.y.wedge(rhs.x),
             d: Default::default(),
         }
@@ -153,9 +153,9 @@ impl Geometric<Line> for Rotor {
     type Output = Rotor;
     fn geometric(self, rhs: Line) -> Self::Output {
         Rotor {
-            x: -self.w.geometric(rhs.mx) + self.y.geometric(rhs.mz) - self.z.geometric(rhs.my),
-            y: -self.w.geometric(rhs.my) - self.x.geometric(rhs.mz) + self.z.geometric(rhs.mx),
-            z: -self.w.geometric(rhs.mz) + self.x.geometric(rhs.my) - self.y.geometric(rhs.mx),
+            x: self.w.geometric(rhs.mx) - self.y.geometric(rhs.mz) + self.z.geometric(rhs.my),
+            y: self.w.geometric(rhs.my) + self.x.geometric(rhs.mz) - self.z.geometric(rhs.mx),
+            z: self.w.geometric(rhs.mz) - self.x.geometric(rhs.my) + self.y.geometric(rhs.mx),
             w: -self.x.geometric(rhs.mx) - self.y.geometric(rhs.my) - self.z.geometric(rhs.mz),
         }
     }
@@ -168,9 +168,9 @@ impl Dot<Line> for Rotor {
     type Output = Line;
     fn dot(self, rhs: Line) -> Self::Output {
         Line {
-            vx: -self.w.dot(rhs.mx),
-            vy: -self.w.dot(rhs.my),
-            vz: -self.w.dot(rhs.mz),
+            vx: self.w.dot(rhs.mx),
+            vy: self.w.dot(rhs.my),
+            vz: self.w.dot(rhs.mz),
             mx: Default::default(),
             my: Default::default(),
             mz: Default::default(),
@@ -213,9 +213,9 @@ impl Geometric<Translator> for Rotor {
     type Output = Rotor;
     fn geometric(self, rhs: Translator) -> Self::Output {
         Rotor {
-            x: -self.w.geometric(rhs.x) + self.y.geometric(rhs.z) - self.z.geometric(rhs.y),
-            y: -self.w.geometric(rhs.y) - self.x.geometric(rhs.z) + self.z.geometric(rhs.x),
-            z: -self.w.geometric(rhs.z) + self.x.geometric(rhs.y) - self.y.geometric(rhs.x),
+            x: self.w.geometric(rhs.x) - self.y.geometric(rhs.z) + self.z.geometric(rhs.y),
+            y: self.w.geometric(rhs.y) + self.x.geometric(rhs.z) - self.z.geometric(rhs.x),
+            z: self.w.geometric(rhs.z) - self.x.geometric(rhs.y) + self.y.geometric(rhs.x),
             w: -self.x.geometric(rhs.x) - self.y.geometric(rhs.y) - self.z.geometric(rhs.z),
         }
     }
@@ -228,9 +228,9 @@ impl Dot<Translator> for Rotor {
     type Output = Line;
     fn dot(self, rhs: Translator) -> Self::Output {
         Line {
-            vx: -self.w.dot(rhs.x),
-            vy: -self.w.dot(rhs.y),
-            vz: -self.w.dot(rhs.z),
+            vx: self.w.dot(rhs.x),
+            vy: self.w.dot(rhs.y),
+            vz: self.w.dot(rhs.z),
             mx: Default::default(),
             my: Default::default(),
             mz: Default::default(),
@@ -258,16 +258,16 @@ impl AntiGeometric<Rotor> for Rotor {
     type Output = Rotor;
     fn anti_geometric(self, rhs: Rotor) -> Self::Output {
         Rotor {
-            x: -self.w.anti_geometric(rhs.x)
-                - self.x.anti_geometric(rhs.w)
-                - self.y.anti_geometric(rhs.z)
-                + self.z.anti_geometric(rhs.y),
-            y: -self.w.anti_geometric(rhs.y) + self.x.anti_geometric(rhs.z)
-                - self.y.anti_geometric(rhs.w)
-                - self.z.anti_geometric(rhs.x),
-            z: -self.w.anti_geometric(rhs.z) - self.x.anti_geometric(rhs.y)
-                + self.y.anti_geometric(rhs.x)
-                - self.z.anti_geometric(rhs.w),
+            x: self.w.anti_geometric(rhs.x)
+                + self.x.anti_geometric(rhs.w)
+                + self.y.anti_geometric(rhs.z)
+                - self.z.anti_geometric(rhs.y),
+            y: self.w.anti_geometric(rhs.y) - self.x.anti_geometric(rhs.z)
+                + self.y.anti_geometric(rhs.w)
+                + self.z.anti_geometric(rhs.x),
+            z: self.w.anti_geometric(rhs.z) + self.x.anti_geometric(rhs.y)
+                - self.y.anti_geometric(rhs.x)
+                + self.z.anti_geometric(rhs.w),
             w: self.w.anti_geometric(rhs.w)
                 - self.x.anti_geometric(rhs.x)
                 - self.y.anti_geometric(rhs.y)
@@ -284,9 +284,9 @@ impl AntiWedge<Rotor> for Rotor {
     type Output = Rotor;
     fn anti_wedge(self, rhs: Rotor) -> Self::Output {
         Rotor {
-            x: -self.w.anti_wedge(rhs.x) - self.x.anti_wedge(rhs.w),
-            y: -self.w.anti_wedge(rhs.y) - self.y.anti_wedge(rhs.w),
-            z: -self.w.anti_wedge(rhs.z) - self.z.anti_wedge(rhs.w),
+            x: self.w.anti_wedge(rhs.x) + self.x.anti_wedge(rhs.w),
+            y: self.w.anti_wedge(rhs.y) + self.y.anti_wedge(rhs.w),
+            z: self.w.anti_wedge(rhs.z) + self.z.anti_wedge(rhs.w),
             w: self.w.anti_wedge(rhs.w),
         }
     }
@@ -300,9 +300,9 @@ impl Geometric<Motor> for Rotor {
     type Output = Rotor;
     fn geometric(self, rhs: Motor) -> Self::Output {
         Rotor {
-            x: -self.x.geometric(rhs.uw),
-            y: -self.y.geometric(rhs.uw),
-            z: -self.z.geometric(rhs.uw),
+            x: self.x.geometric(rhs.uw),
+            y: self.y.geometric(rhs.uw),
+            z: self.z.geometric(rhs.uw),
             w: self.w.geometric(rhs.uw),
         }
     }
@@ -315,9 +315,9 @@ impl Dot<Motor> for Rotor {
     type Output = Rotor;
     fn dot(self, rhs: Motor) -> Self::Output {
         Rotor {
-            x: -self.x.dot(rhs.uw),
-            y: -self.y.dot(rhs.uw),
-            z: -self.z.dot(rhs.uw),
+            x: self.x.dot(rhs.uw),
+            y: self.y.dot(rhs.uw),
+            z: self.z.dot(rhs.uw),
             w: self.w.dot(rhs.uw),
         }
     }
@@ -328,9 +328,9 @@ impl Wedge<Motor> for Rotor {
     type Output = Rotor;
     fn wedge(self, rhs: Motor) -> Self::Output {
         Rotor {
-            x: -self.x.wedge(rhs.uw),
-            y: -self.y.wedge(rhs.uw),
-            z: -self.z.wedge(rhs.uw),
+            x: self.x.wedge(rhs.uw),
+            y: self.y.wedge(rhs.uw),
+            z: self.z.wedge(rhs.uw),
             w: self.w.wedge(rhs.uw),
         }
     }

@@ -9,7 +9,9 @@ type Value = BTreeMap<Blade, Expr>;
 // 	use itertools::Itertools;
 // 	format!(
 // 		"{{\n{}\n}}",
-// 		v.iter().map(|(k, v)| format!("  {:6?}: {},", k, v.rust())).join("\n")
+// 		v.iter()
+// 			.map(|(k, v)| format!("  {:6?}: {},", k, v.rust_ops()))
+// 			.join("\n")
 // 	)
 // }
 
@@ -118,20 +120,13 @@ fn find_struct(sum: &Value, t: &Types) -> Option<StructInstance> {
 }
 
 fn as_struct_instance(struct_name: &str, strct: &Struct, value: &Value) -> Option<StructInstance> {
-	let find_term = |needle: &Type| {
-		value
-			.iter()
-			.find(|(b, _)| needle.is_blade(b))
-			.map(|(_, expr)| expr.clone())
-	};
-
 	if value.keys().all(|b| is_blade_in_struct(strct, b)) {
 		Some(StructInstance {
 			struct_name: struct_name.to_owned(),
 			strct: strct.clone(),
 			members: strct
 				.iter()
-				.map(|(name, mem)| (name.to_string(), find_term(&mem.typ).unwrap_or_else(Expr::zero)))
+				.map(|(name, mem)| (name.to_string(), find_term(&mem.typ, value).unwrap_or_else(Expr::zero)))
 				.collect(),
 		})
 	} else {
@@ -141,4 +136,19 @@ fn as_struct_instance(struct_name: &str, strct: &Struct, value: &Value) -> Optio
 
 fn is_blade_in_struct(strct: &Struct, blade: &Blade) -> bool {
 	strct.iter().any(|(_, mem)| mem.typ.is_blade(blade))
+}
+
+fn find_term(needle: &Type, value: &Value) -> Option<Expr> {
+	if let Some(needle) = needle.clone().into_sblade() {
+		for (blade, expr) in value {
+			if &needle.blade == blade {
+				return Some(match needle.sign {
+					1 => expr.clone().simplify(None),
+					-1 => expr.clone().negate().simplify(None),
+					_ => unreachable!(),
+				});
+			}
+		}
+	}
+	None
 }

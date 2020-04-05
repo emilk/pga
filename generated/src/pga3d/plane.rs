@@ -79,9 +79,9 @@ impl Reverse for Plane {
     fn rev(self) -> Self {
         Plane {
             nx: -self.nx,
-            ny: self.ny,
+            ny: -self.ny,
             nz: -self.nz,
-            d: self.d,
+            d: -self.d,
         }
     }
 }
@@ -90,9 +90,9 @@ impl AntiReverse for Plane {
     fn arev(self) -> Self {
         Plane {
             nx: self.nx,
-            ny: -self.ny,
+            ny: self.ny,
             nz: self.nz,
-            d: -self.d,
+            d: self.d,
         }
     }
 }
@@ -108,11 +108,11 @@ impl Dot<Dir> for Plane {
     type Output = Line;
     fn dot(self, rhs: Dir) -> Self::Output {
         Line {
-            vx: self.ny.dot(rhs.z) - self.nz.dot(rhs.y),
-            vy: -self.nx.dot(rhs.z) + self.nz.dot(rhs.x),
-            vz: self.nx.dot(rhs.y) - self.ny.dot(rhs.x),
+            vx: -self.ny.dot(rhs.z) + self.nz.dot(rhs.y),
+            vy: self.nx.dot(rhs.z) - self.nz.dot(rhs.x),
+            vz: -self.nx.dot(rhs.y) + self.ny.dot(rhs.x),
             mx: -self.d.dot(rhs.x),
-            my: self.d.dot(rhs.y),
+            my: -self.d.dot(rhs.y),
             mz: -self.d.dot(rhs.z),
         }
     }
@@ -145,11 +145,11 @@ impl Dot<Point> for Plane {
     type Output = Line;
     fn dot(self, rhs: Point) -> Self::Output {
         Line {
-            vx: self.ny.dot(rhs.z) - self.nz.dot(rhs.y),
-            vy: -self.nx.dot(rhs.z) + self.nz.dot(rhs.x),
-            vz: self.nx.dot(rhs.y) - self.ny.dot(rhs.x),
+            vx: -self.ny.dot(rhs.z) + self.nz.dot(rhs.y),
+            vy: self.nx.dot(rhs.z) - self.nz.dot(rhs.x),
+            vz: -self.nx.dot(rhs.y) + self.ny.dot(rhs.x),
             mx: -self.d.dot(rhs.x),
-            my: self.d.dot(rhs.y),
+            my: -self.d.dot(rhs.y),
             mz: -self.d.dot(rhs.z),
         }
     }
@@ -218,9 +218,9 @@ impl Geometric<Plane> for Plane {
     type Output = Motor;
     fn geometric(self, rhs: Plane) -> Self::Output {
         Motor {
-            rx: self.d.geometric(rhs.nx) - self.nx.geometric(rhs.d),
-            ry: self.d.geometric(rhs.ny) - self.ny.geometric(rhs.d),
-            rz: self.d.geometric(rhs.nz) - self.nz.geometric(rhs.d),
+            rx: -self.d.geometric(rhs.nx) + self.nx.geometric(rhs.d),
+            ry: -self.d.geometric(rhs.ny) + self.ny.geometric(rhs.d),
+            rz: -self.d.geometric(rhs.nz) + self.nz.geometric(rhs.d),
             rw: Default::default(),
             ux: Default::default(),
             uy: Default::default(),
@@ -247,11 +247,11 @@ impl AntiWedge<Plane> for Plane {
     type Output = Line;
     fn anti_wedge(self, rhs: Plane) -> Self::Output {
         Line {
-            vx: self.ny.anti_wedge(rhs.nz) - self.nz.anti_wedge(rhs.ny),
-            vy: -self.nx.anti_wedge(rhs.nz) + self.nz.anti_wedge(rhs.nx),
-            vz: self.nx.anti_wedge(rhs.ny) - self.ny.anti_wedge(rhs.nx),
+            vx: -self.ny.anti_wedge(rhs.nz) + self.nz.anti_wedge(rhs.ny),
+            vy: self.nx.anti_wedge(rhs.nz) - self.nz.anti_wedge(rhs.nx),
+            vz: -self.nx.anti_wedge(rhs.ny) + self.ny.anti_wedge(rhs.nx),
             mx: -self.d.anti_wedge(rhs.nx) + self.nx.anti_wedge(rhs.d),
-            my: self.d.anti_wedge(rhs.ny) - self.ny.anti_wedge(rhs.d),
+            my: -self.d.anti_wedge(rhs.ny) + self.ny.anti_wedge(rhs.d),
             mz: -self.d.anti_wedge(rhs.nz) + self.nz.anti_wedge(rhs.d),
         }
     }
@@ -309,9 +309,9 @@ impl Wedge<Motor> for Plane {
     fn wedge(self, rhs: Motor) -> Self::Output {
         Plane {
             nx: self.nx.wedge(rhs.uw),
-            ny: -self.ny.wedge(rhs.uw),
+            ny: self.ny.wedge(rhs.uw),
             nz: self.nz.wedge(rhs.uw),
-            d: -self.d.wedge(rhs.uw),
+            d: self.d.wedge(rhs.uw),
         }
     }
 }

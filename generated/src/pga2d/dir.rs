@@ -65,7 +65,7 @@ impl RCompl for Dir {
     fn rcompl(self) -> Self::Output {
         Line {
             yw: self.x.rcompl(),
-            wx: -self.y.rcompl(),
+            wx: self.y.rcompl(),
             xy: Default::default(),
         }
     }
@@ -76,7 +76,7 @@ impl LCompl for Dir {
     fn lcompl(self) -> Self::Output {
         Line {
             yw: self.x.lcompl(),
-            wx: -self.y.lcompl(),
+            wx: self.y.lcompl(),
             xy: Default::default(),
         }
     }
@@ -137,7 +137,7 @@ impl Geometric<Point> for Dir {
         Motor {
             s: self.x.geometric(rhs.x) + self.y.geometric(rhs.y),
             yw: self.y.geometric(rhs.w),
-            wx: self.x.geometric(rhs.w),
+            wx: -self.x.geometric(rhs.w),
             xy: self.x.geometric(rhs.y) - self.y.geometric(rhs.x),
         }
     }
@@ -168,7 +168,7 @@ impl Wedge<Point> for Dir {
     fn wedge(self, rhs: Point) -> Self::Output {
         Line {
             yw: self.y.wedge(rhs.w),
-            wx: self.x.wedge(rhs.w),
+            wx: -self.x.wedge(rhs.w),
             xy: self.x.wedge(rhs.y) - self.y.wedge(rhs.x),
         }
     }

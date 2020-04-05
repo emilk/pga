@@ -58,11 +58,11 @@ impl RCompl for Line {
     type Output = Line;
     fn rcompl(self) -> Self::Output {
         Line {
-            vx: self.mx.rcompl(),
-            vy: self.my.rcompl(),
-            vz: self.mz.rcompl(),
+            vx: -self.mx.rcompl(),
+            vy: -self.my.rcompl(),
+            vz: -self.mz.rcompl(),
             mx: -self.vx.rcompl(),
-            my: self.vy.rcompl(),
+            my: -self.vy.rcompl(),
             mz: -self.vz.rcompl(),
         }
     }
@@ -72,11 +72,11 @@ impl LCompl for Line {
     type Output = Line;
     fn lcompl(self) -> Self::Output {
         Line {
-            vx: self.mx.lcompl(),
-            vy: self.my.lcompl(),
-            vz: self.mz.lcompl(),
+            vx: -self.mx.lcompl(),
+            vy: -self.my.lcompl(),
+            vz: -self.mz.lcompl(),
             mx: -self.vx.lcompl(),
-            my: self.vy.lcompl(),
+            my: -self.vy.lcompl(),
             mz: -self.vz.lcompl(),
         }
     }
@@ -85,11 +85,11 @@ impl LCompl for Line {
 impl Reverse for Line {
     fn rev(self) -> Self {
         Line {
-            vx: self.vx,
-            vy: self.vy,
-            vz: self.vz,
+            vx: -self.vx,
+            vy: -self.vy,
+            vz: -self.vz,
             mx: -self.mx,
-            my: self.my,
+            my: -self.my,
             mz: -self.mz,
         }
     }
@@ -98,11 +98,11 @@ impl Reverse for Line {
 impl AntiReverse for Line {
     fn arev(self) -> Self {
         Line {
-            vx: self.vx,
-            vy: self.vy,
-            vz: self.vz,
+            vx: -self.vx,
+            vy: -self.vy,
+            vz: -self.vz,
             mx: -self.mx,
-            my: self.my,
+            my: -self.my,
             mz: -self.mz,
         }
     }
@@ -133,9 +133,9 @@ impl Wedge<Dir> for Line {
     fn wedge(self, rhs: Dir) -> Self::Output {
         Plane {
             nx: self.vy.wedge(rhs.z) - self.vz.wedge(rhs.y),
-            ny: self.vx.wedge(rhs.z) - self.vz.wedge(rhs.x),
+            ny: -self.vx.wedge(rhs.z) + self.vz.wedge(rhs.x),
             nz: self.vx.wedge(rhs.y) - self.vy.wedge(rhs.x),
-            d: self.mx.wedge(rhs.x) + self.my.wedge(rhs.y) + self.mz.wedge(rhs.z),
+            d: -self.mx.wedge(rhs.x) - self.my.wedge(rhs.y) - self.mz.wedge(rhs.z),
         }
     }
 }
@@ -167,9 +167,9 @@ impl Wedge<Point> for Line {
     fn wedge(self, rhs: Point) -> Self::Output {
         Plane {
             nx: self.mx.wedge(rhs.w) + self.vy.wedge(rhs.z) - self.vz.wedge(rhs.y),
-            ny: -self.my.wedge(rhs.w) + self.vx.wedge(rhs.z) - self.vz.wedge(rhs.x),
+            ny: self.my.wedge(rhs.w) - self.vx.wedge(rhs.z) + self.vz.wedge(rhs.x),
             nz: self.mz.wedge(rhs.w) + self.vx.wedge(rhs.y) - self.vy.wedge(rhs.x),
-            d: self.mx.wedge(rhs.x) + self.my.wedge(rhs.y) + self.mz.wedge(rhs.z),
+            d: -self.mx.wedge(rhs.x) - self.my.wedge(rhs.y) - self.mz.wedge(rhs.z),
         }
     }
 }
@@ -263,9 +263,9 @@ impl Dot<Translator> for Line {
     type Output = Motor;
     fn dot(self, rhs: Translator) -> Self::Output {
         Motor {
-            rx: -self.mx.dot(rhs.xyzw),
-            ry: -self.my.dot(rhs.xyzw),
-            rz: -self.mz.dot(rhs.xyzw),
+            rx: self.mx.dot(rhs.xyzw),
+            ry: self.my.dot(rhs.xyzw),
+            rz: self.mz.dot(rhs.xyzw),
             rw: Default::default(),
             ux: Default::default(),
             uy: Default::default(),
@@ -293,9 +293,9 @@ impl Geometric<Rotor> for Line {
     type Output = Rotor;
     fn geometric(self, rhs: Rotor) -> Self::Output {
         Rotor {
-            x: -self.mx.geometric(rhs.w) + self.my.geometric(rhs.z) - self.mz.geometric(rhs.y),
-            y: -self.mx.geometric(rhs.z) - self.my.geometric(rhs.w) + self.mz.geometric(rhs.x),
-            z: self.mx.geometric(rhs.y) - self.my.geometric(rhs.x) - self.mz.geometric(rhs.w),
+            x: self.mx.geometric(rhs.w) - self.my.geometric(rhs.z) + self.mz.geometric(rhs.y),
+            y: self.mx.geometric(rhs.z) + self.my.geometric(rhs.w) - self.mz.geometric(rhs.x),
+            z: -self.mx.geometric(rhs.y) + self.my.geometric(rhs.x) + self.mz.geometric(rhs.w),
             w: -self.mx.geometric(rhs.x) - self.my.geometric(rhs.y) - self.mz.geometric(rhs.z),
         }
     }
@@ -308,9 +308,9 @@ impl Dot<Rotor> for Line {
     type Output = Line;
     fn dot(self, rhs: Rotor) -> Self::Output {
         Line {
-            vx: -self.mx.dot(rhs.w),
-            vy: -self.my.dot(rhs.w),
-            vz: -self.mz.dot(rhs.w),
+            vx: self.mx.dot(rhs.w),
+            vy: self.my.dot(rhs.w),
+            vz: self.mz.dot(rhs.w),
             mx: Default::default(),
             my: Default::default(),
             mz: Default::default(),

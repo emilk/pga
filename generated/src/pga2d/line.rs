@@ -96,7 +96,7 @@ impl Reverse for Line {
     fn rev(self) -> Self {
         Line {
             yw: -self.yw,
-            wx: self.wx,
+            wx: -self.wx,
             xy: -self.xy,
         }
     }
@@ -106,7 +106,7 @@ impl AntiReverse for Line {
     fn arev(self) -> Self {
         Line {
             yw: self.yw,
-            wx: -self.wx,
+            wx: self.wx,
             xy: self.xy,
         }
     }
@@ -170,7 +170,7 @@ impl AntiGeometric<Point> for Line {
                 + self.xy.anti_geometric(rhs.w)
                 + self.yw.anti_geometric(rhs.x),
             yw: -self.wx.anti_geometric(rhs.w),
-            wx: -self.yw.anti_geometric(rhs.w),
+            wx: self.yw.anti_geometric(rhs.w),
             xy: self.wx.anti_geometric(rhs.x) - self.yw.anti_geometric(rhs.y),
         }
     }
@@ -214,7 +214,7 @@ impl Geometric<Line> for Line {
         Translator {
             s: -self.xy.geometric(rhs.xy),
             yw: -self.wx.geometric(rhs.xy) + self.xy.geometric(rhs.wx),
-            wx: self.xy.geometric(rhs.yw) - self.yw.geometric(rhs.xy),
+            wx: -self.xy.geometric(rhs.yw) + self.yw.geometric(rhs.xy),
         }
     }
 }
@@ -252,7 +252,7 @@ impl Geometric<Translator> for Line {
     fn geometric(self, rhs: Translator) -> Self::Output {
         Line {
             yw: self.xy.geometric(rhs.wx) + self.yw.geometric(rhs.s),
-            wx: -self.wx.geometric(rhs.s) + self.xy.geometric(rhs.yw),
+            wx: self.wx.geometric(rhs.s) - self.xy.geometric(rhs.yw),
             xy: self.xy.geometric(rhs.s),
         }
     }
@@ -266,7 +266,7 @@ impl Dot<Translator> for Line {
     fn dot(self, rhs: Translator) -> Self::Output {
         Line {
             yw: self.yw.dot(rhs.s),
-            wx: -self.wx.dot(rhs.s),
+            wx: self.wx.dot(rhs.s),
             xy: self.xy.dot(rhs.s),
         }
     }
@@ -278,7 +278,7 @@ impl Wedge<Translator> for Line {
     fn wedge(self, rhs: Translator) -> Self::Output {
         Line {
             yw: self.yw.wedge(rhs.s),
-            wx: -self.wx.wedge(rhs.s),
+            wx: self.wx.wedge(rhs.s),
             xy: self.xy.wedge(rhs.s),
         }
     }
@@ -306,7 +306,7 @@ impl Geometric<Rotor> for Line {
         Motor {
             s: -self.xy.geometric(rhs.xy),
             yw: -self.wx.geometric(rhs.xy) + self.yw.geometric(rhs.s),
-            wx: -self.wx.geometric(rhs.s) - self.yw.geometric(rhs.xy),
+            wx: self.wx.geometric(rhs.s) + self.yw.geometric(rhs.xy),
             xy: self.xy.geometric(rhs.s),
         }
     }
@@ -330,7 +330,7 @@ impl Dot<Rotor> for Line {
         Motor {
             s: -self.xy.dot(rhs.xy),
             yw: self.yw.dot(rhs.s),
-            wx: -self.wx.dot(rhs.s),
+            wx: self.wx.dot(rhs.s),
             xy: self.xy.dot(rhs.s),
         }
     }
@@ -342,7 +342,7 @@ impl Wedge<Rotor> for Line {
     fn wedge(self, rhs: Rotor) -> Self::Output {
         Line {
             yw: self.yw.wedge(rhs.s),
-            wx: -self.wx.wedge(rhs.s),
+            wx: self.wx.wedge(rhs.s),
             xy: self.xy.wedge(rhs.s),
         }
     }
@@ -369,7 +369,7 @@ impl Geometric<Motor> for Line {
         Motor {
             s: -self.xy.geometric(rhs.xy),
             yw: -self.wx.geometric(rhs.xy) + self.xy.geometric(rhs.wx) + self.yw.geometric(rhs.s),
-            wx: -self.wx.geometric(rhs.s) + self.xy.geometric(rhs.yw) - self.yw.geometric(rhs.xy),
+            wx: self.wx.geometric(rhs.s) - self.xy.geometric(rhs.yw) + self.yw.geometric(rhs.xy),
             xy: self.xy.geometric(rhs.s),
         }
     }
@@ -384,7 +384,7 @@ impl Dot<Motor> for Line {
         Motor {
             s: -self.xy.dot(rhs.xy),
             yw: self.yw.dot(rhs.s),
-            wx: -self.wx.dot(rhs.s),
+            wx: self.wx.dot(rhs.s),
             xy: self.xy.dot(rhs.s),
         }
     }
@@ -396,7 +396,7 @@ impl Wedge<Motor> for Line {
     fn wedge(self, rhs: Motor) -> Self::Output {
         Line {
             yw: self.yw.wedge(rhs.s),
-            wx: -self.wx.wedge(rhs.s),
+            wx: self.wx.wedge(rhs.s),
             xy: self.xy.wedge(rhs.s),
         }
     }

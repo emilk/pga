@@ -17,6 +17,10 @@
 //! Point.wedge(Plane) -> XYZW
 //! Plane.anti_wedge(Point) -> S
 //! Point.anti_wedge(Plane) -> S
+//! Plane.dot(Moment) -> Point
+//! Moment.dot(Plane) -> Point
+//! Plane.anti_wedge(Moment) -> Dir
+//! Moment.anti_wedge(Plane) -> Dir
 //! Plane.dot(Line) -> Point
 //! Line.dot(Plane) -> Point
 //! Plane.anti_wedge(Line) -> Point
@@ -171,6 +175,39 @@ impl AntiWedge<Point> for Plane {
             + self.nx.anti_wedge(rhs.x)
             + self.ny.anti_wedge(rhs.y)
             + self.nz.anti_wedge(rhs.z)
+    }
+}
+
+// ---------------------------------------------------------------------
+// Plane OP Moment:
+
+// Omitted: Plane geometric Moment = self.d.geometric(rhs.xy) + self.d.geometric(rhs.yz) + self.d.geometric(rhs.zx) + self.nx.geometric(rhs.xy) + self.nx.geometric(rhs.yz) + self.nx.geometric(rhs.zx) + self.ny.geometric(rhs.xy) + self.ny.geometric(rhs.yz) + self.ny.geometric(rhs.zx) + self.nz.geometric(rhs.xy) + self.nz.geometric(rhs.yz) + self.nz.geometric(rhs.zx)
+// Omitted: Plane anti_geometric Moment = self.nx.anti_geometric(rhs.xy) + self.nx.anti_geometric(rhs.yz) + self.nx.anti_geometric(rhs.zx) + self.ny.anti_geometric(rhs.xy) + self.ny.anti_geometric(rhs.yz) + self.ny.anti_geometric(rhs.zx) + self.nz.anti_geometric(rhs.xy) + self.nz.anti_geometric(rhs.yz) + self.nz.anti_geometric(rhs.zx)
+
+// Plane.dot(Moment) -> Point
+impl Dot<Moment> for Plane {
+    type Output = Point;
+    fn dot(self, rhs: Moment) -> Self::Output {
+        Point {
+            x: self.d.dot(rhs.yz),
+            y: self.d.dot(rhs.zx),
+            z: self.d.dot(rhs.xy),
+            w: -self.nx.dot(rhs.yz) - self.ny.dot(rhs.zx) - self.nz.dot(rhs.xy),
+        }
+    }
+}
+
+// Omitted: Plane wedge Moment = 0
+
+// Plane.anti_wedge(Moment) -> Dir
+impl AntiWedge<Moment> for Plane {
+    type Output = Dir;
+    fn anti_wedge(self, rhs: Moment) -> Self::Output {
+        Dir {
+            x: -self.ny.anti_wedge(rhs.xy) + self.nz.anti_wedge(rhs.zx),
+            y: self.nx.anti_wedge(rhs.xy) - self.nz.anti_wedge(rhs.yz),
+            z: -self.nx.anti_wedge(rhs.zx) + self.ny.anti_wedge(rhs.yz),
+        }
     }
 }
 

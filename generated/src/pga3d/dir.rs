@@ -3,13 +3,17 @@
 //! ## Operations
 //! ```text
 //! Dir.dot(Dir) -> S
-//! Dir.wedge(Dir) -> Line
-//! Dir.anti_geometric(Point) -> Line
-//! Point.anti_geometric(Dir) -> Line
+//! Dir.wedge(Dir) -> Moment
+//! Dir.anti_geometric(Point) -> Moment
+//! Point.anti_geometric(Dir) -> Moment
 //! Dir.dot(Point) -> S
 //! Point.dot(Dir) -> S
 //! Dir.wedge(Point) -> Line
 //! Point.wedge(Dir) -> Line
+//! Dir.dot(Moment) -> Dir
+//! Moment.dot(Dir) -> Dir
+//! Dir.wedge(Moment) -> ZYX
+//! Moment.wedge(Dir) -> ZYX
 //! Dir.dot(Line) -> Point
 //! Line.dot(Dir) -> Point
 //! Dir.wedge(Line) -> Plane
@@ -112,17 +116,14 @@ impl Dot<Dir> for Dir {
     }
 }
 
-// Dir.wedge(Dir) -> Line
+// Dir.wedge(Dir) -> Moment
 impl Wedge<Dir> for Dir {
-    type Output = Line;
+    type Output = Moment;
     fn wedge(self, rhs: Dir) -> Self::Output {
-        Line {
-            vx: Default::default(),
-            vy: Default::default(),
-            vz: Default::default(),
-            mx: self.y.wedge(rhs.z) - self.z.wedge(rhs.y),
-            my: -self.x.wedge(rhs.z) + self.z.wedge(rhs.x),
-            mz: self.x.wedge(rhs.y) - self.y.wedge(rhs.x),
+        Moment {
+            yz: self.y.wedge(rhs.z) - self.z.wedge(rhs.y),
+            zx: -self.x.wedge(rhs.z) + self.z.wedge(rhs.x),
+            xy: self.x.wedge(rhs.y) - self.y.wedge(rhs.x),
         }
     }
 }
@@ -134,17 +135,14 @@ impl Wedge<Dir> for Dir {
 
 // Omitted: Dir geometric Point = self.x.geometric(rhs.w) + self.x.geometric(rhs.x) + self.x.geometric(rhs.y) + self.x.geometric(rhs.z) + self.y.geometric(rhs.w) + self.y.geometric(rhs.x) + self.y.geometric(rhs.y) + self.y.geometric(rhs.z) + self.z.geometric(rhs.w) + self.z.geometric(rhs.x) + self.z.geometric(rhs.y) + self.z.geometric(rhs.z)
 
-// Dir.anti_geometric(Point) -> Line
+// Dir.anti_geometric(Point) -> Moment
 impl AntiGeometric<Point> for Dir {
-    type Output = Line;
+    type Output = Moment;
     fn anti_geometric(self, rhs: Point) -> Self::Output {
-        Line {
-            vx: Default::default(),
-            vy: Default::default(),
-            vz: Default::default(),
-            mx: -self.x.anti_geometric(rhs.w),
-            my: -self.y.anti_geometric(rhs.w),
-            mz: -self.z.anti_geometric(rhs.w),
+        Moment {
+            yz: -self.x.anti_geometric(rhs.w),
+            zx: -self.y.anti_geometric(rhs.w),
+            xy: -self.z.anti_geometric(rhs.w),
         }
     }
 }
@@ -173,6 +171,34 @@ impl Wedge<Point> for Dir {
 }
 
 // Omitted: Dir anti_wedge Point = 0
+
+// ---------------------------------------------------------------------
+// Dir OP Moment:
+
+// Omitted: Dir geometric Moment = self.x.geometric(rhs.xy) + self.x.geometric(rhs.yz) + self.x.geometric(rhs.zx) + self.y.geometric(rhs.xy) + self.y.geometric(rhs.yz) + self.y.geometric(rhs.zx) + self.z.geometric(rhs.xy) + self.z.geometric(rhs.yz) + self.z.geometric(rhs.zx)
+// Omitted: Dir anti_geometric Moment = 0
+
+// Dir.dot(Moment) -> Dir
+impl Dot<Moment> for Dir {
+    type Output = Dir;
+    fn dot(self, rhs: Moment) -> Self::Output {
+        Dir {
+            x: -self.y.dot(rhs.xy) + self.z.dot(rhs.zx),
+            y: self.x.dot(rhs.xy) - self.z.dot(rhs.yz),
+            z: -self.x.dot(rhs.zx) + self.y.dot(rhs.yz),
+        }
+    }
+}
+
+// Dir.wedge(Moment) -> ZYX
+impl Wedge<Moment> for Dir {
+    type Output = ZYX;
+    fn wedge(self, rhs: Moment) -> Self::Output {
+        self.x.wedge(rhs.yz) + self.y.wedge(rhs.zx) + self.z.wedge(rhs.xy)
+    }
+}
+
+// Omitted: Dir anti_wedge Moment = 0
 
 // ---------------------------------------------------------------------
 // Dir OP Line:

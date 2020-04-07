@@ -7,6 +7,8 @@
 //! Motor.wedge(Motor) -> Motor
 //!
 //!
+//! Motor.wedge(Moment) -> Translator
+//! Moment.wedge(Motor) -> Translator
 //!
 //! Motor.wedge(Plane) -> Plane
 //! Plane.wedge(Motor) -> Plane
@@ -95,6 +97,28 @@ impl AntiReverse for Motor {
 // Omitted: Motor dot Point = self.rw.dot(rhs.x) + self.rw.dot(rhs.y) + self.rw.dot(rhs.z) + self.rx.dot(rhs.x) + self.ry.dot(rhs.y) + self.rz.dot(rhs.z) + self.uw.dot(rhs.w) + self.uw.dot(rhs.x) + self.uw.dot(rhs.y) + self.uw.dot(rhs.z) + self.ux.dot(rhs.y) + self.ux.dot(rhs.z) + self.uy.dot(rhs.x) + self.uy.dot(rhs.z) + self.uz.dot(rhs.x) + self.uz.dot(rhs.y)
 // Omitted: Motor wedge Point = self.rx.wedge(rhs.y) + self.rx.wedge(rhs.z) + self.ry.wedge(rhs.x) + self.ry.wedge(rhs.z) + self.rz.wedge(rhs.x) + self.rz.wedge(rhs.y) + self.uw.wedge(rhs.w) + self.uw.wedge(rhs.x) + self.uw.wedge(rhs.y) + self.uw.wedge(rhs.z) + self.ux.wedge(rhs.x) + self.uy.wedge(rhs.y) + self.uz.wedge(rhs.z)
 // Omitted: Motor anti_wedge Point = self.rw.anti_wedge(rhs.w) + self.rw.anti_wedge(rhs.x) + self.rw.anti_wedge(rhs.y) + self.rw.anti_wedge(rhs.z) + self.ux.anti_wedge(rhs.x) + self.uy.anti_wedge(rhs.y) + self.uz.anti_wedge(rhs.z)
+
+// ---------------------------------------------------------------------
+// Motor OP Moment:
+
+// Omitted: Motor geometric Moment = self.rw.geometric(rhs.xy) + self.rw.geometric(rhs.yz) + self.rw.geometric(rhs.zx) + self.rx.geometric(rhs.xy) + self.rx.geometric(rhs.yz) + self.rx.geometric(rhs.zx) + self.ry.geometric(rhs.xy) + self.ry.geometric(rhs.yz) + self.ry.geometric(rhs.zx) + self.rz.geometric(rhs.xy) + self.rz.geometric(rhs.yz) + self.rz.geometric(rhs.zx) + self.uw.geometric(rhs.xy) + self.uw.geometric(rhs.yz) + self.uw.geometric(rhs.zx) + self.ux.geometric(rhs.xy) + self.ux.geometric(rhs.yz) + self.ux.geometric(rhs.zx) + self.uy.geometric(rhs.xy) + self.uy.geometric(rhs.yz) + self.uy.geometric(rhs.zx) + self.uz.geometric(rhs.xy) + self.uz.geometric(rhs.yz) + self.uz.geometric(rhs.zx)
+// Omitted: Motor anti_geometric Moment = self.rw.anti_geometric(rhs.xy) + self.rw.anti_geometric(rhs.yz) + self.rw.anti_geometric(rhs.zx) + self.rx.anti_geometric(rhs.xy) + self.rx.anti_geometric(rhs.yz) + self.rx.anti_geometric(rhs.zx) + self.ry.anti_geometric(rhs.xy) + self.ry.anti_geometric(rhs.yz) + self.ry.anti_geometric(rhs.zx) + self.rz.anti_geometric(rhs.xy) + self.rz.anti_geometric(rhs.yz) + self.rz.anti_geometric(rhs.zx) + self.ux.anti_geometric(rhs.xy) + self.ux.anti_geometric(rhs.yz) + self.ux.anti_geometric(rhs.zx) + self.uy.anti_geometric(rhs.xy) + self.uy.anti_geometric(rhs.yz) + self.uy.anti_geometric(rhs.zx) + self.uz.anti_geometric(rhs.xy) + self.uz.anti_geometric(rhs.yz) + self.uz.anti_geometric(rhs.zx)
+// Omitted: Motor dot Moment = self.rw.dot(rhs.xy) + self.rw.dot(rhs.yz) + self.rw.dot(rhs.zx) + self.uw.dot(rhs.xy) + self.uw.dot(rhs.yz) + self.uw.dot(rhs.zx) + self.ux.dot(rhs.yz) + self.uy.dot(rhs.zx) + self.uz.dot(rhs.xy)
+
+// Motor.wedge(Moment) -> Translator
+impl Wedge<Moment> for Motor {
+    type Output = Translator;
+    fn wedge(self, rhs: Moment) -> Self::Output {
+        Translator {
+            x: self.uw.wedge(rhs.yz),
+            y: self.uw.wedge(rhs.zx),
+            z: self.uw.wedge(rhs.xy),
+            xyzw: -self.rx.wedge(rhs.yz) - self.ry.wedge(rhs.zx) - self.rz.wedge(rhs.xy),
+        }
+    }
+}
+
+// Omitted: Motor anti_wedge Moment = self.rw.anti_wedge(rhs.xy) + self.rw.anti_wedge(rhs.yz) + self.rw.anti_wedge(rhs.zx) + self.rx.anti_wedge(rhs.yz) + self.ry.anti_wedge(rhs.zx) + self.rz.anti_wedge(rhs.xy) + self.ux.anti_wedge(rhs.xy) + self.ux.anti_wedge(rhs.zx) + self.uy.anti_wedge(rhs.xy) + self.uy.anti_wedge(rhs.yz) + self.uz.anti_wedge(rhs.yz) + self.uz.anti_wedge(rhs.zx)
 
 // ---------------------------------------------------------------------
 // Motor OP Line:

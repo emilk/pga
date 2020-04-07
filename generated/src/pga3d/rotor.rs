@@ -12,6 +12,12 @@
 //! Point.wedge(Rotor) -> Plane
 //! Rotor.anti_wedge(Point) -> Point
 //! Point.anti_wedge(Rotor) -> Point
+//! Rotor.geometric(Moment) -> Rotor
+//! Moment.geometric(Rotor) -> Rotor
+//! Rotor.dot(Moment) -> Line
+//! Moment.dot(Rotor) -> Line
+//! Rotor.wedge(Moment) -> XYZW
+//! Moment.wedge(Rotor) -> XYZW
 //! Rotor.geometric(Line) -> Rotor
 //! Line.geometric(Rotor) -> Rotor
 //! Rotor.dot(Line) -> Line
@@ -144,6 +150,49 @@ impl AntiWedge<Point> for Rotor {
         }
     }
 }
+
+// ---------------------------------------------------------------------
+// Rotor OP Moment:
+
+// Rotor.geometric(Moment) -> Rotor
+impl Geometric<Moment> for Rotor {
+    type Output = Rotor;
+    fn geometric(self, rhs: Moment) -> Self::Output {
+        Rotor {
+            x: self.w.geometric(rhs.yz) - self.y.geometric(rhs.xy) + self.z.geometric(rhs.zx),
+            y: self.w.geometric(rhs.zx) + self.x.geometric(rhs.xy) - self.z.geometric(rhs.yz),
+            z: self.w.geometric(rhs.xy) - self.x.geometric(rhs.zx) + self.y.geometric(rhs.yz),
+            w: -self.x.geometric(rhs.yz) - self.y.geometric(rhs.zx) - self.z.geometric(rhs.xy),
+        }
+    }
+}
+
+// Omitted: Rotor anti_geometric Moment = self.w.anti_geometric(rhs.xy) + self.w.anti_geometric(rhs.yz) + self.w.anti_geometric(rhs.zx) + self.x.anti_geometric(rhs.xy) + self.x.anti_geometric(rhs.yz) + self.x.anti_geometric(rhs.zx) + self.y.anti_geometric(rhs.xy) + self.y.anti_geometric(rhs.yz) + self.y.anti_geometric(rhs.zx) + self.z.anti_geometric(rhs.xy) + self.z.anti_geometric(rhs.yz) + self.z.anti_geometric(rhs.zx)
+
+// Rotor.dot(Moment) -> Line
+impl Dot<Moment> for Rotor {
+    type Output = Line;
+    fn dot(self, rhs: Moment) -> Self::Output {
+        Line {
+            vx: self.w.dot(rhs.yz),
+            vy: self.w.dot(rhs.zx),
+            vz: self.w.dot(rhs.xy),
+            mx: Default::default(),
+            my: Default::default(),
+            mz: Default::default(),
+        }
+    }
+}
+
+// Rotor.wedge(Moment) -> XYZW
+impl Wedge<Moment> for Rotor {
+    type Output = XYZW;
+    fn wedge(self, rhs: Moment) -> Self::Output {
+        self.x.wedge(rhs.yz) + self.y.wedge(rhs.zx) + self.z.wedge(rhs.xy)
+    }
+}
+
+// Omitted: Rotor anti_wedge Moment = self.w.anti_wedge(rhs.xy) + self.w.anti_wedge(rhs.yz) + self.w.anti_wedge(rhs.zx) + self.x.anti_wedge(rhs.yz) + self.y.anti_wedge(rhs.zx) + self.z.anti_wedge(rhs.xy)
 
 // ---------------------------------------------------------------------
 // Rotor OP Line:

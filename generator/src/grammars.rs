@@ -65,6 +65,9 @@ pub fn pga3d() -> (Grammar, Types) {
 	t.insert_struct("Dir", &[("x", "X"), ("y", "Y"), ("z", "Z")]);
 	t.insert_struct("Point", &[("x", "X"), ("y", "Y"), ("z", "Z"), ("w", "W")]);
 
+	// The result of Dir ^ Dir, which is numerically identical to a cross product but with different units (blades)
+	t.insert_struct("Moment", &[("yz", "YZ"), ("zx", "ZX"), ("xy", "XY")]);
+
 	t.insert_struct(
 		"Line",
 		&[

@@ -13,6 +13,12 @@
 //! Point.dot(Line) -> Point
 //! Line.wedge(Point) -> Plane
 //! Point.wedge(Line) -> Plane
+//! Line.dot(Moment) -> S
+//! Moment.dot(Line) -> S
+//! Line.wedge(Moment) -> XYZW
+//! Moment.wedge(Line) -> XYZW
+//! Line.anti_wedge(Moment) -> S
+//! Moment.anti_wedge(Line) -> S
 //! Line.dot(Plane) -> Point
 //! Plane.dot(Line) -> Point
 //! Line.anti_wedge(Plane) -> Point
@@ -175,6 +181,36 @@ impl Wedge<Point> for Line {
 }
 
 // Omitted: Line anti_wedge Point = 0
+
+// ---------------------------------------------------------------------
+// Line OP Moment:
+
+// Omitted: Line geometric Moment = self.mx.geometric(rhs.xy) + self.mx.geometric(rhs.yz) + self.mx.geometric(rhs.zx) + self.my.geometric(rhs.xy) + self.my.geometric(rhs.yz) + self.my.geometric(rhs.zx) + self.mz.geometric(rhs.xy) + self.mz.geometric(rhs.yz) + self.mz.geometric(rhs.zx) + self.vx.geometric(rhs.xy) + self.vx.geometric(rhs.yz) + self.vx.geometric(rhs.zx) + self.vy.geometric(rhs.xy) + self.vy.geometric(rhs.yz) + self.vy.geometric(rhs.zx) + self.vz.geometric(rhs.xy) + self.vz.geometric(rhs.yz) + self.vz.geometric(rhs.zx)
+// Omitted: Line anti_geometric Moment = self.vx.anti_geometric(rhs.xy) + self.vx.anti_geometric(rhs.yz) + self.vx.anti_geometric(rhs.zx) + self.vy.anti_geometric(rhs.xy) + self.vy.anti_geometric(rhs.yz) + self.vy.anti_geometric(rhs.zx) + self.vz.anti_geometric(rhs.xy) + self.vz.anti_geometric(rhs.yz) + self.vz.anti_geometric(rhs.zx)
+
+// Line.dot(Moment) -> S
+impl Dot<Moment> for Line {
+    type Output = S;
+    fn dot(self, rhs: Moment) -> Self::Output {
+        self.mx.dot(rhs.yz) + self.my.dot(rhs.zx) + self.mz.dot(rhs.xy)
+    }
+}
+
+// Line.wedge(Moment) -> XYZW
+impl Wedge<Moment> for Line {
+    type Output = XYZW;
+    fn wedge(self, rhs: Moment) -> Self::Output {
+        self.vx.wedge(rhs.yz) + self.vy.wedge(rhs.zx) + self.vz.wedge(rhs.xy)
+    }
+}
+
+// Line.anti_wedge(Moment) -> S
+impl AntiWedge<Moment> for Line {
+    type Output = S;
+    fn anti_wedge(self, rhs: Moment) -> Self::Output {
+        self.vx.anti_wedge(rhs.yz) + self.vy.anti_wedge(rhs.zx) + self.vz.anti_wedge(rhs.xy)
+    }
+}
 
 // ---------------------------------------------------------------------
 // Line OP Line:

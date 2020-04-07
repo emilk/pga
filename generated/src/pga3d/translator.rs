@@ -17,6 +17,12 @@
 //! Point.wedge(Translator) -> Plane
 //! Translator.anti_wedge(Point) -> Point
 //! Point.anti_wedge(Translator) -> Point
+//! Translator.anti_geometric(Moment) -> Moment
+//! Moment.anti_geometric(Translator) -> Moment
+//! Translator.dot(Moment) -> Motor
+//! Moment.dot(Translator) -> Motor
+//! Translator.anti_wedge(Moment) -> Moment
+//! Moment.anti_wedge(Translator) -> Moment
 //! Translator.dot(Line) -> Motor
 //! Line.dot(Translator) -> Motor
 //! Translator.wedge(Line) -> XYZW
@@ -190,6 +196,54 @@ impl AntiWedge<Point> for Translator {
             y: self.xyzw.anti_wedge(rhs.y),
             z: self.xyzw.anti_wedge(rhs.z),
             w: self.xyzw.anti_wedge(rhs.w),
+        }
+    }
+}
+
+// ---------------------------------------------------------------------
+// Translator OP Moment:
+
+// Omitted: Translator geometric Moment = self.x.geometric(rhs.xy) + self.x.geometric(rhs.yz) + self.x.geometric(rhs.zx) + self.xyzw.geometric(rhs.xy) + self.xyzw.geometric(rhs.yz) + self.xyzw.geometric(rhs.zx) + self.y.geometric(rhs.xy) + self.y.geometric(rhs.yz) + self.y.geometric(rhs.zx) + self.z.geometric(rhs.xy) + self.z.geometric(rhs.yz) + self.z.geometric(rhs.zx)
+
+// Translator.anti_geometric(Moment) -> Moment
+impl AntiGeometric<Moment> for Translator {
+    type Output = Moment;
+    fn anti_geometric(self, rhs: Moment) -> Self::Output {
+        Moment {
+            yz: self.xyzw.anti_geometric(rhs.yz),
+            zx: self.xyzw.anti_geometric(rhs.zx),
+            xy: self.xyzw.anti_geometric(rhs.xy),
+        }
+    }
+}
+
+// Translator.dot(Moment) -> Motor
+impl Dot<Moment> for Translator {
+    type Output = Motor;
+    fn dot(self, rhs: Moment) -> Self::Output {
+        Motor {
+            rx: self.xyzw.dot(rhs.yz),
+            ry: self.xyzw.dot(rhs.zx),
+            rz: self.xyzw.dot(rhs.xy),
+            rw: Default::default(),
+            ux: Default::default(),
+            uy: Default::default(),
+            uz: Default::default(),
+            uw: -self.x.dot(rhs.yz) - self.y.dot(rhs.zx) - self.z.dot(rhs.xy),
+        }
+    }
+}
+
+// Omitted: Translator wedge Moment = 0
+
+// Translator.anti_wedge(Moment) -> Moment
+impl AntiWedge<Moment> for Translator {
+    type Output = Moment;
+    fn anti_wedge(self, rhs: Moment) -> Self::Output {
+        Moment {
+            yz: self.xyzw.anti_wedge(rhs.yz),
+            zx: self.xyzw.anti_wedge(rhs.zx),
+            xy: self.xyzw.anti_wedge(rhs.xy),
         }
     }
 }

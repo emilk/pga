@@ -15,6 +15,7 @@ pub struct Zero {}
 // Types:
 pub mod dir;
 pub mod point;
+pub mod moment;
 pub mod line;
 pub mod plane;
 pub mod translator;
@@ -25,6 +26,7 @@ pub use self::{
 	blades::*,
 	dir::*,
 	line::*,
+	moment::*,
 	motor::*,
 	plane::*,
 	point::*,

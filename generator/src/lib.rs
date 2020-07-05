@@ -1,6 +1,7 @@
 mod blade;
 pub mod documentation;
 mod expr;
+pub mod gen;
 pub mod grammars;
 pub mod markdown;
 mod rust;

@@ -77,6 +77,13 @@ impl SBlade {
 		self.blade.grade()
 	}
 
+	pub fn negate(self) -> SBlade {
+		SBlade {
+			blade: self.blade,
+			sign: -self.sign,
+		}
+	}
+
 	/// Left compliment.
 	/// self.lcompl() * self == pseudo-scalar
 	pub fn lcompl(&self, g: &Grammar) -> Self {

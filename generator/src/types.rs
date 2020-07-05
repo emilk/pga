@@ -67,6 +67,12 @@ impl Types {
 		self.blades.get(blade)
 	}
 
+	/// Maps signed blades to cannocial sign and name,
+	pub fn get_sblade(&self, sblade: &SBlade) -> Option<(i32, &str)> {
+		let (sign, output_sblade_name) = self.get_blade(&sblade.blade)?;
+		Some((sblade.sign * sign, output_sblade_name))
+	}
+
 	pub fn type_name(&self, typ: &Type) -> &str {
 		match typ {
 			Type::SBlade(sblade) if sblade.is_zero() => "Zero",

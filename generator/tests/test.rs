@@ -208,3 +208,37 @@ Line {
 		.trim()
 	);
 }
+
+#[test]
+fn test_generator() {
+	let (grammar, types) = generator::grammars::pga3d();
+	let settings = gen::Settings::default();
+	let gen = gen::Generator {
+		grammar,
+		types,
+		settings,
+		ro: RustOptions { operators: false },
+	};
+
+	let point = gen.types.get_struct("Vec4");
+	let code = gen::strct::impl_struct_product(&gen, &("Vec4", &point), &("Vec4", &point), Product::Wedge);
+	assert_eq_ignoring_whitespace!(
+		code,
+		r"
+		// Vec4.wedge(Vec4) -> Line3
+		impl Wedge<Vec4> for Vec4 {
+			type Output = Line3;
+			fn wedge(self, rhs: Vec4) -> Self::Output {
+				Line3 {
+					vx: self.w.wedge(rhs.x) - self.x.wedge(rhs.w),
+					vy: self.w.wedge(rhs.y) - self.y.wedge(rhs.w),
+					vz: self.w.wedge(rhs.z) - self.z.wedge(rhs.w),
+					mx: self.y.wedge(rhs.z) - self.z.wedge(rhs.y),
+					my: -self.x.wedge(rhs.z) + self.z.wedge(rhs.x),
+					mz: self.x.wedge(rhs.y) - self.y.wedge(rhs.x),
+				}
+			}
+		}
+		"
+	);
+}

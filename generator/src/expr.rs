@@ -24,8 +24,10 @@ pub enum Expr {
 	/// Unary operation, e.g. a complement or a reverse
 	Unary(Unary, Box<Expr>),
 
+	/// 0 == Sum(vec![])
 	Sum(Vec<Expr>),
 
+	/// 1 == Prod(_, vec![])
 	Prod(Product, Vec<Expr>),
 
 	/// An instance of a struct, e.g. `Point {  x: ..., y: ... }` etc.

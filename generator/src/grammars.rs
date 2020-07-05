@@ -15,11 +15,21 @@ pub fn pga2d() -> (Grammar, Types) {
 	t.insert_blade("XY", SBlade::from_unsorted(&[x, y]));
 	t.insert_blade("XYW", SBlade::from_unsorted(&[x, y, w]));
 
-	// TODO: Coord { x: X, y: Y, z: Z, w: 1)
-	t.insert_struct("Dir", &[("x", "X"), ("y", "Y")]);
-	t.insert_struct("Point", &[("x", "X"), ("y", "Y"), ("w", "W")]);
+	// TODO: Point { x: X, y: Y, z: Z, w: 1)
+	t.insert_struct("Vec2", &[("x", "X"), ("y", "Y")]);
+	t.insert_struct("Vec3", &[("x", "X"), ("y", "Y"), ("w", "W")]);
 
-	t.insert_struct("Line", &[("yw", "YW"), ("wx", "WX"), ("xy", "XY")]);
+	// TODO: verify if these are Plücker coordinates
+	t.insert_struct(
+		"Line",
+		&[
+			// dir :
+			("dx", "YW"),
+			("dy", "WX"),
+			// offset / moment:
+			("m", "XY"),
+		],
+	);
 
 	// TODO: is this correct?
 	t.insert_struct("Translator", &[("s", "S"), ("yw", "YW"), ("wx", "WX")]);
@@ -60,20 +70,49 @@ pub fn pga3d() -> (Grammar, Types) {
 	t.insert_blade("XYW", SBlade::from_unsorted(&[x, y, w]));
 	t.insert_blade("ZYX", SBlade::from_unsorted(&[z, y, x]));
 	t.insert_blade("XYZW", SBlade::from_unsorted(&[x, y, z, w]));
+	// -----------------------------------
+	// 2D
 
-	// TODO: Coord { x: X, y: Y, z: Z, w: 1)
-	t.insert_struct("Dir", &[("x", "X"), ("y", "Y"), ("z", "Z")]);
-	t.insert_struct("Point", &[("x", "X"), ("y", "Y"), ("z", "Z"), ("w", "W")]);
+	if false {
+		// TODO: Point2 { x: X, y: Y, w: 1)
+		t.insert_struct("Vec2", &[("x", "X"), ("y", "Y")]);
+
+		// Plücker coordinates
+		t.insert_struct(
+			"Line2",
+			&[
+				// Dir:
+				("dx", "WX"),
+				("dy", "WY"),
+				// offset / moment:
+				("m", "XY"),
+			],
+		);
+
+		t.insert_struct("Translator2", &[("s", "S"), ("wy", "WY"), ("wx", "WX")]);
+		t.insert_struct("Rotor2", &[("s", "S"), ("xy", "XY")]);
+		t.insert_struct("Motor2", &[("s", "S"), ("wy", "WY"), ("wx", "WX"), ("xy", "XY")]);
+	}
+
+	// -----------------------------------
+	// 3D
+
+	// TODO: Point3 { x: X, y: Y, z: Z, w: 1)
+	t.insert_struct("Vec3", &[("x", "X"), ("y", "Y"), ("z", "Z")]);
+	t.insert_struct("Vec4", &[("x", "X"), ("y", "Y"), ("z", "Z"), ("w", "W")]);
 
 	// The result of Dir ^ Dir, which is numerically identical to a cross product but with different units (blades)
-	t.insert_struct("Moment", &[("yz", "YZ"), ("zx", "ZX"), ("xy", "XY")]);
+	// t.insert_struct("Moment3", &[("yz", "YZ"), ("zx", "ZX"), ("xy", "XY")]);
 
+	// Plücker coordinates
 	t.insert_struct(
-		"Line",
+		"Line3",
 		&[
+			// dir:
 			("vx", "WX"),
 			("vy", "WY"),
 			("vz", "WZ"),
+			// moment:
 			("mx", "YZ"),
 			("my", "ZX"),
 			("mz", "XY"),
@@ -82,12 +121,16 @@ pub fn pga3d() -> (Grammar, Types) {
 
 	t.insert_struct("Plane", &[("nx", "YZW"), ("ny", "ZXW"), ("nz", "XYW"), ("d", "ZYX")]);
 
-	t.insert_struct("Translator", &[("x", "YZ"), ("y", "ZX"), ("z", "XY"), ("xyzw", "XYZW")]);
+	t.insert_struct(
+		"Translator3",
+		&[("x", "YZ"), ("y", "ZX"), ("z", "XY"), ("xyzw", "XYZW")],
+	);
 	// Quaternion
-	t.insert_struct("Rotor", &[("x", "WX"), ("y", "WY"), ("z", "WZ"), ("w", "XYZW")]);
+	t.insert_struct("Rotor3", &[("x", "WX"), ("y", "WY"), ("z", "WZ"), ("w", "XYZW")]);
+
 	// Dual quaternion
 	t.insert_struct(
-		"Motor",
+		"Motor3",
 		&[
 			("rx", "WX"),
 			("ry", "WY"),
@@ -100,10 +143,12 @@ pub fn pga3d() -> (Grammar, Types) {
 		],
 	);
 
+	// -----------------------------------
+
 	(g, t)
 }
 
-/// Using the notation of Eric Lengyel.
+/// Using the naming convention of Eric Lengyel.
 /// See http://terathon.com/blog/projective-geometric-algebra-done-right/
 pub fn pga3d_lengyel() -> (Grammar, Types) {
 	let g = Grammar(vec![1, 1, 1, 0]);
@@ -133,6 +178,7 @@ pub fn pga3d_lengyel() -> (Grammar, Types) {
 
 	t.insert_struct("Point", &[("x", "e1"), ("y", "e2"), ("z", "e3"), ("w", "e4")]);
 
+	// Plücker coordinates
 	t.insert_struct(
 		"Line",
 		&[

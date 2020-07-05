@@ -8,8 +8,8 @@ members = [
 	\"generator\",
 ]" > Cargo.toml
 
-cargo check -q --all-features
-cargo clippy -q
+rm -rf generated/src/pga2d generated/src/pga3d
+
 cargo run -q -- --grammar pga2d --out_dir generated/src/pga2d
 cargo run -q -- --grammar pga3d --out_dir generated/src/pga3d
 

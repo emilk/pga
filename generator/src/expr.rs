@@ -42,6 +42,12 @@ pub struct StructInstance {
 	pub members: Vec<(String, Expr)>,
 }
 
+impl StructInstance {
+	pub fn count_zeros(&self) -> usize {
+		self.members.iter().filter(|(_, expr)| expr.is_zero()).count()
+	}
+}
+
 impl std::cmp::Ord for StructInstance {
 	fn cmp(&self, other: &StructInstance) -> std::cmp::Ordering {
 		self.members.cmp(&other.members)

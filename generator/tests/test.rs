@@ -25,7 +25,7 @@ fn tokenize(s: &str) -> Vec<&str> {
 #[test]
 fn test_pga3d_lengyel() {
 	let (g, t) = grammars::pga3d_lengyel();
-	let rust = |expr: Expr| expr.simplify(Some(&g)).typify(&t, &g).rust_ops();
+	let rust = |expr: Expr| expr.simplify(Some(&g)).typify(&t, &g).rust_concise();
 	let unit_blades = t.unit_blades();
 	// println!("{}", multiplication_tables(&unit_blades, &rust));
 
@@ -117,20 +117,20 @@ Line {
 #[test]
 fn test_pga2d() {
 	let (g, t) = grammars::pga2d();
-	let rust = |expr: Expr| expr.simplify(Some(&g)).typify(&t, &g).rust_ops();
+	let rust = |expr: Expr| expr.simplify(Some(&g)).typify(&t, &g).rust_concise();
 
 	// let unit_blades = t.unit_blades();
 	// println!("{}", multiplication_tables(&unit_blades, &rust));
 
 	assert_eq_ignoring_whitespace!(
-		t.get("WX").unit().rust_ops(),
+		t.get("WX").unit().rust_concise(),
 		"-_e0 ^ _e2",
 		"Ugly output without typify"
 	);
 	assert_eq_ignoring_whitespace!(rust(t.get("WX").unit()), "WX");
 
 	assert_eq_ignoring_whitespace!(
-		Expr::dot(vec![t.get("XY").unit()]).simplify(Some(&g)).rust_ops(),
+		Expr::dot(vec![t.get("XY").unit()]).simplify(Some(&g)).rust_concise(),
 		"_e0 ^ _e1"
 	);
 	assert_eq_ignoring_whitespace!(rust(Expr::dot(vec![t.get("XY").unit(), Expr::one()])), "XY");
@@ -144,7 +144,7 @@ fn test_pga2d() {
 		Expr::wedge(vec![y_type.unit(), x_type.unit()]),
 	]);
 	assert_eq_ignoring_whitespace!(
-		expr.rust_ops(),
+		expr.rust_concise(),
 		"_e0 ^ _e1 + _e1 ^ _e0",
 		"Hard to read without running typify"
 	);
@@ -192,11 +192,11 @@ Vec3 {
 #[test]
 fn test_pga2d_rcompl() {
 	let (g, t) = grammars::pga2d();
-	let rust = |expr: Expr| expr.simplify(Some(&g)).typify(&t, &g).rust_ops();
+	let rust = |expr: Expr| expr.simplify(Some(&g)).typify(&t, &g).rust_concise();
 	let point = t.get("Vec3");
 	let expr = Expr::unary(Unary::RCompl, Expr::var(0, "l", point));
-	dbg!(expr.clone().rust_ops());
-	dbg!(expr.clone().simplify(Some(&g)).rust_ops());
+	dbg!(expr.clone().rust_concise());
+	dbg!(expr.clone().simplify(Some(&g)).rust_concise());
 	assert_eq_ignoring_whitespace!(
 		rust(expr),
 		r"
@@ -217,7 +217,7 @@ fn test_generator() {
 		grammar,
 		types,
 		settings,
-		ro: RustOptions { operators: false },
+		ro: RustOptions::rust(),
 	};
 
 	let point = gen.types.get_struct("Vec4");

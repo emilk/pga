@@ -435,6 +435,20 @@ pub struct {} {{\n\
 		let expr = expr.simplify(Some(&gen.grammar));
 		let expr = expr.typify(&gen.types, &gen.grammar);
 
+		if let Expr::StructInstance(si) = &expr {
+			if si.count_zeros() > 1 {
+				// For instance, `Vec3 ^ Vec3 -> Line3`, but the Line has zero direction,
+				// which makes very little sense.
+				return format!(
+					"// Omitted: {} {} {} = {}  (too many zeros)",
+					lhs.0,
+					product.trait_function_name(),
+					rhs.0,
+					expr.rust(&RustOptions::readable()).replace('\n', " ")
+				);
+			}
+		}
+
 		match type_name(gen, &expr) {
 			Some(output_type_name) => {
 				let explicit = expr
@@ -469,11 +483,11 @@ impl {Trait}<{Rhs}> for {Lhs} {{
 				)
 			}
 			None => format!(
-				"// Omitted: {} {} {} = {}",
+				"// Omitted: {} {} {} = {}  (unnamed type)",
 				lhs.0,
 				product.trait_function_name(),
 				rhs.0,
-				expr.rust(&RustOptions { operators: true }).replace('\n', " ")
+				expr.rust(&RustOptions::readable()).replace('\n', " ")
 			),
 		}
 	}

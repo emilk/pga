@@ -243,33 +243,7 @@ impl AntiWedge<Line3> for Plane {
 // ---------------------------------------------------------------------
 // Plane OP Plane:
 
-// Plane.geometric(Plane) -> Motor3
-impl Geometric<Plane> for Plane {
-    type Output = Motor3;
-    fn geometric(self, rhs: Plane) -> Self::Output {
-        // Motor3 {
-        //     rx: WX(self.d.0 * rhs.nx.0) + WX(self.nx.0 * rhs.d.0),
-        //     ry: WY(self.d.0 * rhs.ny.0) + WY(self.ny.0 * rhs.d.0),
-        //     rz: WZ(self.d.0 * rhs.nz.0) + WZ(self.nz.0 * rhs.d.0),
-        //     rw: Default::default(),
-        //     ux: Default::default(),
-        //     uy: Default::default(),
-        //     uz: Default::default(),
-        //     uw: S(self.d.0 * rhs.d.0),
-        // }
-        Motor3 {
-            rx: -self.d.geometric(rhs.nx) + self.nx.geometric(rhs.d),
-            ry: -self.d.geometric(rhs.ny) + self.ny.geometric(rhs.d),
-            rz: -self.d.geometric(rhs.nz) + self.nz.geometric(rhs.d),
-            rw: Default::default(),
-            ux: Default::default(),
-            uy: Default::default(),
-            uz: Default::default(),
-            uw: -self.d.geometric(rhs.d),
-        }
-    }
-}
-
+// Omitted: Plane geometric Plane = Motor3 {     rx: -self.d * rhs.nx + self.nx * rhs.d,     ry: -self.d * rhs.ny + self.ny * rhs.d,     rz: -self.d * rhs.nz + self.nz * rhs.d,     rw: 0,     ux: 0,     uy: 0,     uz: 0,     uw: -self.d * rhs.d, }  (too many zeros)
 // Omitted: Plane anti_geometric Plane = self.d !* rhs.nx + self.d !* rhs.ny + self.d !* rhs.nz + self.nx !* rhs.d + self.nx !* rhs.nx + self.nx !* rhs.ny + self.nx !* rhs.nz + self.ny !* rhs.d + self.ny !* rhs.nx + self.ny !* rhs.ny + self.ny !* rhs.nz + self.nz !* rhs.d + self.nz !* rhs.nx + self.nz !* rhs.ny + self.nz !* rhs.nz  (unnamed type)
 
 // Plane.dot(Plane) -> S

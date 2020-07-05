@@ -59,12 +59,12 @@ pub enum Product {
 	/// Measures sameness of blades.
 	Dot,
 
-	/// Outer (progressive) product. Moves to a higher dimension.
+	/// Outer (progressive) product. Moves to a higher dimension. Join.
 	/// The anti-commutative part of the geometric product.
 	/// Measures difference between blades.
 	Wedge,
 
-	/// Regressive. Reduces the dimensionality.
+	/// Regressive. Reduces the dimensionality. Meet.
 	AntiWedge,
 }
 

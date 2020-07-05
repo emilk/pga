@@ -22,7 +22,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 		grammar,
 		types,
 		settings,
-		ro: RustOptions { operators: false },
+		ro: RustOptions::rust(),
 	};
 
 	if false {

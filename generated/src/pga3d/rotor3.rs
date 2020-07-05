@@ -185,29 +185,7 @@ impl Geometric<Line3> for Rotor3 {
 }
 
 // Omitted: Rotor3 anti_geometric Line3 = self.w !* rhs.mx + self.w !* rhs.my + self.w !* rhs.mz + self.w !* rhs.vx + self.w !* rhs.vy + self.w !* rhs.vz + self.x !* rhs.mx + self.x !* rhs.my + self.x !* rhs.mz + self.x !* rhs.vx + self.x !* rhs.vy + self.x !* rhs.vz + self.y !* rhs.mx + self.y !* rhs.my + self.y !* rhs.mz + self.y !* rhs.vx + self.y !* rhs.vy + self.y !* rhs.vz + self.z !* rhs.mx + self.z !* rhs.my + self.z !* rhs.mz + self.z !* rhs.vx + self.z !* rhs.vy + self.z !* rhs.vz  (unnamed type)
-
-// Rotor3.dot(Line3) -> Line3
-impl Dot<Line3> for Rotor3 {
-    type Output = Line3;
-    fn dot(self, rhs: Line3) -> Self::Output {
-        // Line3 {
-        //     vx: WX(self.w.0 * rhs.mx.0),
-        //     vy: WY(self.w.0 * rhs.my.0),
-        //     vz: WZ(self.w.0 * rhs.mz.0),
-        //     mx: Default::default(),
-        //     my: Default::default(),
-        //     mz: Default::default(),
-        // }
-        Line3 {
-            vx: self.w.dot(rhs.mx),
-            vy: self.w.dot(rhs.my),
-            vz: self.w.dot(rhs.mz),
-            mx: Default::default(),
-            my: Default::default(),
-            mz: Default::default(),
-        }
-    }
-}
+// Omitted: Rotor3 dot Line3 = Line3 {     vx: self.w | rhs.mx,     vy: self.w | rhs.my,     vz: self.w | rhs.mz,     mx: 0,     my: 0,     mz: 0, }  (too many zeros)
 
 // Rotor3.wedge(Line3) -> XYZW
 impl Wedge<Line3> for Rotor3 {

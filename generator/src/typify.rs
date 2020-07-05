@@ -10,7 +10,7 @@ type Value = BTreeMap<Blade, Expr>;
 // 	format!(
 // 		"{{\n{}\n}}",
 // 		v.iter()
-// 			.map(|(k, v)| format!("  {:6?}: {},", k, v.rust_ops()))
+// 			.map(|(k, v)| format!("  {:6?}: {},", k, v.rust_concise()))
 // 			.join("\n")
 // 	)
 // }

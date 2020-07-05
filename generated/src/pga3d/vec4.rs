@@ -99,29 +99,7 @@ impl AntiReverse for Vec4 {
 // Vec4 OP Vec3:
 
 // Omitted: Vec4 geometric Vec3 = self.w * rhs.x + self.w * rhs.y + self.w * rhs.z + self.x * rhs.x + self.x * rhs.y + self.x * rhs.z + self.y * rhs.x + self.y * rhs.y + self.y * rhs.z + self.z * rhs.x + self.z * rhs.y + self.z * rhs.z  (unnamed type)
-
-// Vec4.anti_geometric(Vec3) -> Line3
-impl AntiGeometric<Vec3> for Vec4 {
-    type Output = Line3;
-    fn anti_geometric(self, rhs: Vec3) -> Self::Output {
-        // Line3 {
-        //     vx: Default::default(),
-        //     vy: Default::default(),
-        //     vz: Default::default(),
-        //     mx: YZ(self.w.0 * rhs.x.0),
-        //     my: ZX(self.w.0 * rhs.y.0),
-        //     mz: XY(self.w.0 * rhs.z.0),
-        // }
-        Line3 {
-            vx: Default::default(),
-            vy: Default::default(),
-            vz: Default::default(),
-            mx: self.w.anti_geometric(rhs.x),
-            my: self.w.anti_geometric(rhs.y),
-            mz: self.w.anti_geometric(rhs.z),
-        }
-    }
-}
+// Omitted: Vec4 anti_geometric Vec3 = Line3 {     vx: 0,     vy: 0,     vz: 0,     mx: self.w !* rhs.x,     my: self.w !* rhs.y,     mz: self.w !* rhs.z, }  (too many zeros)
 
 // Vec4.dot(Vec3) -> S
 impl Dot<Vec3> for Vec4 {

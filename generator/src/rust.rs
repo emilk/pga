@@ -3,10 +3,28 @@ use itertools::Itertools;
 
 use crate::*;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Debug)]
 pub struct RustOptions {
 	/// Output "a ^ b" if true, else "a.wedge(b)"
 	pub operators: bool,
+
+	/// "Default::default()" or "0"
+	pub zero_expr: String,
+}
+
+impl RustOptions {
+	pub fn rust() -> Self {
+		Self {
+			operators: false,
+			zero_expr: "Default::default()".to_owned(),
+		}
+	}
+	pub fn readable() -> Self {
+		Self {
+			operators: true,
+			zero_expr: "0".to_owned(),
+		}
+	}
 }
 
 struct RustExpr(Precedence, String);
@@ -38,8 +56,8 @@ impl Expr {
 	}
 
 	// Helper for tests: output with operators (a ^ b)
-	pub fn rust_ops(&self) -> String {
-		self.rust(&RustOptions { operators: true })
+	pub fn rust_concise(&self) -> String {
+		self.rust(&RustOptions::readable())
 	}
 
 	fn rust_expr(&self, ro: &RustOptions) -> RustExpr {
@@ -126,7 +144,7 @@ impl Expr {
 							.iter()
 							.map(|(name, expr)| {
 								let code = if expr.is_zero() {
-									"Default::default()".to_owned()
+									ro.zero_expr.clone()
 								} else {
 									expr.rust(ro)
 								};

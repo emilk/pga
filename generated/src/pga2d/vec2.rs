@@ -20,12 +20,6 @@
 //! Line.wedge(Vec2) -> XYW
 //! Vec2.anti_wedge(Line) -> S
 //! Line.anti_wedge(Vec2) -> S
-//! Vec2.anti_geometric(Translator) -> Rotor
-//! Translator.anti_geometric(Vec2) -> Rotor
-//! Vec2.dot(Translator) -> Vec3
-//! Translator.dot(Vec2) -> Vec3
-//! Vec2.anti_wedge(Translator) -> S
-//! Translator.anti_wedge(Vec2) -> S
 //! Vec2.geometric(Rotor) -> Vec2
 //! Rotor.geometric(Vec2) -> Vec2
 //! Vec2.dot(Rotor) -> Vec2
@@ -118,7 +112,7 @@ impl Geometric<Vec2> for Vec2 {
     }
 }
 
-// Omitted: Vec2 anti_geometric Vec2 = 0
+// Omitted: Vec2 anti_geometric Vec2 = 0  (unnamed type)
 
 // Vec2.dot(Vec2) -> S
 impl Dot<Vec2> for Vec2 {
@@ -129,8 +123,8 @@ impl Dot<Vec2> for Vec2 {
     }
 }
 
-// Omitted: Vec2 wedge Vec2 = self.x ^ rhs.y + self.y ^ rhs.x
-// Omitted: Vec2 anti_wedge Vec2 = 0
+// Omitted: Vec2 wedge Vec2 = self.x ^ rhs.y + self.y ^ rhs.x  (unnamed type)
+// Omitted: Vec2 anti_wedge Vec2 = 0  (unnamed type)
 
 // ---------------------------------------------------------------------
 // Vec2 OP Vec3:
@@ -195,12 +189,12 @@ impl Wedge<Vec3> for Vec2 {
     }
 }
 
-// Omitted: Vec2 anti_wedge Vec3 = 0
+// Omitted: Vec2 anti_wedge Vec3 = 0  (unnamed type)
 
 // ---------------------------------------------------------------------
 // Vec2 OP Line:
 
-// Omitted: Vec2 geometric Line = self.x * rhs.dx + self.x * rhs.dy + self.x * rhs.m + self.y * rhs.dx + self.y * rhs.dy + self.y * rhs.m
+// Omitted: Vec2 geometric Line = self.x * rhs.dx + self.x * rhs.dy + self.x * rhs.m + self.y * rhs.dx + self.y * rhs.dy + self.y * rhs.m  (unnamed type)
 
 // Vec2.anti_geometric(Line) -> Rotor
 impl AntiGeometric<Line> for Vec2 {
@@ -253,54 +247,6 @@ impl AntiWedge<Line> for Vec2 {
 }
 
 // ---------------------------------------------------------------------
-// Vec2 OP Translator:
-
-// Omitted: Vec2 geometric Translator = self.x * rhs.s + self.x * rhs.wx + self.x * rhs.yw + self.y * rhs.s + self.y * rhs.wx + self.y * rhs.yw
-
-// Vec2.anti_geometric(Translator) -> Rotor
-impl AntiGeometric<Translator> for Vec2 {
-    type Output = Rotor;
-    fn anti_geometric(self, rhs: Translator) -> Self::Output {
-        // Rotor {
-        //     s : S(self.x.0 * rhs.yw.0) + S(self.y.0 * rhs.wx.0),
-        //     xy: XY(self.x.0 * rhs.wx.0) + XY(self.y.0 * rhs.yw.0),
-        // }
-        Rotor {
-            s: self.x.anti_geometric(rhs.yw) + self.y.anti_geometric(rhs.wx),
-            xy: -self.x.anti_geometric(rhs.wx) + self.y.anti_geometric(rhs.yw),
-        }
-    }
-}
-
-// Vec2.dot(Translator) -> Vec3
-impl Dot<Translator> for Vec2 {
-    type Output = Vec3;
-    fn dot(self, rhs: Translator) -> Self::Output {
-        // Vec3 {
-        //     x: X(self.x.0 * rhs.s.0),
-        //     y: Y(self.y.0 * rhs.s.0),
-        //     w: W(self.x.0 * rhs.wx.0) + W(self.y.0 * rhs.yw.0),
-        // }
-        Vec3 {
-            x: self.x.dot(rhs.s),
-            y: self.y.dot(rhs.s),
-            w: -self.x.dot(rhs.wx) + self.y.dot(rhs.yw),
-        }
-    }
-}
-
-// Omitted: Vec2 wedge Translator = self.x ^ rhs.s + self.x ^ rhs.yw + self.y ^ rhs.s + self.y ^ rhs.wx
-
-// Vec2.anti_wedge(Translator) -> S
-impl AntiWedge<Translator> for Vec2 {
-    type Output = S;
-    fn anti_wedge(self, rhs: Translator) -> Self::Output {
-        // S(self.x.0 * rhs.yw.0) + S(self.y.0 * rhs.wx.0)
-        self.x.anti_wedge(rhs.yw) + self.y.anti_wedge(rhs.wx)
-    }
-}
-
-// ---------------------------------------------------------------------
 // Vec2 OP Rotor:
 
 // Vec2.geometric(Rotor) -> Vec2
@@ -318,7 +264,7 @@ impl Geometric<Rotor> for Vec2 {
     }
 }
 
-// Omitted: Vec2 anti_geometric Rotor = 0
+// Omitted: Vec2 anti_geometric Rotor = 0  (unnamed type)
 
 // Vec2.dot(Rotor) -> Vec2
 impl Dot<Rotor> for Vec2 {
@@ -350,12 +296,12 @@ impl Wedge<Rotor> for Vec2 {
     }
 }
 
-// Omitted: Vec2 anti_wedge Rotor = 0
+// Omitted: Vec2 anti_wedge Rotor = 0  (unnamed type)
 
 // ---------------------------------------------------------------------
 // Vec2 OP Motor:
 
-// Omitted: Vec2 geometric Motor = self.x * rhs.s + self.x * rhs.wx + self.x * rhs.xy + self.x * rhs.yw + self.y * rhs.s + self.y * rhs.wx + self.y * rhs.xy + self.y * rhs.yw
+// Omitted: Vec2 geometric Motor = self.x * rhs.s + self.x * rhs.wx + self.x * rhs.xy + self.x * rhs.yw + self.y * rhs.s + self.y * rhs.wx + self.y * rhs.xy + self.y * rhs.yw  (unnamed type)
 
 // Vec2.anti_geometric(Motor) -> Rotor
 impl AntiGeometric<Motor> for Vec2 {
@@ -389,7 +335,7 @@ impl Dot<Motor> for Vec2 {
     }
 }
 
-// Omitted: Vec2 wedge Motor = self.x ^ rhs.s + self.x ^ rhs.yw + self.y ^ rhs.s + self.y ^ rhs.wx
+// Omitted: Vec2 wedge Motor = self.x ^ rhs.s + self.x ^ rhs.yw + self.y ^ rhs.s + self.y ^ rhs.wx  (unnamed type)
 
 // Vec2.anti_wedge(Motor) -> S
 impl AntiWedge<Motor> for Vec2 {

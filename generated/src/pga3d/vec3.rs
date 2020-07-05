@@ -20,12 +20,6 @@
 //! Plane.wedge(Vec3) -> XYZW
 //! Vec3.anti_wedge(Plane) -> S
 //! Plane.anti_wedge(Vec3) -> S
-//! Vec3.anti_geometric(Translator3) -> Vec3
-//! Translator3.anti_geometric(Vec3) -> Vec3
-//! Vec3.wedge(Translator3) -> ZYX
-//! Translator3.wedge(Vec3) -> ZYX
-//! Vec3.anti_wedge(Translator3) -> Vec3
-//! Translator3.anti_wedge(Vec3) -> Vec3
 //! Vec3.wedge(Rotor3) -> Plane
 //! Rotor3.wedge(Vec3) -> Plane
 //! Vec3.anti_wedge(Rotor3) -> Vec3
@@ -101,8 +95,8 @@ impl AntiReverse for Vec3 {
 // ---------------------------------------------------------------------
 // Vec3 OP Vec3:
 
-// Omitted: Vec3 geometric Vec3 = self.x * rhs.x + self.x * rhs.y + self.x * rhs.z + self.y * rhs.x + self.y * rhs.y + self.y * rhs.z + self.z * rhs.x + self.z * rhs.y + self.z * rhs.z
-// Omitted: Vec3 anti_geometric Vec3 = 0
+// Omitted: Vec3 geometric Vec3 = self.x * rhs.x + self.x * rhs.y + self.x * rhs.z + self.y * rhs.x + self.y * rhs.y + self.y * rhs.z + self.z * rhs.x + self.z * rhs.y + self.z * rhs.z  (unnamed type)
+// Omitted: Vec3 anti_geometric Vec3 = 0  (unnamed type)
 
 // Vec3.dot(Vec3) -> S
 impl Dot<Vec3> for Vec3 {
@@ -136,12 +130,12 @@ impl Wedge<Vec3> for Vec3 {
     }
 }
 
-// Omitted: Vec3 anti_wedge Vec3 = 0
+// Omitted: Vec3 anti_wedge Vec3 = 0  (unnamed type)
 
 // ---------------------------------------------------------------------
 // Vec3 OP Vec4:
 
-// Omitted: Vec3 geometric Vec4 = self.x * rhs.w + self.x * rhs.x + self.x * rhs.y + self.x * rhs.z + self.y * rhs.w + self.y * rhs.x + self.y * rhs.y + self.y * rhs.z + self.z * rhs.w + self.z * rhs.x + self.z * rhs.y + self.z * rhs.z
+// Omitted: Vec3 geometric Vec4 = self.x * rhs.w + self.x * rhs.x + self.x * rhs.y + self.x * rhs.z + self.y * rhs.w + self.y * rhs.x + self.y * rhs.y + self.y * rhs.z + self.z * rhs.w + self.z * rhs.x + self.z * rhs.y + self.z * rhs.z  (unnamed type)
 
 // Vec3.anti_geometric(Vec4) -> Line3
 impl AntiGeometric<Vec4> for Vec3 {
@@ -198,13 +192,13 @@ impl Wedge<Vec4> for Vec3 {
     }
 }
 
-// Omitted: Vec3 anti_wedge Vec4 = 0
+// Omitted: Vec3 anti_wedge Vec4 = 0  (unnamed type)
 
 // ---------------------------------------------------------------------
 // Vec3 OP Line3:
 
-// Omitted: Vec3 geometric Line3 = self.x * rhs.mx + self.x * rhs.my + self.x * rhs.mz + self.x * rhs.vx + self.x * rhs.vy + self.x * rhs.vz + self.y * rhs.mx + self.y * rhs.my + self.y * rhs.mz + self.y * rhs.vx + self.y * rhs.vy + self.y * rhs.vz + self.z * rhs.mx + self.z * rhs.my + self.z * rhs.mz + self.z * rhs.vx + self.z * rhs.vy + self.z * rhs.vz
-// Omitted: Vec3 anti_geometric Line3 = self.x !* rhs.vx + self.x !* rhs.vy + self.x !* rhs.vz + self.y !* rhs.vx + self.y !* rhs.vy + self.y !* rhs.vz + self.z !* rhs.vx + self.z !* rhs.vy + self.z !* rhs.vz
+// Omitted: Vec3 geometric Line3 = self.x * rhs.mx + self.x * rhs.my + self.x * rhs.mz + self.x * rhs.vx + self.x * rhs.vy + self.x * rhs.vz + self.y * rhs.mx + self.y * rhs.my + self.y * rhs.mz + self.y * rhs.vx + self.y * rhs.vy + self.y * rhs.vz + self.z * rhs.mx + self.z * rhs.my + self.z * rhs.mz + self.z * rhs.vx + self.z * rhs.vy + self.z * rhs.vz  (unnamed type)
+// Omitted: Vec3 anti_geometric Line3 = self.x !* rhs.vx + self.x !* rhs.vy + self.x !* rhs.vz + self.y !* rhs.vx + self.y !* rhs.vy + self.y !* rhs.vz + self.z !* rhs.vx + self.z !* rhs.vy + self.z !* rhs.vz  (unnamed type)
 
 // Vec3.dot(Line3) -> Vec4
 impl Dot<Line3> for Vec3 {
@@ -244,13 +238,13 @@ impl Wedge<Line3> for Vec3 {
     }
 }
 
-// Omitted: Vec3 anti_wedge Line3 = 0
+// Omitted: Vec3 anti_wedge Line3 = 0  (unnamed type)
 
 // ---------------------------------------------------------------------
 // Vec3 OP Plane:
 
-// Omitted: Vec3 geometric Plane = self.x * rhs.d + self.x * rhs.nx + self.x * rhs.ny + self.x * rhs.nz + self.y * rhs.d + self.y * rhs.nx + self.y * rhs.ny + self.y * rhs.nz + self.z * rhs.d + self.z * rhs.nx + self.z * rhs.ny + self.z * rhs.nz
-// Omitted: Vec3 anti_geometric Plane = self.x !* rhs.nx + self.x !* rhs.ny + self.x !* rhs.nz + self.y !* rhs.nx + self.y !* rhs.ny + self.y !* rhs.nz + self.z !* rhs.nx + self.z !* rhs.ny + self.z !* rhs.nz
+// Omitted: Vec3 geometric Plane = self.x * rhs.d + self.x * rhs.nx + self.x * rhs.ny + self.x * rhs.nz + self.y * rhs.d + self.y * rhs.nx + self.y * rhs.ny + self.y * rhs.nz + self.z * rhs.d + self.z * rhs.nx + self.z * rhs.ny + self.z * rhs.nz  (unnamed type)
+// Omitted: Vec3 anti_geometric Plane = self.x !* rhs.nx + self.x !* rhs.ny + self.x !* rhs.nz + self.y !* rhs.nx + self.y !* rhs.ny + self.y !* rhs.nz + self.z !* rhs.nx + self.z !* rhs.ny + self.z !* rhs.nz  (unnamed type)
 
 // Vec3.dot(Plane) -> Line3
 impl Dot<Plane> for Vec3 {
@@ -294,61 +288,11 @@ impl AntiWedge<Plane> for Vec3 {
 }
 
 // ---------------------------------------------------------------------
-// Vec3 OP Translator3:
-
-// Omitted: Vec3 geometric Translator3 = self.x * rhs.x + self.x * rhs.xyzw + self.x * rhs.y + self.x * rhs.z + self.y * rhs.x + self.y * rhs.xyzw + self.y * rhs.y + self.y * rhs.z + self.z * rhs.x + self.z * rhs.xyzw + self.z * rhs.y + self.z * rhs.z
-
-// Vec3.anti_geometric(Translator3) -> Vec3
-impl AntiGeometric<Translator3> for Vec3 {
-    type Output = Vec3;
-    fn anti_geometric(self, rhs: Translator3) -> Self::Output {
-        // Vec3 {
-        //     x: X(self.x.0 * rhs.xyzw.0),
-        //     y: Y(self.y.0 * rhs.xyzw.0),
-        //     z: Z(self.z.0 * rhs.xyzw.0),
-        // }
-        Vec3 {
-            x: self.x.anti_geometric(rhs.xyzw),
-            y: self.y.anti_geometric(rhs.xyzw),
-            z: self.z.anti_geometric(rhs.xyzw),
-        }
-    }
-}
-
-// Omitted: Vec3 dot Translator3 = self.x | rhs.xyzw + self.x | rhs.y + self.x | rhs.z + self.y | rhs.x + self.y | rhs.xyzw + self.y | rhs.z + self.z | rhs.x + self.z | rhs.xyzw + self.z | rhs.y
-
-// Vec3.wedge(Translator3) -> ZYX
-impl Wedge<Translator3> for Vec3 {
-    type Output = ZYX;
-    fn wedge(self, rhs: Translator3) -> Self::Output {
-        // -ZYX(self.x.0 * rhs.x.0) - ZYX(self.y.0 * rhs.y.0) - ZYX(self.z.0 * rhs.z.0)
-        self.x.wedge(rhs.x) + self.y.wedge(rhs.y) + self.z.wedge(rhs.z)
-    }
-}
-
-// Vec3.anti_wedge(Translator3) -> Vec3
-impl AntiWedge<Translator3> for Vec3 {
-    type Output = Vec3;
-    fn anti_wedge(self, rhs: Translator3) -> Self::Output {
-        // Vec3 {
-        //     x: X(self.x.0 * rhs.xyzw.0),
-        //     y: Y(self.y.0 * rhs.xyzw.0),
-        //     z: Z(self.z.0 * rhs.xyzw.0),
-        // }
-        Vec3 {
-            x: self.x.anti_wedge(rhs.xyzw),
-            y: self.y.anti_wedge(rhs.xyzw),
-            z: self.z.anti_wedge(rhs.xyzw),
-        }
-    }
-}
-
-// ---------------------------------------------------------------------
 // Vec3 OP Rotor3:
 
-// Omitted: Vec3 geometric Rotor3 = self.x * rhs.w + self.x * rhs.x + self.x * rhs.y + self.x * rhs.z + self.y * rhs.w + self.y * rhs.x + self.y * rhs.y + self.y * rhs.z + self.z * rhs.w + self.z * rhs.x + self.z * rhs.y + self.z * rhs.z
-// Omitted: Vec3 anti_geometric Rotor3 = self.x !* rhs.w + self.x !* rhs.x + self.x !* rhs.y + self.x !* rhs.z + self.y !* rhs.w + self.y !* rhs.x + self.y !* rhs.y + self.y !* rhs.z + self.z !* rhs.w + self.z !* rhs.x + self.z !* rhs.y + self.z !* rhs.z
-// Omitted: Vec3 dot Rotor3 = self.x | rhs.w + self.x | rhs.x + self.y | rhs.w + self.y | rhs.y + self.z | rhs.w + self.z | rhs.z
+// Omitted: Vec3 geometric Rotor3 = self.x * rhs.w + self.x * rhs.x + self.x * rhs.y + self.x * rhs.z + self.y * rhs.w + self.y * rhs.x + self.y * rhs.y + self.y * rhs.z + self.z * rhs.w + self.z * rhs.x + self.z * rhs.y + self.z * rhs.z  (unnamed type)
+// Omitted: Vec3 anti_geometric Rotor3 = self.x !* rhs.w + self.x !* rhs.x + self.x !* rhs.y + self.x !* rhs.z + self.y !* rhs.w + self.y !* rhs.x + self.y !* rhs.y + self.y !* rhs.z + self.z !* rhs.w + self.z !* rhs.x + self.z !* rhs.y + self.z !* rhs.z  (unnamed type)
+// Omitted: Vec3 dot Rotor3 = self.x | rhs.w + self.x | rhs.x + self.y | rhs.w + self.y | rhs.y + self.z | rhs.w + self.z | rhs.z  (unnamed type)
 
 // Vec3.wedge(Rotor3) -> Plane
 impl Wedge<Rotor3> for Vec3 {
@@ -389,8 +333,8 @@ impl AntiWedge<Rotor3> for Vec3 {
 // ---------------------------------------------------------------------
 // Vec3 OP Motor3:
 
-// Omitted: Vec3 geometric Motor3 = self.x * rhs.rw + self.x * rhs.rx + self.x * rhs.ry + self.x * rhs.rz + self.x * rhs.uw + self.x * rhs.ux + self.x * rhs.uy + self.x * rhs.uz + self.y * rhs.rw + self.y * rhs.rx + self.y * rhs.ry + self.y * rhs.rz + self.y * rhs.uw + self.y * rhs.ux + self.y * rhs.uy + self.y * rhs.uz + self.z * rhs.rw + self.z * rhs.rx + self.z * rhs.ry + self.z * rhs.rz + self.z * rhs.uw + self.z * rhs.ux + self.z * rhs.uy + self.z * rhs.uz
-// Omitted: Vec3 anti_geometric Motor3 = self.x !* rhs.rw + self.x !* rhs.rx + self.x !* rhs.ry + self.x !* rhs.rz + self.x !* rhs.ux + self.x !* rhs.uy + self.x !* rhs.uz + self.y !* rhs.rw + self.y !* rhs.rx + self.y !* rhs.ry + self.y !* rhs.rz + self.y !* rhs.ux + self.y !* rhs.uy + self.y !* rhs.uz + self.z !* rhs.rw + self.z !* rhs.rx + self.z !* rhs.ry + self.z !* rhs.rz + self.z !* rhs.ux + self.z !* rhs.uy + self.z !* rhs.uz
-// Omitted: Vec3 dot Motor3 = self.x | rhs.rw + self.x | rhs.rx + self.x | rhs.uw + self.x | rhs.uy + self.x | rhs.uz + self.y | rhs.rw + self.y | rhs.ry + self.y | rhs.uw + self.y | rhs.ux + self.y | rhs.uz + self.z | rhs.rw + self.z | rhs.rz + self.z | rhs.uw + self.z | rhs.ux + self.z | rhs.uy
-// Omitted: Vec3 wedge Motor3 = self.x ^ rhs.ry + self.x ^ rhs.rz + self.x ^ rhs.uw + self.x ^ rhs.ux + self.y ^ rhs.rx + self.y ^ rhs.rz + self.y ^ rhs.uw + self.y ^ rhs.uy + self.z ^ rhs.rx + self.z ^ rhs.ry + self.z ^ rhs.uw + self.z ^ rhs.uz
-// Omitted: Vec3 anti_wedge Motor3 = self.x & rhs.rw + self.x & rhs.ux + self.y & rhs.rw + self.y & rhs.uy + self.z & rhs.rw + self.z & rhs.uz
+// Omitted: Vec3 geometric Motor3 = self.x * rhs.rw + self.x * rhs.rx + self.x * rhs.ry + self.x * rhs.rz + self.x * rhs.uw + self.x * rhs.ux + self.x * rhs.uy + self.x * rhs.uz + self.y * rhs.rw + self.y * rhs.rx + self.y * rhs.ry + self.y * rhs.rz + self.y * rhs.uw + self.y * rhs.ux + self.y * rhs.uy + self.y * rhs.uz + self.z * rhs.rw + self.z * rhs.rx + self.z * rhs.ry + self.z * rhs.rz + self.z * rhs.uw + self.z * rhs.ux + self.z * rhs.uy + self.z * rhs.uz  (unnamed type)
+// Omitted: Vec3 anti_geometric Motor3 = self.x !* rhs.rw + self.x !* rhs.rx + self.x !* rhs.ry + self.x !* rhs.rz + self.x !* rhs.ux + self.x !* rhs.uy + self.x !* rhs.uz + self.y !* rhs.rw + self.y !* rhs.rx + self.y !* rhs.ry + self.y !* rhs.rz + self.y !* rhs.ux + self.y !* rhs.uy + self.y !* rhs.uz + self.z !* rhs.rw + self.z !* rhs.rx + self.z !* rhs.ry + self.z !* rhs.rz + self.z !* rhs.ux + self.z !* rhs.uy + self.z !* rhs.uz  (unnamed type)
+// Omitted: Vec3 dot Motor3 = self.x | rhs.rw + self.x | rhs.rx + self.x | rhs.uw + self.x | rhs.uy + self.x | rhs.uz + self.y | rhs.rw + self.y | rhs.ry + self.y | rhs.uw + self.y | rhs.ux + self.y | rhs.uz + self.z | rhs.rw + self.z | rhs.rz + self.z | rhs.uw + self.z | rhs.ux + self.z | rhs.uy  (unnamed type)
+// Omitted: Vec3 wedge Motor3 = self.x ^ rhs.ry + self.x ^ rhs.rz + self.x ^ rhs.uw + self.x ^ rhs.ux + self.y ^ rhs.rx + self.y ^ rhs.rz + self.y ^ rhs.uw + self.y ^ rhs.uy + self.z ^ rhs.rx + self.z ^ rhs.ry + self.z ^ rhs.uw + self.z ^ rhs.uz  (unnamed type)
+// Omitted: Vec3 anti_wedge Motor3 = self.x & rhs.rw + self.x & rhs.ux + self.y & rhs.rw + self.y & rhs.uy + self.z & rhs.rw + self.z & rhs.uz  (unnamed type)

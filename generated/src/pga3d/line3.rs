@@ -17,10 +17,6 @@
 //! Plane.dot(Line3) -> Vec4
 //! Line3.anti_wedge(Plane) -> Vec4
 //! Plane.anti_wedge(Line3) -> Vec4
-//! Line3.dot(Translator3) -> Motor3
-//! Translator3.dot(Line3) -> Motor3
-//! Line3.wedge(Translator3) -> XYZW
-//! Translator3.wedge(Line3) -> XYZW
 //! Line3.geometric(Rotor3) -> Rotor3
 //! Rotor3.geometric(Line3) -> Rotor3
 //! Line3.dot(Rotor3) -> Line3
@@ -111,8 +107,8 @@ impl AntiReverse for Line3 {
 // ---------------------------------------------------------------------
 // Line3 OP Vec3:
 
-// Omitted: Line3 geometric Vec3 = self.mx * rhs.x + self.mx * rhs.y + self.mx * rhs.z + self.my * rhs.x + self.my * rhs.y + self.my * rhs.z + self.mz * rhs.x + self.mz * rhs.y + self.mz * rhs.z + self.vx * rhs.x + self.vx * rhs.y + self.vx * rhs.z + self.vy * rhs.x + self.vy * rhs.y + self.vy * rhs.z + self.vz * rhs.x + self.vz * rhs.y + self.vz * rhs.z
-// Omitted: Line3 anti_geometric Vec3 = self.vx !* rhs.x + self.vx !* rhs.y + self.vx !* rhs.z + self.vy !* rhs.x + self.vy !* rhs.y + self.vy !* rhs.z + self.vz !* rhs.x + self.vz !* rhs.y + self.vz !* rhs.z
+// Omitted: Line3 geometric Vec3 = self.mx * rhs.x + self.mx * rhs.y + self.mx * rhs.z + self.my * rhs.x + self.my * rhs.y + self.my * rhs.z + self.mz * rhs.x + self.mz * rhs.y + self.mz * rhs.z + self.vx * rhs.x + self.vx * rhs.y + self.vx * rhs.z + self.vy * rhs.x + self.vy * rhs.y + self.vy * rhs.z + self.vz * rhs.x + self.vz * rhs.y + self.vz * rhs.z  (unnamed type)
+// Omitted: Line3 anti_geometric Vec3 = self.vx !* rhs.x + self.vx !* rhs.y + self.vx !* rhs.z + self.vy !* rhs.x + self.vy !* rhs.y + self.vy !* rhs.z + self.vz !* rhs.x + self.vz !* rhs.y + self.vz !* rhs.z  (unnamed type)
 
 // Line3.dot(Vec3) -> Vec4
 impl Dot<Vec3> for Line3 {
@@ -152,13 +148,13 @@ impl Wedge<Vec3> for Line3 {
     }
 }
 
-// Omitted: Line3 anti_wedge Vec3 = 0
+// Omitted: Line3 anti_wedge Vec3 = 0  (unnamed type)
 
 // ---------------------------------------------------------------------
 // Line3 OP Vec4:
 
-// Omitted: Line3 geometric Vec4 = self.mx * rhs.w + self.mx * rhs.x + self.mx * rhs.y + self.mx * rhs.z + self.my * rhs.w + self.my * rhs.x + self.my * rhs.y + self.my * rhs.z + self.mz * rhs.w + self.mz * rhs.x + self.mz * rhs.y + self.mz * rhs.z + self.vx * rhs.x + self.vx * rhs.y + self.vx * rhs.z + self.vy * rhs.x + self.vy * rhs.y + self.vy * rhs.z + self.vz * rhs.x + self.vz * rhs.y + self.vz * rhs.z
-// Omitted: Line3 anti_geometric Vec4 = self.mx !* rhs.w + self.my !* rhs.w + self.mz !* rhs.w + self.vx !* rhs.w + self.vx !* rhs.x + self.vx !* rhs.y + self.vx !* rhs.z + self.vy !* rhs.w + self.vy !* rhs.x + self.vy !* rhs.y + self.vy !* rhs.z + self.vz !* rhs.w + self.vz !* rhs.x + self.vz !* rhs.y + self.vz !* rhs.z
+// Omitted: Line3 geometric Vec4 = self.mx * rhs.w + self.mx * rhs.x + self.mx * rhs.y + self.mx * rhs.z + self.my * rhs.w + self.my * rhs.x + self.my * rhs.y + self.my * rhs.z + self.mz * rhs.w + self.mz * rhs.x + self.mz * rhs.y + self.mz * rhs.z + self.vx * rhs.x + self.vx * rhs.y + self.vx * rhs.z + self.vy * rhs.x + self.vy * rhs.y + self.vy * rhs.z + self.vz * rhs.x + self.vz * rhs.y + self.vz * rhs.z  (unnamed type)
+// Omitted: Line3 anti_geometric Vec4 = self.mx !* rhs.w + self.my !* rhs.w + self.mz !* rhs.w + self.vx !* rhs.w + self.vx !* rhs.x + self.vx !* rhs.y + self.vx !* rhs.z + self.vy !* rhs.w + self.vy !* rhs.x + self.vy !* rhs.y + self.vy !* rhs.z + self.vz !* rhs.w + self.vz !* rhs.x + self.vz !* rhs.y + self.vz !* rhs.z  (unnamed type)
 
 // Line3.dot(Vec4) -> Vec4
 impl Dot<Vec4> for Line3 {
@@ -198,13 +194,13 @@ impl Wedge<Vec4> for Line3 {
     }
 }
 
-// Omitted: Line3 anti_wedge Vec4 = 0
+// Omitted: Line3 anti_wedge Vec4 = 0  (unnamed type)
 
 // ---------------------------------------------------------------------
 // Line3 OP Line3:
 
-// Omitted: Line3 geometric Line3 = self.mx * rhs.mx + self.mx * rhs.my + self.mx * rhs.mz + self.mx * rhs.vx + self.mx * rhs.vy + self.mx * rhs.vz + self.my * rhs.mx + self.my * rhs.my + self.my * rhs.mz + self.my * rhs.vx + self.my * rhs.vy + self.my * rhs.vz + self.mz * rhs.mx + self.mz * rhs.my + self.mz * rhs.mz + self.mz * rhs.vx + self.mz * rhs.vy + self.mz * rhs.vz + self.vx * rhs.mx + self.vx * rhs.my + self.vx * rhs.mz + self.vy * rhs.mx + self.vy * rhs.my + self.vy * rhs.mz + self.vz * rhs.mx + self.vz * rhs.my + self.vz * rhs.mz
-// Omitted: Line3 anti_geometric Line3 = self.mx !* rhs.vx + self.mx !* rhs.vy + self.mx !* rhs.vz + self.my !* rhs.vx + self.my !* rhs.vy + self.my !* rhs.vz + self.mz !* rhs.vx + self.mz !* rhs.vy + self.mz !* rhs.vz + self.vx !* rhs.mx + self.vx !* rhs.my + self.vx !* rhs.mz + self.vx !* rhs.vx + self.vx !* rhs.vy + self.vx !* rhs.vz + self.vy !* rhs.mx + self.vy !* rhs.my + self.vy !* rhs.mz + self.vy !* rhs.vx + self.vy !* rhs.vy + self.vy !* rhs.vz + self.vz !* rhs.mx + self.vz !* rhs.my + self.vz !* rhs.mz + self.vz !* rhs.vx + self.vz !* rhs.vy + self.vz !* rhs.vz
+// Omitted: Line3 geometric Line3 = self.mx * rhs.mx + self.mx * rhs.my + self.mx * rhs.mz + self.mx * rhs.vx + self.mx * rhs.vy + self.mx * rhs.vz + self.my * rhs.mx + self.my * rhs.my + self.my * rhs.mz + self.my * rhs.vx + self.my * rhs.vy + self.my * rhs.vz + self.mz * rhs.mx + self.mz * rhs.my + self.mz * rhs.mz + self.mz * rhs.vx + self.mz * rhs.vy + self.mz * rhs.vz + self.vx * rhs.mx + self.vx * rhs.my + self.vx * rhs.mz + self.vy * rhs.mx + self.vy * rhs.my + self.vy * rhs.mz + self.vz * rhs.mx + self.vz * rhs.my + self.vz * rhs.mz  (unnamed type)
+// Omitted: Line3 anti_geometric Line3 = self.mx !* rhs.vx + self.mx !* rhs.vy + self.mx !* rhs.vz + self.my !* rhs.vx + self.my !* rhs.vy + self.my !* rhs.vz + self.mz !* rhs.vx + self.mz !* rhs.vy + self.mz !* rhs.vz + self.vx !* rhs.mx + self.vx !* rhs.my + self.vx !* rhs.mz + self.vx !* rhs.vx + self.vx !* rhs.vy + self.vx !* rhs.vz + self.vy !* rhs.mx + self.vy !* rhs.my + self.vy !* rhs.mz + self.vy !* rhs.vx + self.vy !* rhs.vy + self.vy !* rhs.vz + self.vz !* rhs.mx + self.vz !* rhs.my + self.vz !* rhs.mz + self.vz !* rhs.vx + self.vz !* rhs.vy + self.vz !* rhs.vz  (unnamed type)
 
 // Line3.dot(Line3) -> S
 impl Dot<Line3> for Line3 {
@@ -246,8 +242,8 @@ impl AntiWedge<Line3> for Line3 {
 // ---------------------------------------------------------------------
 // Line3 OP Plane:
 
-// Omitted: Line3 geometric Plane = self.mx * rhs.d + self.mx * rhs.nx + self.mx * rhs.ny + self.mx * rhs.nz + self.my * rhs.d + self.my * rhs.nx + self.my * rhs.ny + self.my * rhs.nz + self.mz * rhs.d + self.mz * rhs.nx + self.mz * rhs.ny + self.mz * rhs.nz + self.vx * rhs.d + self.vy * rhs.d + self.vz * rhs.d
-// Omitted: Line3 anti_geometric Plane = self.mx !* rhs.nx + self.mx !* rhs.ny + self.mx !* rhs.nz + self.my !* rhs.nx + self.my !* rhs.ny + self.my !* rhs.nz + self.mz !* rhs.nx + self.mz !* rhs.ny + self.mz !* rhs.nz + self.vx !* rhs.d + self.vx !* rhs.nx + self.vx !* rhs.ny + self.vx !* rhs.nz + self.vy !* rhs.d + self.vy !* rhs.nx + self.vy !* rhs.ny + self.vy !* rhs.nz + self.vz !* rhs.d + self.vz !* rhs.nx + self.vz !* rhs.ny + self.vz !* rhs.nz
+// Omitted: Line3 geometric Plane = self.mx * rhs.d + self.mx * rhs.nx + self.mx * rhs.ny + self.mx * rhs.nz + self.my * rhs.d + self.my * rhs.nx + self.my * rhs.ny + self.my * rhs.nz + self.mz * rhs.d + self.mz * rhs.nx + self.mz * rhs.ny + self.mz * rhs.nz + self.vx * rhs.d + self.vy * rhs.d + self.vz * rhs.d  (unnamed type)
+// Omitted: Line3 anti_geometric Plane = self.mx !* rhs.nx + self.mx !* rhs.ny + self.mx !* rhs.nz + self.my !* rhs.nx + self.my !* rhs.ny + self.my !* rhs.nz + self.mz !* rhs.nx + self.mz !* rhs.ny + self.mz !* rhs.nz + self.vx !* rhs.d + self.vx !* rhs.nx + self.vx !* rhs.ny + self.vx !* rhs.nz + self.vy !* rhs.d + self.vy !* rhs.nx + self.vy !* rhs.ny + self.vy !* rhs.nz + self.vz !* rhs.d + self.vz !* rhs.nx + self.vz !* rhs.ny + self.vz !* rhs.nz  (unnamed type)
 
 // Line3.dot(Plane) -> Vec4
 impl Dot<Plane> for Line3 {
@@ -268,7 +264,7 @@ impl Dot<Plane> for Line3 {
     }
 }
 
-// Omitted: Line3 wedge Plane = 0
+// Omitted: Line3 wedge Plane = 0  (unnamed type)
 
 // Line3.anti_wedge(Plane) -> Vec4
 impl AntiWedge<Plane> for Line3 {
@@ -292,50 +288,6 @@ impl AntiWedge<Plane> for Line3 {
 }
 
 // ---------------------------------------------------------------------
-// Line3 OP Translator3:
-
-// Omitted: Line3 geometric Translator3 = self.mx * rhs.x + self.mx * rhs.xyzw + self.mx * rhs.y + self.mx * rhs.z + self.my * rhs.x + self.my * rhs.xyzw + self.my * rhs.y + self.my * rhs.z + self.mz * rhs.x + self.mz * rhs.xyzw + self.mz * rhs.y + self.mz * rhs.z + self.vx * rhs.x + self.vx * rhs.y + self.vx * rhs.z + self.vy * rhs.x + self.vy * rhs.y + self.vy * rhs.z + self.vz * rhs.x + self.vz * rhs.y + self.vz * rhs.z
-// Omitted: Line3 anti_geometric Translator3 = self.mx !* rhs.xyzw + self.my !* rhs.xyzw + self.mz !* rhs.xyzw + self.vx !* rhs.x + self.vx !* rhs.xyzw + self.vx !* rhs.y + self.vx !* rhs.z + self.vy !* rhs.x + self.vy !* rhs.xyzw + self.vy !* rhs.y + self.vy !* rhs.z + self.vz !* rhs.x + self.vz !* rhs.xyzw + self.vz !* rhs.y + self.vz !* rhs.z
-
-// Line3.dot(Translator3) -> Motor3
-impl Dot<Translator3> for Line3 {
-    type Output = Motor3;
-    fn dot(self, rhs: Translator3) -> Self::Output {
-        // Motor3 {
-        //     rx: WX(self.mx.0 * rhs.xyzw.0),
-        //     ry: WY(self.my.0 * rhs.xyzw.0),
-        //     rz: WZ(self.mz.0 * rhs.xyzw.0),
-        //     rw: Default::default(),
-        //     ux: Default::default(),
-        //     uy: Default::default(),
-        //     uz: Default::default(),
-        //     uw: S(self.mx.0 * rhs.x.0) + S(self.my.0 * rhs.y.0) + S(self.mz.0 * rhs.z.0),
-        // }
-        Motor3 {
-            rx: self.mx.dot(rhs.xyzw),
-            ry: self.my.dot(rhs.xyzw),
-            rz: self.mz.dot(rhs.xyzw),
-            rw: Default::default(),
-            ux: Default::default(),
-            uy: Default::default(),
-            uz: Default::default(),
-            uw: -self.mx.dot(rhs.x) - self.my.dot(rhs.y) - self.mz.dot(rhs.z),
-        }
-    }
-}
-
-// Line3.wedge(Translator3) -> XYZW
-impl Wedge<Translator3> for Line3 {
-    type Output = XYZW;
-    fn wedge(self, rhs: Translator3) -> Self::Output {
-        // -XYZW(self.vx.0 * rhs.x.0) - XYZW(self.vy.0 * rhs.y.0) - XYZW(self.vz.0 * rhs.z.0)
-        self.vx.wedge(rhs.x) + self.vy.wedge(rhs.y) + self.vz.wedge(rhs.z)
-    }
-}
-
-// Omitted: Line3 anti_wedge Translator3 = self.mx & rhs.xyzw + self.my & rhs.xyzw + self.mz & rhs.xyzw + self.vx & rhs.x + self.vx & rhs.xyzw + self.vy & rhs.xyzw + self.vy & rhs.y + self.vz & rhs.xyzw + self.vz & rhs.z
-
-// ---------------------------------------------------------------------
 // Line3 OP Rotor3:
 
 // Line3.geometric(Rotor3) -> Rotor3
@@ -357,7 +309,7 @@ impl Geometric<Rotor3> for Line3 {
     }
 }
 
-// Omitted: Line3 anti_geometric Rotor3 = self.mx !* rhs.w + self.mx !* rhs.x + self.mx !* rhs.y + self.mx !* rhs.z + self.my !* rhs.w + self.my !* rhs.x + self.my !* rhs.y + self.my !* rhs.z + self.mz !* rhs.w + self.mz !* rhs.x + self.mz !* rhs.y + self.mz !* rhs.z + self.vx !* rhs.w + self.vx !* rhs.x + self.vx !* rhs.y + self.vx !* rhs.z + self.vy !* rhs.w + self.vy !* rhs.x + self.vy !* rhs.y + self.vy !* rhs.z + self.vz !* rhs.w + self.vz !* rhs.x + self.vz !* rhs.y + self.vz !* rhs.z
+// Omitted: Line3 anti_geometric Rotor3 = self.mx !* rhs.w + self.mx !* rhs.x + self.mx !* rhs.y + self.mx !* rhs.z + self.my !* rhs.w + self.my !* rhs.x + self.my !* rhs.y + self.my !* rhs.z + self.mz !* rhs.w + self.mz !* rhs.x + self.mz !* rhs.y + self.mz !* rhs.z + self.vx !* rhs.w + self.vx !* rhs.x + self.vx !* rhs.y + self.vx !* rhs.z + self.vy !* rhs.w + self.vy !* rhs.x + self.vy !* rhs.y + self.vy !* rhs.z + self.vz !* rhs.w + self.vz !* rhs.x + self.vz !* rhs.y + self.vz !* rhs.z  (unnamed type)
 
 // Line3.dot(Rotor3) -> Line3
 impl Dot<Rotor3> for Line3 {
@@ -391,13 +343,13 @@ impl Wedge<Rotor3> for Line3 {
     }
 }
 
-// Omitted: Line3 anti_wedge Rotor3 = self.mx & rhs.w + self.mx & rhs.x + self.my & rhs.w + self.my & rhs.y + self.mz & rhs.w + self.mz & rhs.z + self.vx & rhs.w + self.vy & rhs.w + self.vz & rhs.w
+// Omitted: Line3 anti_wedge Rotor3 = self.mx & rhs.w + self.mx & rhs.x + self.my & rhs.w + self.my & rhs.y + self.mz & rhs.w + self.mz & rhs.z + self.vx & rhs.w + self.vy & rhs.w + self.vz & rhs.w  (unnamed type)
 
 // ---------------------------------------------------------------------
 // Line3 OP Motor3:
 
-// Omitted: Line3 geometric Motor3 = self.mx * rhs.rw + self.mx * rhs.rx + self.mx * rhs.ry + self.mx * rhs.rz + self.mx * rhs.uw + self.mx * rhs.ux + self.mx * rhs.uy + self.mx * rhs.uz + self.my * rhs.rw + self.my * rhs.rx + self.my * rhs.ry + self.my * rhs.rz + self.my * rhs.uw + self.my * rhs.ux + self.my * rhs.uy + self.my * rhs.uz + self.mz * rhs.rw + self.mz * rhs.rx + self.mz * rhs.ry + self.mz * rhs.rz + self.mz * rhs.uw + self.mz * rhs.ux + self.mz * rhs.uy + self.mz * rhs.uz + self.vx * rhs.uw + self.vy * rhs.uw + self.vz * rhs.uw
-// Omitted: Line3 anti_geometric Motor3 = self.mx !* rhs.rw + self.mx !* rhs.rx + self.mx !* rhs.ry + self.mx !* rhs.rz + self.mx !* rhs.ux + self.mx !* rhs.uy + self.mx !* rhs.uz + self.my !* rhs.rw + self.my !* rhs.rx + self.my !* rhs.ry + self.my !* rhs.rz + self.my !* rhs.ux + self.my !* rhs.uy + self.my !* rhs.uz + self.mz !* rhs.rw + self.mz !* rhs.rx + self.mz !* rhs.ry + self.mz !* rhs.rz + self.mz !* rhs.ux + self.mz !* rhs.uy + self.mz !* rhs.uz + self.vx !* rhs.rw + self.vx !* rhs.rx + self.vx !* rhs.ry + self.vx !* rhs.rz + self.vx !* rhs.uw + self.vx !* rhs.ux + self.vx !* rhs.uy + self.vx !* rhs.uz + self.vy !* rhs.rw + self.vy !* rhs.rx + self.vy !* rhs.ry + self.vy !* rhs.rz + self.vy !* rhs.uw + self.vy !* rhs.ux + self.vy !* rhs.uy + self.vy !* rhs.uz + self.vz !* rhs.rw + self.vz !* rhs.rx + self.vz !* rhs.ry + self.vz !* rhs.rz + self.vz !* rhs.uw + self.vz !* rhs.ux + self.vz !* rhs.uy + self.vz !* rhs.uz
-// Omitted: Line3 dot Motor3 = self.mx | rhs.rw + self.mx | rhs.uw + self.mx | rhs.ux + self.my | rhs.rw + self.my | rhs.uw + self.my | rhs.uy + self.mz | rhs.rw + self.mz | rhs.uw + self.mz | rhs.uz + self.vx | rhs.uw + self.vy | rhs.uw + self.vz | rhs.uw
-// Omitted: Line3 wedge Motor3 = self.mx ^ rhs.rx + self.mx ^ rhs.uw + self.my ^ rhs.ry + self.my ^ rhs.uw + self.mz ^ rhs.rz + self.mz ^ rhs.uw + self.vx ^ rhs.uw + self.vy ^ rhs.uw + self.vz ^ rhs.uw
-// Omitted: Line3 anti_wedge Motor3 = self.mx & rhs.rw + self.mx & rhs.rx + self.mx & rhs.uy + self.mx & rhs.uz + self.my & rhs.rw + self.my & rhs.ry + self.my & rhs.ux + self.my & rhs.uz + self.mz & rhs.rw + self.mz & rhs.rz + self.mz & rhs.ux + self.mz & rhs.uy + self.vx & rhs.rw + self.vx & rhs.ux + self.vy & rhs.rw + self.vy & rhs.uy + self.vz & rhs.rw + self.vz & rhs.uz
+// Omitted: Line3 geometric Motor3 = self.mx * rhs.rw + self.mx * rhs.rx + self.mx * rhs.ry + self.mx * rhs.rz + self.mx * rhs.uw + self.mx * rhs.ux + self.mx * rhs.uy + self.mx * rhs.uz + self.my * rhs.rw + self.my * rhs.rx + self.my * rhs.ry + self.my * rhs.rz + self.my * rhs.uw + self.my * rhs.ux + self.my * rhs.uy + self.my * rhs.uz + self.mz * rhs.rw + self.mz * rhs.rx + self.mz * rhs.ry + self.mz * rhs.rz + self.mz * rhs.uw + self.mz * rhs.ux + self.mz * rhs.uy + self.mz * rhs.uz + self.vx * rhs.uw + self.vy * rhs.uw + self.vz * rhs.uw  (unnamed type)
+// Omitted: Line3 anti_geometric Motor3 = self.mx !* rhs.rw + self.mx !* rhs.rx + self.mx !* rhs.ry + self.mx !* rhs.rz + self.mx !* rhs.ux + self.mx !* rhs.uy + self.mx !* rhs.uz + self.my !* rhs.rw + self.my !* rhs.rx + self.my !* rhs.ry + self.my !* rhs.rz + self.my !* rhs.ux + self.my !* rhs.uy + self.my !* rhs.uz + self.mz !* rhs.rw + self.mz !* rhs.rx + self.mz !* rhs.ry + self.mz !* rhs.rz + self.mz !* rhs.ux + self.mz !* rhs.uy + self.mz !* rhs.uz + self.vx !* rhs.rw + self.vx !* rhs.rx + self.vx !* rhs.ry + self.vx !* rhs.rz + self.vx !* rhs.uw + self.vx !* rhs.ux + self.vx !* rhs.uy + self.vx !* rhs.uz + self.vy !* rhs.rw + self.vy !* rhs.rx + self.vy !* rhs.ry + self.vy !* rhs.rz + self.vy !* rhs.uw + self.vy !* rhs.ux + self.vy !* rhs.uy + self.vy !* rhs.uz + self.vz !* rhs.rw + self.vz !* rhs.rx + self.vz !* rhs.ry + self.vz !* rhs.rz + self.vz !* rhs.uw + self.vz !* rhs.ux + self.vz !* rhs.uy + self.vz !* rhs.uz  (unnamed type)
+// Omitted: Line3 dot Motor3 = self.mx | rhs.rw + self.mx | rhs.uw + self.mx | rhs.ux + self.my | rhs.rw + self.my | rhs.uw + self.my | rhs.uy + self.mz | rhs.rw + self.mz | rhs.uw + self.mz | rhs.uz + self.vx | rhs.uw + self.vy | rhs.uw + self.vz | rhs.uw  (unnamed type)
+// Omitted: Line3 wedge Motor3 = self.mx ^ rhs.rx + self.mx ^ rhs.uw + self.my ^ rhs.ry + self.my ^ rhs.uw + self.mz ^ rhs.rz + self.mz ^ rhs.uw + self.vx ^ rhs.uw + self.vy ^ rhs.uw + self.vz ^ rhs.uw  (unnamed type)
+// Omitted: Line3 anti_wedge Motor3 = self.mx & rhs.rw + self.mx & rhs.rx + self.mx & rhs.uy + self.mx & rhs.uz + self.my & rhs.rw + self.my & rhs.ry + self.my & rhs.ux + self.my & rhs.uz + self.mz & rhs.rw + self.mz & rhs.rz + self.mz & rhs.ux + self.mz & rhs.uy + self.vx & rhs.rw + self.vx & rhs.ux + self.vy & rhs.rw + self.vy & rhs.uy + self.vz & rhs.rw + self.vz & rhs.uz  (unnamed type)

@@ -20,12 +20,6 @@
 //! Line3.wedge(Rotor3) -> XYZW
 //! Rotor3.dot(Plane) -> W
 //! Plane.dot(Rotor3) -> W
-//! Rotor3.geometric(Translator3) -> Rotor3
-//! Translator3.geometric(Rotor3) -> Rotor3
-//! Rotor3.dot(Translator3) -> Line3
-//! Translator3.dot(Rotor3) -> Line3
-//! Rotor3.wedge(Translator3) -> XYZW
-//! Translator3.wedge(Rotor3) -> XYZW
 //! Rotor3.geometric(Motor3) -> Rotor3
 //! Motor3.geometric(Rotor3) -> Rotor3
 //! Rotor3.dot(Motor3) -> Rotor3
@@ -83,9 +77,9 @@ impl AntiReverse for Rotor3 {
 // ---------------------------------------------------------------------
 // Rotor3 OP Vec3:
 
-// Omitted: Rotor3 geometric Vec3 = self.w * rhs.x + self.w * rhs.y + self.w * rhs.z + self.x * rhs.x + self.x * rhs.y + self.x * rhs.z + self.y * rhs.x + self.y * rhs.y + self.y * rhs.z + self.z * rhs.x + self.z * rhs.y + self.z * rhs.z
-// Omitted: Rotor3 anti_geometric Vec3 = self.w !* rhs.x + self.w !* rhs.y + self.w !* rhs.z + self.x !* rhs.x + self.x !* rhs.y + self.x !* rhs.z + self.y !* rhs.x + self.y !* rhs.y + self.y !* rhs.z + self.z !* rhs.x + self.z !* rhs.y + self.z !* rhs.z
-// Omitted: Rotor3 dot Vec3 = self.w | rhs.x + self.w | rhs.y + self.w | rhs.z + self.x | rhs.x + self.y | rhs.y + self.z | rhs.z
+// Omitted: Rotor3 geometric Vec3 = self.w * rhs.x + self.w * rhs.y + self.w * rhs.z + self.x * rhs.x + self.x * rhs.y + self.x * rhs.z + self.y * rhs.x + self.y * rhs.y + self.y * rhs.z + self.z * rhs.x + self.z * rhs.y + self.z * rhs.z  (unnamed type)
+// Omitted: Rotor3 anti_geometric Vec3 = self.w !* rhs.x + self.w !* rhs.y + self.w !* rhs.z + self.x !* rhs.x + self.x !* rhs.y + self.x !* rhs.z + self.y !* rhs.x + self.y !* rhs.y + self.y !* rhs.z + self.z !* rhs.x + self.z !* rhs.y + self.z !* rhs.z  (unnamed type)
+// Omitted: Rotor3 dot Vec3 = self.w | rhs.x + self.w | rhs.y + self.w | rhs.z + self.x | rhs.x + self.y | rhs.y + self.z | rhs.z  (unnamed type)
 
 // Rotor3.wedge(Vec3) -> Plane
 impl Wedge<Vec3> for Rotor3 {
@@ -126,9 +120,9 @@ impl AntiWedge<Vec3> for Rotor3 {
 // ---------------------------------------------------------------------
 // Rotor3 OP Vec4:
 
-// Omitted: Rotor3 geometric Vec4 = self.w * rhs.x + self.w * rhs.y + self.w * rhs.z + self.x * rhs.x + self.x * rhs.y + self.x * rhs.z + self.y * rhs.x + self.y * rhs.y + self.y * rhs.z + self.z * rhs.x + self.z * rhs.y + self.z * rhs.z
-// Omitted: Rotor3 anti_geometric Vec4 = self.w !* rhs.w + self.w !* rhs.x + self.w !* rhs.y + self.w !* rhs.z + self.x !* rhs.w + self.x !* rhs.x + self.x !* rhs.y + self.x !* rhs.z + self.y !* rhs.w + self.y !* rhs.x + self.y !* rhs.y + self.y !* rhs.z + self.z !* rhs.w + self.z !* rhs.x + self.z !* rhs.y + self.z !* rhs.z
-// Omitted: Rotor3 dot Vec4 = self.w | rhs.x + self.w | rhs.y + self.w | rhs.z + self.x | rhs.x + self.y | rhs.y + self.z | rhs.z
+// Omitted: Rotor3 geometric Vec4 = self.w * rhs.x + self.w * rhs.y + self.w * rhs.z + self.x * rhs.x + self.x * rhs.y + self.x * rhs.z + self.y * rhs.x + self.y * rhs.y + self.y * rhs.z + self.z * rhs.x + self.z * rhs.y + self.z * rhs.z  (unnamed type)
+// Omitted: Rotor3 anti_geometric Vec4 = self.w !* rhs.w + self.w !* rhs.x + self.w !* rhs.y + self.w !* rhs.z + self.x !* rhs.w + self.x !* rhs.x + self.x !* rhs.y + self.x !* rhs.z + self.y !* rhs.w + self.y !* rhs.x + self.y !* rhs.y + self.y !* rhs.z + self.z !* rhs.w + self.z !* rhs.x + self.z !* rhs.y + self.z !* rhs.z  (unnamed type)
+// Omitted: Rotor3 dot Vec4 = self.w | rhs.x + self.w | rhs.y + self.w | rhs.z + self.x | rhs.x + self.y | rhs.y + self.z | rhs.z  (unnamed type)
 
 // Rotor3.wedge(Vec4) -> Plane
 impl Wedge<Vec4> for Rotor3 {
@@ -190,7 +184,7 @@ impl Geometric<Line3> for Rotor3 {
     }
 }
 
-// Omitted: Rotor3 anti_geometric Line3 = self.w !* rhs.mx + self.w !* rhs.my + self.w !* rhs.mz + self.w !* rhs.vx + self.w !* rhs.vy + self.w !* rhs.vz + self.x !* rhs.mx + self.x !* rhs.my + self.x !* rhs.mz + self.x !* rhs.vx + self.x !* rhs.vy + self.x !* rhs.vz + self.y !* rhs.mx + self.y !* rhs.my + self.y !* rhs.mz + self.y !* rhs.vx + self.y !* rhs.vy + self.y !* rhs.vz + self.z !* rhs.mx + self.z !* rhs.my + self.z !* rhs.mz + self.z !* rhs.vx + self.z !* rhs.vy + self.z !* rhs.vz
+// Omitted: Rotor3 anti_geometric Line3 = self.w !* rhs.mx + self.w !* rhs.my + self.w !* rhs.mz + self.w !* rhs.vx + self.w !* rhs.vy + self.w !* rhs.vz + self.x !* rhs.mx + self.x !* rhs.my + self.x !* rhs.mz + self.x !* rhs.vx + self.x !* rhs.vy + self.x !* rhs.vz + self.y !* rhs.mx + self.y !* rhs.my + self.y !* rhs.mz + self.y !* rhs.vx + self.y !* rhs.vy + self.y !* rhs.vz + self.z !* rhs.mx + self.z !* rhs.my + self.z !* rhs.mz + self.z !* rhs.vx + self.z !* rhs.vy + self.z !* rhs.vz  (unnamed type)
 
 // Rotor3.dot(Line3) -> Line3
 impl Dot<Line3> for Rotor3 {
@@ -224,13 +218,13 @@ impl Wedge<Line3> for Rotor3 {
     }
 }
 
-// Omitted: Rotor3 anti_wedge Line3 = self.w & rhs.mx + self.w & rhs.my + self.w & rhs.mz + self.w & rhs.vx + self.w & rhs.vy + self.w & rhs.vz + self.x & rhs.mx + self.y & rhs.my + self.z & rhs.mz
+// Omitted: Rotor3 anti_wedge Line3 = self.w & rhs.mx + self.w & rhs.my + self.w & rhs.mz + self.w & rhs.vx + self.w & rhs.vy + self.w & rhs.vz + self.x & rhs.mx + self.y & rhs.my + self.z & rhs.mz  (unnamed type)
 
 // ---------------------------------------------------------------------
 // Rotor3 OP Plane:
 
-// Omitted: Rotor3 geometric Plane = self.w * rhs.d + self.x * rhs.d + self.y * rhs.d + self.z * rhs.d
-// Omitted: Rotor3 anti_geometric Plane = self.w !* rhs.d + self.w !* rhs.nx + self.w !* rhs.ny + self.w !* rhs.nz + self.x !* rhs.d + self.x !* rhs.nx + self.x !* rhs.ny + self.x !* rhs.nz + self.y !* rhs.d + self.y !* rhs.nx + self.y !* rhs.ny + self.y !* rhs.nz + self.z !* rhs.d + self.z !* rhs.nx + self.z !* rhs.ny + self.z !* rhs.nz
+// Omitted: Rotor3 geometric Plane = self.w * rhs.d + self.x * rhs.d + self.y * rhs.d + self.z * rhs.d  (unnamed type)
+// Omitted: Rotor3 anti_geometric Plane = self.w !* rhs.d + self.w !* rhs.nx + self.w !* rhs.ny + self.w !* rhs.nz + self.x !* rhs.d + self.x !* rhs.nx + self.x !* rhs.ny + self.x !* rhs.nz + self.y !* rhs.d + self.y !* rhs.nx + self.y !* rhs.ny + self.y !* rhs.nz + self.z !* rhs.d + self.z !* rhs.nx + self.z !* rhs.ny + self.z !* rhs.nz  (unnamed type)
 
 // Rotor3.dot(Plane) -> W
 impl Dot<Plane> for Rotor3 {
@@ -241,71 +235,13 @@ impl Dot<Plane> for Rotor3 {
     }
 }
 
-// Omitted: Rotor3 wedge Plane = 0
-// Omitted: Rotor3 anti_wedge Plane = self.w & rhs.d + self.w & rhs.nx + self.w & rhs.ny + self.w & rhs.nz + self.x & rhs.d + self.x & rhs.nx + self.y & rhs.d + self.y & rhs.ny + self.z & rhs.d + self.z & rhs.nz
-
-// ---------------------------------------------------------------------
-// Rotor3 OP Translator3:
-
-// Rotor3.geometric(Translator3) -> Rotor3
-impl Geometric<Translator3> for Rotor3 {
-    type Output = Rotor3;
-    fn geometric(self, rhs: Translator3) -> Self::Output {
-        // Rotor3 {
-        //     x: WX(self.w.0 * rhs.x.0) + WX(self.y.0 * rhs.z.0) + WX(self.z.0 * rhs.y.0),
-        //     y: WY(self.w.0 * rhs.y.0) + WY(self.x.0 * rhs.z.0) + WY(self.z.0 * rhs.x.0),
-        //     z: WZ(self.w.0 * rhs.z.0) + WZ(self.x.0 * rhs.y.0) + WZ(self.y.0 * rhs.x.0),
-        //     w: XYZW(self.x.0 * rhs.x.0) + XYZW(self.y.0 * rhs.y.0) + XYZW(self.z.0 * rhs.z.0),
-        // }
-        Rotor3 {
-            x: self.w.geometric(rhs.x) - self.y.geometric(rhs.z) + self.z.geometric(rhs.y),
-            y: self.w.geometric(rhs.y) + self.x.geometric(rhs.z) - self.z.geometric(rhs.x),
-            z: self.w.geometric(rhs.z) - self.x.geometric(rhs.y) + self.y.geometric(rhs.x),
-            w: -self.x.geometric(rhs.x) - self.y.geometric(rhs.y) - self.z.geometric(rhs.z),
-        }
-    }
-}
-
-// Omitted: Rotor3 anti_geometric Translator3 = self.w !* rhs.x + self.w !* rhs.xyzw + self.w !* rhs.y + self.w !* rhs.z + self.x !* rhs.x + self.x !* rhs.xyzw + self.x !* rhs.y + self.x !* rhs.z + self.y !* rhs.x + self.y !* rhs.xyzw + self.y !* rhs.y + self.y !* rhs.z + self.z !* rhs.x + self.z !* rhs.xyzw + self.z !* rhs.y + self.z !* rhs.z
-
-// Rotor3.dot(Translator3) -> Line3
-impl Dot<Translator3> for Rotor3 {
-    type Output = Line3;
-    fn dot(self, rhs: Translator3) -> Self::Output {
-        // Line3 {
-        //     vx: WX(self.w.0 * rhs.x.0),
-        //     vy: WY(self.w.0 * rhs.y.0),
-        //     vz: WZ(self.w.0 * rhs.z.0),
-        //     mx: Default::default(),
-        //     my: Default::default(),
-        //     mz: Default::default(),
-        // }
-        Line3 {
-            vx: self.w.dot(rhs.x),
-            vy: self.w.dot(rhs.y),
-            vz: self.w.dot(rhs.z),
-            mx: Default::default(),
-            my: Default::default(),
-            mz: Default::default(),
-        }
-    }
-}
-
-// Rotor3.wedge(Translator3) -> XYZW
-impl Wedge<Translator3> for Rotor3 {
-    type Output = XYZW;
-    fn wedge(self, rhs: Translator3) -> Self::Output {
-        // -XYZW(self.x.0 * rhs.x.0) - XYZW(self.y.0 * rhs.y.0) - XYZW(self.z.0 * rhs.z.0)
-        self.x.wedge(rhs.x) + self.y.wedge(rhs.y) + self.z.wedge(rhs.z)
-    }
-}
-
-// Omitted: Rotor3 anti_wedge Translator3 = self.w & rhs.x + self.w & rhs.xyzw + self.w & rhs.y + self.w & rhs.z + self.x & rhs.x + self.x & rhs.xyzw + self.y & rhs.xyzw + self.y & rhs.y + self.z & rhs.xyzw + self.z & rhs.z
+// Omitted: Rotor3 wedge Plane = 0  (unnamed type)
+// Omitted: Rotor3 anti_wedge Plane = self.w & rhs.d + self.w & rhs.nx + self.w & rhs.ny + self.w & rhs.nz + self.x & rhs.d + self.x & rhs.nx + self.y & rhs.d + self.y & rhs.ny + self.z & rhs.d + self.z & rhs.nz  (unnamed type)
 
 // ---------------------------------------------------------------------
 // Rotor3 OP Rotor3:
 
-// Omitted: Rotor3 geometric Rotor3 = 0
+// Omitted: Rotor3 geometric Rotor3 = 0  (unnamed type)
 
 // Rotor3.anti_geometric(Rotor3) -> Rotor3
 impl AntiGeometric<Rotor3> for Rotor3 {
@@ -336,8 +272,8 @@ impl AntiGeometric<Rotor3> for Rotor3 {
     }
 }
 
-// Omitted: Rotor3 dot Rotor3 = 0
-// Omitted: Rotor3 wedge Rotor3 = 0
+// Omitted: Rotor3 dot Rotor3 = 0  (unnamed type)
+// Omitted: Rotor3 wedge Rotor3 = 0  (unnamed type)
 
 // Rotor3.anti_wedge(Rotor3) -> Rotor3
 impl AntiWedge<Rotor3> for Rotor3 {
@@ -380,7 +316,7 @@ impl Geometric<Motor3> for Rotor3 {
     }
 }
 
-// Omitted: Rotor3 anti_geometric Motor3 = self.w !* rhs.rw + self.w !* rhs.rx + self.w !* rhs.ry + self.w !* rhs.rz + self.w !* rhs.uw + self.w !* rhs.ux + self.w !* rhs.uy + self.w !* rhs.uz + self.x !* rhs.rw + self.x !* rhs.rx + self.x !* rhs.ry + self.x !* rhs.rz + self.x !* rhs.uw + self.x !* rhs.ux + self.x !* rhs.uy + self.x !* rhs.uz + self.y !* rhs.rw + self.y !* rhs.rx + self.y !* rhs.ry + self.y !* rhs.rz + self.y !* rhs.uw + self.y !* rhs.ux + self.y !* rhs.uy + self.y !* rhs.uz + self.z !* rhs.rw + self.z !* rhs.rx + self.z !* rhs.ry + self.z !* rhs.rz + self.z !* rhs.uw + self.z !* rhs.ux + self.z !* rhs.uy + self.z !* rhs.uz
+// Omitted: Rotor3 anti_geometric Motor3 = self.w !* rhs.rw + self.w !* rhs.rx + self.w !* rhs.ry + self.w !* rhs.rz + self.w !* rhs.uw + self.w !* rhs.ux + self.w !* rhs.uy + self.w !* rhs.uz + self.x !* rhs.rw + self.x !* rhs.rx + self.x !* rhs.ry + self.x !* rhs.rz + self.x !* rhs.uw + self.x !* rhs.ux + self.x !* rhs.uy + self.x !* rhs.uz + self.y !* rhs.rw + self.y !* rhs.rx + self.y !* rhs.ry + self.y !* rhs.rz + self.y !* rhs.uw + self.y !* rhs.ux + self.y !* rhs.uy + self.y !* rhs.uz + self.z !* rhs.rw + self.z !* rhs.rx + self.z !* rhs.ry + self.z !* rhs.rz + self.z !* rhs.uw + self.z !* rhs.ux + self.z !* rhs.uy + self.z !* rhs.uz  (unnamed type)
 
 // Rotor3.dot(Motor3) -> Rotor3
 impl Dot<Motor3> for Rotor3 {
@@ -420,4 +356,4 @@ impl Wedge<Motor3> for Rotor3 {
     }
 }
 
-// Omitted: Rotor3 anti_wedge Motor3 = self.w & rhs.rw + self.w & rhs.rx + self.w & rhs.ry + self.w & rhs.rz + self.w & rhs.uw + self.w & rhs.ux + self.w & rhs.uy + self.w & rhs.uz + self.x & rhs.rw + self.x & rhs.ux + self.y & rhs.rw + self.y & rhs.uy + self.z & rhs.rw + self.z & rhs.uz
+// Omitted: Rotor3 anti_wedge Motor3 = self.w & rhs.rw + self.w & rhs.rx + self.w & rhs.ry + self.w & rhs.rz + self.w & rhs.uw + self.w & rhs.ux + self.w & rhs.uy + self.w & rhs.uz + self.x & rhs.rw + self.x & rhs.ux + self.y & rhs.rw + self.y & rhs.uy + self.z & rhs.rw + self.z & rhs.uz  (unnamed type)

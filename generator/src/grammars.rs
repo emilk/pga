@@ -32,7 +32,7 @@ pub fn pga2d() -> (Grammar, Types) {
 	);
 
 	// TODO: is this correct?
-	t.insert_struct("Translator", &[("s", "S"), ("yw", "YW"), ("wx", "WX")]);
+	// t.insert_struct("Translator", &[("s", "S"), ("yw", "YW"), ("wx", "WX")]);
 	t.insert_struct("Rotor", &[("s", "S"), ("xy", "XY")]);
 	t.insert_struct("Motor", &[("s", "S"), ("yw", "YW"), ("wx", "WX"), ("xy", "XY")]);
 	// TODO: Is this a Motor? Or a Transform?
@@ -89,7 +89,7 @@ pub fn pga3d() -> (Grammar, Types) {
 			],
 		);
 
-		t.insert_struct("Translator2", &[("s", "S"), ("wy", "WY"), ("wx", "WX")]);
+		// t.insert_struct("Translator2", &[("s", "S"), ("wy", "WY"), ("wx", "WX")]);
 		t.insert_struct("Rotor2", &[("s", "S"), ("xy", "XY")]);
 		t.insert_struct("Motor2", &[("s", "S"), ("wy", "WY"), ("wx", "WX"), ("xy", "XY")]);
 	}
@@ -121,10 +121,10 @@ pub fn pga3d() -> (Grammar, Types) {
 
 	t.insert_struct("Plane", &[("nx", "YZW"), ("ny", "ZXW"), ("nz", "XYW"), ("d", "ZYX")]);
 
-	t.insert_struct(
-		"Translator3",
-		&[("x", "YZ"), ("y", "ZX"), ("z", "XY"), ("xyzw", "XYZW")],
-	);
+	// t.insert_struct(
+	// 	"Translator3",
+	// 	&[("x", "YZ"), ("y", "ZX"), ("z", "XY"), ("xyzw", "XYZW")],
+	// );
 	// Quaternion
 	t.insert_struct("Rotor3", &[("x", "WX"), ("y", "WY"), ("z", "WZ"), ("w", "XYZW")]);
 

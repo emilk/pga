@@ -2,7 +2,7 @@
 //!
 //! ## Operations
 //! ```text
-//! Line.geometric(Line) -> Translator
+//! Line.geometric(Line) -> Motor
 //! Line.dot(Line) -> S
 //! Line.anti_wedge(Line) -> Vec3
 //! Line.anti_geometric(Vec2) -> Rotor
@@ -21,14 +21,6 @@
 //! Vec3.wedge(Line) -> XYW
 //! Line.anti_wedge(Vec3) -> S
 //! Vec3.anti_wedge(Line) -> S
-//! Line.geometric(Translator) -> Line
-//! Translator.geometric(Line) -> Line
-//! Line.dot(Translator) -> Line
-//! Translator.dot(Line) -> Line
-//! Line.wedge(Translator) -> Line
-//! Translator.wedge(Line) -> Line
-//! Line.anti_wedge(Translator) -> Vec3
-//! Translator.anti_wedge(Line) -> Vec3
 //! Line.geometric(Rotor) -> Motor
 //! Rotor.geometric(Line) -> Motor
 //! Line.anti_geometric(Rotor) -> Vec2
@@ -115,7 +107,7 @@ impl AntiReverse for Line {
 // ---------------------------------------------------------------------
 // Line OP Vec2:
 
-// Omitted: Line geometric Vec2 = self.dx * rhs.x + self.dx * rhs.y + self.dy * rhs.x + self.dy * rhs.y + self.m * rhs.x + self.m * rhs.y
+// Omitted: Line geometric Vec2 = self.dx * rhs.x + self.dx * rhs.y + self.dy * rhs.x + self.dy * rhs.y + self.m * rhs.x + self.m * rhs.y  (unnamed type)
 
 // Line.anti_geometric(Vec2) -> Rotor
 impl AntiGeometric<Vec2> for Line {
@@ -170,7 +162,7 @@ impl AntiWedge<Vec2> for Line {
 // ---------------------------------------------------------------------
 // Line OP Vec3:
 
-// Omitted: Line geometric Vec3 = self.dx * rhs.x + self.dx * rhs.y + self.dy * rhs.x + self.dy * rhs.y + self.m * rhs.w + self.m * rhs.x + self.m * rhs.y
+// Omitted: Line geometric Vec3 = self.dx * rhs.x + self.dx * rhs.y + self.dy * rhs.x + self.dy * rhs.y + self.m * rhs.w + self.m * rhs.x + self.m * rhs.y  (unnamed type)
 
 // Line.anti_geometric(Vec3) -> Motor
 impl AntiGeometric<Vec3> for Line {
@@ -231,24 +223,26 @@ impl AntiWedge<Vec3> for Line {
 // ---------------------------------------------------------------------
 // Line OP Line:
 
-// Line.geometric(Line) -> Translator
+// Line.geometric(Line) -> Motor
 impl Geometric<Line> for Line {
-    type Output = Translator;
+    type Output = Motor;
     fn geometric(self, rhs: Line) -> Self::Output {
-        // Translator {
+        // Motor {
         //     s : S(self.m.0 * rhs.m.0),
         //     yw: YW(self.dy.0 * rhs.m.0) + YW(self.m.0 * rhs.dy.0),
         //     wx: WX(self.dx.0 * rhs.m.0) + WX(self.m.0 * rhs.dx.0),
+        //     xy: Default::default(),
         // }
-        Translator {
+        Motor {
             s: -self.m.geometric(rhs.m),
             yw: -self.dy.geometric(rhs.m) + self.m.geometric(rhs.dy),
             wx: self.dx.geometric(rhs.m) - self.m.geometric(rhs.dx),
+            xy: Default::default(),
         }
     }
 }
 
-// Omitted: Line anti_geometric Line = self.dx !* rhs.dx + self.dx !* rhs.dy + self.dx !* rhs.m + self.dy !* rhs.dx + self.dy !* rhs.dy + self.dy !* rhs.m + self.m !* rhs.dx + self.m !* rhs.dy
+// Omitted: Line anti_geometric Line = self.dx !* rhs.dx + self.dx !* rhs.dy + self.dx !* rhs.m + self.dy !* rhs.dx + self.dy !* rhs.dy + self.dy !* rhs.m + self.m !* rhs.dx + self.m !* rhs.dy  (unnamed type)
 
 // Line.dot(Line) -> S
 impl Dot<Line> for Line {
@@ -259,7 +253,7 @@ impl Dot<Line> for Line {
     }
 }
 
-// Omitted: Line wedge Line = 0
+// Omitted: Line wedge Line = 0  (unnamed type)
 
 // Line.anti_wedge(Line) -> Vec3
 impl AntiWedge<Line> for Line {
@@ -274,79 +268,6 @@ impl AntiWedge<Line> for Line {
             x: self.dy.anti_wedge(rhs.m) - self.m.anti_wedge(rhs.dy),
             y: -self.dx.anti_wedge(rhs.m) + self.m.anti_wedge(rhs.dx),
             w: self.dx.anti_wedge(rhs.dy) - self.dy.anti_wedge(rhs.dx),
-        }
-    }
-}
-
-// ---------------------------------------------------------------------
-// Line OP Translator:
-
-// Line.geometric(Translator) -> Line
-impl Geometric<Translator> for Line {
-    type Output = Line;
-    fn geometric(self, rhs: Translator) -> Self::Output {
-        // Line {
-        //     dx: YW(self.dx.0 * rhs.s.0) + YW(self.m.0 * rhs.wx.0),
-        //     dy: WX(self.dy.0 * rhs.s.0) + WX(self.m.0 * rhs.yw.0),
-        //     m : XY(self.m.0 * rhs.s.0),
-        // }
-        Line {
-            dx: self.dx.geometric(rhs.s) + self.m.geometric(rhs.wx),
-            dy: self.dy.geometric(rhs.s) - self.m.geometric(rhs.yw),
-            m: self.m.geometric(rhs.s),
-        }
-    }
-}
-
-// Omitted: Line anti_geometric Translator = self.dx !* rhs.s + self.dx !* rhs.wx + self.dx !* rhs.yw + self.dy !* rhs.s + self.dy !* rhs.wx + self.dy !* rhs.yw + self.m !* rhs.wx + self.m !* rhs.yw
-
-// Line.dot(Translator) -> Line
-impl Dot<Translator> for Line {
-    type Output = Line;
-    fn dot(self, rhs: Translator) -> Self::Output {
-        // Line {
-        //     dx: YW(self.dx.0 * rhs.s.0),
-        //     dy: WX(self.dy.0 * rhs.s.0),
-        //     m : XY(self.m.0 * rhs.s.0),
-        // }
-        Line {
-            dx: self.dx.dot(rhs.s),
-            dy: self.dy.dot(rhs.s),
-            m: self.m.dot(rhs.s),
-        }
-    }
-}
-
-// Line.wedge(Translator) -> Line
-impl Wedge<Translator> for Line {
-    type Output = Line;
-    fn wedge(self, rhs: Translator) -> Self::Output {
-        // Line {
-        //     dx: YW(self.dx.0 * rhs.s.0),
-        //     dy: WX(self.dy.0 * rhs.s.0),
-        //     m : XY(self.m.0 * rhs.s.0),
-        // }
-        Line {
-            dx: self.dx.wedge(rhs.s),
-            dy: self.dy.wedge(rhs.s),
-            m: self.m.wedge(rhs.s),
-        }
-    }
-}
-
-// Line.anti_wedge(Translator) -> Vec3
-impl AntiWedge<Translator> for Line {
-    type Output = Vec3;
-    fn anti_wedge(self, rhs: Translator) -> Self::Output {
-        // Vec3 {
-        //     x: X(self.m.0 * rhs.wx.0),
-        //     y: Y(self.m.0 * rhs.yw.0),
-        //     w: W(self.dx.0 * rhs.wx.0) + W(self.dy.0 * rhs.yw.0),
-        // }
-        Vec3 {
-            x: -self.m.anti_wedge(rhs.wx),
-            y: self.m.anti_wedge(rhs.yw),
-            w: self.dx.anti_wedge(rhs.wx) - self.dy.anti_wedge(rhs.yw),
         }
     }
 }
@@ -461,7 +382,7 @@ impl Geometric<Motor> for Line {
     }
 }
 
-// Omitted: Line anti_geometric Motor = self.dx !* rhs.s + self.dx !* rhs.wx + self.dx !* rhs.xy + self.dx !* rhs.yw + self.dy !* rhs.s + self.dy !* rhs.wx + self.dy !* rhs.xy + self.dy !* rhs.yw + self.m !* rhs.wx + self.m !* rhs.yw
+// Omitted: Line anti_geometric Motor = self.dx !* rhs.s + self.dx !* rhs.wx + self.dx !* rhs.xy + self.dx !* rhs.yw + self.dy !* rhs.s + self.dy !* rhs.wx + self.dy !* rhs.xy + self.dy !* rhs.yw + self.m !* rhs.wx + self.m !* rhs.yw  (unnamed type)
 
 // Line.dot(Motor) -> Motor
 impl Dot<Motor> for Line {

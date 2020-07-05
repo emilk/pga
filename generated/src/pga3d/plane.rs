@@ -100,13 +100,21 @@ impl AntiReverse for Plane {
 // ---------------------------------------------------------------------
 // Plane OP Vec3:
 
-// Omitted: Plane geometric Vec3 = self.d.geometric(rhs.x) + self.d.geometric(rhs.y) + self.d.geometric(rhs.z) + self.nx.geometric(rhs.x) + self.nx.geometric(rhs.y) + self.nx.geometric(rhs.z) + self.ny.geometric(rhs.x) + self.ny.geometric(rhs.y) + self.ny.geometric(rhs.z) + self.nz.geometric(rhs.x) + self.nz.geometric(rhs.y) + self.nz.geometric(rhs.z)
-// Omitted: Plane anti_geometric Vec3 = self.nx.anti_geometric(rhs.x) + self.nx.anti_geometric(rhs.y) + self.nx.anti_geometric(rhs.z) + self.ny.anti_geometric(rhs.x) + self.ny.anti_geometric(rhs.y) + self.ny.anti_geometric(rhs.z) + self.nz.anti_geometric(rhs.x) + self.nz.anti_geometric(rhs.y) + self.nz.anti_geometric(rhs.z)
+// Omitted: Plane geometric Vec3 = self.d * rhs.x + self.d * rhs.y + self.d * rhs.z + self.nx * rhs.x + self.nx * rhs.y + self.nx * rhs.z + self.ny * rhs.x + self.ny * rhs.y + self.ny * rhs.z + self.nz * rhs.x + self.nz * rhs.y + self.nz * rhs.z
+// Omitted: Plane anti_geometric Vec3 = self.nx !* rhs.x + self.nx !* rhs.y + self.nx !* rhs.z + self.ny !* rhs.x + self.ny !* rhs.y + self.ny !* rhs.z + self.nz !* rhs.x + self.nz !* rhs.y + self.nz !* rhs.z
 
 // Plane.dot(Vec3) -> Line3
 impl Dot<Vec3> for Plane {
     type Output = Line3;
     fn dot(self, rhs: Vec3) -> Self::Output {
+        // Line3 {
+        //     vx: WX(self.ny.0 * rhs.z.0) + WX(self.nz.0 * rhs.y.0),
+        //     vy: WY(self.nx.0 * rhs.z.0) + WY(self.nz.0 * rhs.x.0),
+        //     vz: WZ(self.nx.0 * rhs.y.0) + WZ(self.ny.0 * rhs.x.0),
+        //     mx: YZ(self.d.0 * rhs.x.0),
+        //     my: ZX(self.d.0 * rhs.y.0),
+        //     mz: XY(self.d.0 * rhs.z.0),
+        // }
         Line3 {
             vx: -self.ny.dot(rhs.z) + self.nz.dot(rhs.y),
             vy: self.nx.dot(rhs.z) - self.nz.dot(rhs.x),
@@ -122,6 +130,7 @@ impl Dot<Vec3> for Plane {
 impl Wedge<Vec3> for Plane {
     type Output = XYZW;
     fn wedge(self, rhs: Vec3) -> Self::Output {
+        // -XYZW(self.nx.0 * rhs.x.0) - XYZW(self.ny.0 * rhs.y.0) - XYZW(self.nz.0 * rhs.z.0)
         self.nx.wedge(rhs.x) + self.ny.wedge(rhs.y) + self.nz.wedge(rhs.z)
     }
 }
@@ -130,6 +139,7 @@ impl Wedge<Vec3> for Plane {
 impl AntiWedge<Vec3> for Plane {
     type Output = S;
     fn anti_wedge(self, rhs: Vec3) -> Self::Output {
+        // -S(self.nx.0 * rhs.x.0) - S(self.ny.0 * rhs.y.0) - S(self.nz.0 * rhs.z.0)
         self.nx.anti_wedge(rhs.x) + self.ny.anti_wedge(rhs.y) + self.nz.anti_wedge(rhs.z)
     }
 }
@@ -137,13 +147,21 @@ impl AntiWedge<Vec3> for Plane {
 // ---------------------------------------------------------------------
 // Plane OP Vec4:
 
-// Omitted: Plane geometric Vec4 = self.d.geometric(rhs.w) + self.d.geometric(rhs.x) + self.d.geometric(rhs.y) + self.d.geometric(rhs.z) + self.nx.geometric(rhs.x) + self.nx.geometric(rhs.y) + self.nx.geometric(rhs.z) + self.ny.geometric(rhs.x) + self.ny.geometric(rhs.y) + self.ny.geometric(rhs.z) + self.nz.geometric(rhs.x) + self.nz.geometric(rhs.y) + self.nz.geometric(rhs.z)
-// Omitted: Plane anti_geometric Vec4 = self.d.anti_geometric(rhs.w) + self.nx.anti_geometric(rhs.w) + self.nx.anti_geometric(rhs.x) + self.nx.anti_geometric(rhs.y) + self.nx.anti_geometric(rhs.z) + self.ny.anti_geometric(rhs.w) + self.ny.anti_geometric(rhs.x) + self.ny.anti_geometric(rhs.y) + self.ny.anti_geometric(rhs.z) + self.nz.anti_geometric(rhs.w) + self.nz.anti_geometric(rhs.x) + self.nz.anti_geometric(rhs.y) + self.nz.anti_geometric(rhs.z)
+// Omitted: Plane geometric Vec4 = self.d * rhs.w + self.d * rhs.x + self.d * rhs.y + self.d * rhs.z + self.nx * rhs.x + self.nx * rhs.y + self.nx * rhs.z + self.ny * rhs.x + self.ny * rhs.y + self.ny * rhs.z + self.nz * rhs.x + self.nz * rhs.y + self.nz * rhs.z
+// Omitted: Plane anti_geometric Vec4 = self.d !* rhs.w + self.nx !* rhs.w + self.nx !* rhs.x + self.nx !* rhs.y + self.nx !* rhs.z + self.ny !* rhs.w + self.ny !* rhs.x + self.ny !* rhs.y + self.ny !* rhs.z + self.nz !* rhs.w + self.nz !* rhs.x + self.nz !* rhs.y + self.nz !* rhs.z
 
 // Plane.dot(Vec4) -> Line3
 impl Dot<Vec4> for Plane {
     type Output = Line3;
     fn dot(self, rhs: Vec4) -> Self::Output {
+        // Line3 {
+        //     vx: WX(self.ny.0 * rhs.z.0) + WX(self.nz.0 * rhs.y.0),
+        //     vy: WY(self.nx.0 * rhs.z.0) + WY(self.nz.0 * rhs.x.0),
+        //     vz: WZ(self.nx.0 * rhs.y.0) + WZ(self.ny.0 * rhs.x.0),
+        //     mx: YZ(self.d.0 * rhs.x.0),
+        //     my: ZX(self.d.0 * rhs.y.0),
+        //     mz: XY(self.d.0 * rhs.z.0),
+        // }
         Line3 {
             vx: -self.ny.dot(rhs.z) + self.nz.dot(rhs.y),
             vy: self.nx.dot(rhs.z) - self.nz.dot(rhs.x),
@@ -159,6 +177,7 @@ impl Dot<Vec4> for Plane {
 impl Wedge<Vec4> for Plane {
     type Output = XYZW;
     fn wedge(self, rhs: Vec4) -> Self::Output {
+        // -XYZW(self.d.0 * rhs.w.0) - XYZW(self.nx.0 * rhs.x.0) - XYZW(self.ny.0 * rhs.y.0) - XYZW(self.nz.0 * rhs.z.0)
         self.d.wedge(rhs.w) + self.nx.wedge(rhs.x) + self.ny.wedge(rhs.y) + self.nz.wedge(rhs.z)
     }
 }
@@ -167,6 +186,7 @@ impl Wedge<Vec4> for Plane {
 impl AntiWedge<Vec4> for Plane {
     type Output = S;
     fn anti_wedge(self, rhs: Vec4) -> Self::Output {
+        // -S(self.d.0 * rhs.w.0) - S(self.nx.0 * rhs.x.0) - S(self.ny.0 * rhs.y.0) - S(self.nz.0 * rhs.z.0)
         self.d.anti_wedge(rhs.w)
             + self.nx.anti_wedge(rhs.x)
             + self.ny.anti_wedge(rhs.y)
@@ -177,13 +197,19 @@ impl AntiWedge<Vec4> for Plane {
 // ---------------------------------------------------------------------
 // Plane OP Line3:
 
-// Omitted: Plane geometric Line3 = self.d.geometric(rhs.mx) + self.d.geometric(rhs.my) + self.d.geometric(rhs.mz) + self.d.geometric(rhs.vx) + self.d.geometric(rhs.vy) + self.d.geometric(rhs.vz) + self.nx.geometric(rhs.mx) + self.nx.geometric(rhs.my) + self.nx.geometric(rhs.mz) + self.ny.geometric(rhs.mx) + self.ny.geometric(rhs.my) + self.ny.geometric(rhs.mz) + self.nz.geometric(rhs.mx) + self.nz.geometric(rhs.my) + self.nz.geometric(rhs.mz)
-// Omitted: Plane anti_geometric Line3 = self.d.anti_geometric(rhs.vx) + self.d.anti_geometric(rhs.vy) + self.d.anti_geometric(rhs.vz) + self.nx.anti_geometric(rhs.mx) + self.nx.anti_geometric(rhs.my) + self.nx.anti_geometric(rhs.mz) + self.nx.anti_geometric(rhs.vx) + self.nx.anti_geometric(rhs.vy) + self.nx.anti_geometric(rhs.vz) + self.ny.anti_geometric(rhs.mx) + self.ny.anti_geometric(rhs.my) + self.ny.anti_geometric(rhs.mz) + self.ny.anti_geometric(rhs.vx) + self.ny.anti_geometric(rhs.vy) + self.ny.anti_geometric(rhs.vz) + self.nz.anti_geometric(rhs.mx) + self.nz.anti_geometric(rhs.my) + self.nz.anti_geometric(rhs.mz) + self.nz.anti_geometric(rhs.vx) + self.nz.anti_geometric(rhs.vy) + self.nz.anti_geometric(rhs.vz)
+// Omitted: Plane geometric Line3 = self.d * rhs.mx + self.d * rhs.my + self.d * rhs.mz + self.d * rhs.vx + self.d * rhs.vy + self.d * rhs.vz + self.nx * rhs.mx + self.nx * rhs.my + self.nx * rhs.mz + self.ny * rhs.mx + self.ny * rhs.my + self.ny * rhs.mz + self.nz * rhs.mx + self.nz * rhs.my + self.nz * rhs.mz
+// Omitted: Plane anti_geometric Line3 = self.d !* rhs.vx + self.d !* rhs.vy + self.d !* rhs.vz + self.nx !* rhs.mx + self.nx !* rhs.my + self.nx !* rhs.mz + self.nx !* rhs.vx + self.nx !* rhs.vy + self.nx !* rhs.vz + self.ny !* rhs.mx + self.ny !* rhs.my + self.ny !* rhs.mz + self.ny !* rhs.vx + self.ny !* rhs.vy + self.ny !* rhs.vz + self.nz !* rhs.mx + self.nz !* rhs.my + self.nz !* rhs.mz + self.nz !* rhs.vx + self.nz !* rhs.vy + self.nz !* rhs.vz
 
 // Plane.dot(Line3) -> Vec4
 impl Dot<Line3> for Plane {
     type Output = Vec4;
     fn dot(self, rhs: Line3) -> Self::Output {
+        // Vec4 {
+        //     x: X(self.d.0 * rhs.mx.0),
+        //     y: Y(self.d.0 * rhs.my.0),
+        //     z: Z(self.d.0 * rhs.mz.0),
+        //     w: W(self.nx.0 * rhs.mx.0) + W(self.ny.0 * rhs.my.0) + W(self.nz.0 * rhs.mz.0),
+        // }
         Vec4 {
             x: self.d.dot(rhs.mx),
             y: self.d.dot(rhs.my),
@@ -199,6 +225,12 @@ impl Dot<Line3> for Plane {
 impl AntiWedge<Line3> for Plane {
     type Output = Vec4;
     fn anti_wedge(self, rhs: Line3) -> Self::Output {
+        // Vec4 {
+        //     x: X(self.d.0 * rhs.vx.0) + X(self.ny.0 * rhs.mz.0) + X(self.nz.0 * rhs.my.0),
+        //     y: Y(self.d.0 * rhs.vy.0) + Y(self.nx.0 * rhs.mz.0) + Y(self.nz.0 * rhs.mx.0),
+        //     z: Z(self.d.0 * rhs.vz.0) + Z(self.nx.0 * rhs.my.0) + Z(self.ny.0 * rhs.mx.0),
+        //     w: W(self.nx.0 * rhs.vx.0) + W(self.ny.0 * rhs.vy.0) + W(self.nz.0 * rhs.vz.0),
+        // }
         Vec4 {
             x: self.d.anti_wedge(rhs.vx) - self.ny.anti_wedge(rhs.mz) + self.nz.anti_wedge(rhs.my),
             y: self.d.anti_wedge(rhs.vy) + self.nx.anti_wedge(rhs.mz) - self.nz.anti_wedge(rhs.mx),
@@ -217,6 +249,16 @@ impl AntiWedge<Line3> for Plane {
 impl Geometric<Plane> for Plane {
     type Output = Motor3;
     fn geometric(self, rhs: Plane) -> Self::Output {
+        // Motor3 {
+        //     rx: WX(self.d.0 * rhs.nx.0) + WX(self.nx.0 * rhs.d.0),
+        //     ry: WY(self.d.0 * rhs.ny.0) + WY(self.ny.0 * rhs.d.0),
+        //     rz: WZ(self.d.0 * rhs.nz.0) + WZ(self.nz.0 * rhs.d.0),
+        //     rw: Default::default(),
+        //     ux: Default::default(),
+        //     uy: Default::default(),
+        //     uz: Default::default(),
+        //     uw: S(self.d.0 * rhs.d.0),
+        // }
         Motor3 {
             rx: -self.d.geometric(rhs.nx) + self.nx.geometric(rhs.d),
             ry: -self.d.geometric(rhs.ny) + self.ny.geometric(rhs.d),
@@ -230,12 +272,13 @@ impl Geometric<Plane> for Plane {
     }
 }
 
-// Omitted: Plane anti_geometric Plane = self.d.anti_geometric(rhs.nx) + self.d.anti_geometric(rhs.ny) + self.d.anti_geometric(rhs.nz) + self.nx.anti_geometric(rhs.d) + self.nx.anti_geometric(rhs.nx) + self.nx.anti_geometric(rhs.ny) + self.nx.anti_geometric(rhs.nz) + self.ny.anti_geometric(rhs.d) + self.ny.anti_geometric(rhs.nx) + self.ny.anti_geometric(rhs.ny) + self.ny.anti_geometric(rhs.nz) + self.nz.anti_geometric(rhs.d) + self.nz.anti_geometric(rhs.nx) + self.nz.anti_geometric(rhs.ny) + self.nz.anti_geometric(rhs.nz)
+// Omitted: Plane anti_geometric Plane = self.d !* rhs.nx + self.d !* rhs.ny + self.d !* rhs.nz + self.nx !* rhs.d + self.nx !* rhs.nx + self.nx !* rhs.ny + self.nx !* rhs.nz + self.ny !* rhs.d + self.ny !* rhs.nx + self.ny !* rhs.ny + self.ny !* rhs.nz + self.nz !* rhs.d + self.nz !* rhs.nx + self.nz !* rhs.ny + self.nz !* rhs.nz
 
 // Plane.dot(Plane) -> S
 impl Dot<Plane> for Plane {
     type Output = S;
     fn dot(self, rhs: Plane) -> Self::Output {
+        // -S(self.d.0 * rhs.d.0)
         self.d.dot(rhs.d)
     }
 }
@@ -246,6 +289,14 @@ impl Dot<Plane> for Plane {
 impl AntiWedge<Plane> for Plane {
     type Output = Line3;
     fn anti_wedge(self, rhs: Plane) -> Self::Output {
+        // Line3 {
+        //     vx: WX(self.ny.0 * rhs.nz.0) + WX(self.nz.0 * rhs.ny.0),
+        //     vy: WY(self.nx.0 * rhs.nz.0) + WY(self.nz.0 * rhs.nx.0),
+        //     vz: WZ(self.nx.0 * rhs.ny.0) + WZ(self.ny.0 * rhs.nx.0),
+        //     mx: YZ(self.d.0 * rhs.nx.0) + YZ(self.nx.0 * rhs.d.0),
+        //     my: ZX(self.d.0 * rhs.ny.0) + ZX(self.ny.0 * rhs.d.0),
+        //     mz: XY(self.d.0 * rhs.nz.0) + XY(self.nz.0 * rhs.d.0),
+        // }
         Line3 {
             vx: -self.ny.anti_wedge(rhs.nz) + self.nz.anti_wedge(rhs.ny),
             vy: self.nx.anti_wedge(rhs.nz) - self.nz.anti_wedge(rhs.nx),
@@ -260,13 +311,19 @@ impl AntiWedge<Plane> for Plane {
 // ---------------------------------------------------------------------
 // Plane OP Translator3:
 
-// Omitted: Plane geometric Translator3 = self.d.geometric(rhs.x) + self.d.geometric(rhs.xyzw) + self.d.geometric(rhs.y) + self.d.geometric(rhs.z) + self.nx.geometric(rhs.x) + self.nx.geometric(rhs.y) + self.nx.geometric(rhs.z) + self.ny.geometric(rhs.x) + self.ny.geometric(rhs.y) + self.ny.geometric(rhs.z) + self.nz.geometric(rhs.x) + self.nz.geometric(rhs.y) + self.nz.geometric(rhs.z)
-// Omitted: Plane anti_geometric Translator3 = self.d.anti_geometric(rhs.xyzw) + self.nx.anti_geometric(rhs.x) + self.nx.anti_geometric(rhs.xyzw) + self.nx.anti_geometric(rhs.y) + self.nx.anti_geometric(rhs.z) + self.ny.anti_geometric(rhs.x) + self.ny.anti_geometric(rhs.xyzw) + self.ny.anti_geometric(rhs.y) + self.ny.anti_geometric(rhs.z) + self.nz.anti_geometric(rhs.x) + self.nz.anti_geometric(rhs.xyzw) + self.nz.anti_geometric(rhs.y) + self.nz.anti_geometric(rhs.z)
+// Omitted: Plane geometric Translator3 = self.d * rhs.x + self.d * rhs.xyzw + self.d * rhs.y + self.d * rhs.z + self.nx * rhs.x + self.nx * rhs.y + self.nx * rhs.z + self.ny * rhs.x + self.ny * rhs.y + self.ny * rhs.z + self.nz * rhs.x + self.nz * rhs.y + self.nz * rhs.z
+// Omitted: Plane anti_geometric Translator3 = self.d !* rhs.xyzw + self.nx !* rhs.x + self.nx !* rhs.xyzw + self.nx !* rhs.y + self.nx !* rhs.z + self.ny !* rhs.x + self.ny !* rhs.xyzw + self.ny !* rhs.y + self.ny !* rhs.z + self.nz !* rhs.x + self.nz !* rhs.xyzw + self.nz !* rhs.y + self.nz !* rhs.z
 
 // Plane.dot(Translator3) -> Vec4
 impl Dot<Translator3> for Plane {
     type Output = Vec4;
     fn dot(self, rhs: Translator3) -> Self::Output {
+        // Vec4 {
+        //     x: X(self.d.0 * rhs.x.0),
+        //     y: Y(self.d.0 * rhs.y.0),
+        //     z: Z(self.d.0 * rhs.z.0),
+        //     w: W(self.d.0 * rhs.xyzw.0) + W(self.nx.0 * rhs.x.0) + W(self.ny.0 * rhs.y.0) + W(self.nz.0 * rhs.z.0),
+        // }
         Vec4 {
             x: self.d.dot(rhs.x),
             y: self.d.dot(rhs.y),
@@ -277,36 +334,43 @@ impl Dot<Translator3> for Plane {
 }
 
 // Omitted: Plane wedge Translator3 = 0
-// Omitted: Plane anti_wedge Translator3 = self.d.anti_wedge(rhs.xyzw) + self.nx.anti_wedge(rhs.xyzw) + self.nx.anti_wedge(rhs.y) + self.nx.anti_wedge(rhs.z) + self.ny.anti_wedge(rhs.x) + self.ny.anti_wedge(rhs.xyzw) + self.ny.anti_wedge(rhs.z) + self.nz.anti_wedge(rhs.x) + self.nz.anti_wedge(rhs.xyzw) + self.nz.anti_wedge(rhs.y)
+// Omitted: Plane anti_wedge Translator3 = self.d & rhs.xyzw + self.nx & rhs.xyzw + self.nx & rhs.y + self.nx & rhs.z + self.ny & rhs.x + self.ny & rhs.xyzw + self.ny & rhs.z + self.nz & rhs.x + self.nz & rhs.xyzw + self.nz & rhs.y
 
 // ---------------------------------------------------------------------
 // Plane OP Rotor3:
 
-// Omitted: Plane geometric Rotor3 = self.d.geometric(rhs.w) + self.d.geometric(rhs.x) + self.d.geometric(rhs.y) + self.d.geometric(rhs.z)
-// Omitted: Plane anti_geometric Rotor3 = self.d.anti_geometric(rhs.w) + self.d.anti_geometric(rhs.x) + self.d.anti_geometric(rhs.y) + self.d.anti_geometric(rhs.z) + self.nx.anti_geometric(rhs.w) + self.nx.anti_geometric(rhs.x) + self.nx.anti_geometric(rhs.y) + self.nx.anti_geometric(rhs.z) + self.ny.anti_geometric(rhs.w) + self.ny.anti_geometric(rhs.x) + self.ny.anti_geometric(rhs.y) + self.ny.anti_geometric(rhs.z) + self.nz.anti_geometric(rhs.w) + self.nz.anti_geometric(rhs.x) + self.nz.anti_geometric(rhs.y) + self.nz.anti_geometric(rhs.z)
+// Omitted: Plane geometric Rotor3 = self.d * rhs.w + self.d * rhs.x + self.d * rhs.y + self.d * rhs.z
+// Omitted: Plane anti_geometric Rotor3 = self.d !* rhs.w + self.d !* rhs.x + self.d !* rhs.y + self.d !* rhs.z + self.nx !* rhs.w + self.nx !* rhs.x + self.nx !* rhs.y + self.nx !* rhs.z + self.ny !* rhs.w + self.ny !* rhs.x + self.ny !* rhs.y + self.ny !* rhs.z + self.nz !* rhs.w + self.nz !* rhs.x + self.nz !* rhs.y + self.nz !* rhs.z
 
 // Plane.dot(Rotor3) -> W
 impl Dot<Rotor3> for Plane {
     type Output = W;
     fn dot(self, rhs: Rotor3) -> Self::Output {
+        // W(self.d.0 * rhs.w.0)
         self.d.dot(rhs.w)
     }
 }
 
 // Omitted: Plane wedge Rotor3 = 0
-// Omitted: Plane anti_wedge Rotor3 = self.d.anti_wedge(rhs.w) + self.d.anti_wedge(rhs.x) + self.d.anti_wedge(rhs.y) + self.d.anti_wedge(rhs.z) + self.nx.anti_wedge(rhs.w) + self.nx.anti_wedge(rhs.x) + self.ny.anti_wedge(rhs.w) + self.ny.anti_wedge(rhs.y) + self.nz.anti_wedge(rhs.w) + self.nz.anti_wedge(rhs.z)
+// Omitted: Plane anti_wedge Rotor3 = self.d & rhs.w + self.d & rhs.x + self.d & rhs.y + self.d & rhs.z + self.nx & rhs.w + self.nx & rhs.x + self.ny & rhs.w + self.ny & rhs.y + self.nz & rhs.w + self.nz & rhs.z
 
 // ---------------------------------------------------------------------
 // Plane OP Motor3:
 
-// Omitted: Plane geometric Motor3 = self.d.geometric(rhs.rw) + self.d.geometric(rhs.rx) + self.d.geometric(rhs.ry) + self.d.geometric(rhs.rz) + self.d.geometric(rhs.uw) + self.d.geometric(rhs.ux) + self.d.geometric(rhs.uy) + self.d.geometric(rhs.uz) + self.nx.geometric(rhs.uw) + self.ny.geometric(rhs.uw) + self.nz.geometric(rhs.uw)
-// Omitted: Plane anti_geometric Motor3 = self.d.anti_geometric(rhs.rw) + self.d.anti_geometric(rhs.rx) + self.d.anti_geometric(rhs.ry) + self.d.anti_geometric(rhs.rz) + self.d.anti_geometric(rhs.ux) + self.d.anti_geometric(rhs.uy) + self.d.anti_geometric(rhs.uz) + self.nx.anti_geometric(rhs.rw) + self.nx.anti_geometric(rhs.rx) + self.nx.anti_geometric(rhs.ry) + self.nx.anti_geometric(rhs.rz) + self.nx.anti_geometric(rhs.uw) + self.nx.anti_geometric(rhs.ux) + self.nx.anti_geometric(rhs.uy) + self.nx.anti_geometric(rhs.uz) + self.ny.anti_geometric(rhs.rw) + self.ny.anti_geometric(rhs.rx) + self.ny.anti_geometric(rhs.ry) + self.ny.anti_geometric(rhs.rz) + self.ny.anti_geometric(rhs.uw) + self.ny.anti_geometric(rhs.ux) + self.ny.anti_geometric(rhs.uy) + self.ny.anti_geometric(rhs.uz) + self.nz.anti_geometric(rhs.rw) + self.nz.anti_geometric(rhs.rx) + self.nz.anti_geometric(rhs.ry) + self.nz.anti_geometric(rhs.rz) + self.nz.anti_geometric(rhs.uw) + self.nz.anti_geometric(rhs.ux) + self.nz.anti_geometric(rhs.uy) + self.nz.anti_geometric(rhs.uz)
-// Omitted: Plane dot Motor3 = self.d.dot(rhs.rw) + self.d.dot(rhs.uw) + self.nx.dot(rhs.uw) + self.ny.dot(rhs.uw) + self.nz.dot(rhs.uw)
+// Omitted: Plane geometric Motor3 = self.d * rhs.rw + self.d * rhs.rx + self.d * rhs.ry + self.d * rhs.rz + self.d * rhs.uw + self.d * rhs.ux + self.d * rhs.uy + self.d * rhs.uz + self.nx * rhs.uw + self.ny * rhs.uw + self.nz * rhs.uw
+// Omitted: Plane anti_geometric Motor3 = self.d !* rhs.rw + self.d !* rhs.rx + self.d !* rhs.ry + self.d !* rhs.rz + self.d !* rhs.ux + self.d !* rhs.uy + self.d !* rhs.uz + self.nx !* rhs.rw + self.nx !* rhs.rx + self.nx !* rhs.ry + self.nx !* rhs.rz + self.nx !* rhs.uw + self.nx !* rhs.ux + self.nx !* rhs.uy + self.nx !* rhs.uz + self.ny !* rhs.rw + self.ny !* rhs.rx + self.ny !* rhs.ry + self.ny !* rhs.rz + self.ny !* rhs.uw + self.ny !* rhs.ux + self.ny !* rhs.uy + self.ny !* rhs.uz + self.nz !* rhs.rw + self.nz !* rhs.rx + self.nz !* rhs.ry + self.nz !* rhs.rz + self.nz !* rhs.uw + self.nz !* rhs.ux + self.nz !* rhs.uy + self.nz !* rhs.uz
+// Omitted: Plane dot Motor3 = self.d | rhs.rw + self.d | rhs.uw + self.nx | rhs.uw + self.ny | rhs.uw + self.nz | rhs.uw
 
 // Plane.wedge(Motor3) -> Plane
 impl Wedge<Motor3> for Plane {
     type Output = Plane;
     fn wedge(self, rhs: Motor3) -> Self::Output {
+        // Plane {
+        //     nx: YZW(self.nx.0 * rhs.uw.0),
+        //     ny: ZXW(self.ny.0 * rhs.uw.0),
+        //     nz: XYW(self.nz.0 * rhs.uw.0),
+        //     d : ZYX(self.d.0 * rhs.uw.0),
+        // }
         Plane {
             nx: self.nx.wedge(rhs.uw),
             ny: self.ny.wedge(rhs.uw),
@@ -316,4 +380,4 @@ impl Wedge<Motor3> for Plane {
     }
 }
 
-// Omitted: Plane anti_wedge Motor3 = self.d.anti_wedge(rhs.rw) + self.d.anti_wedge(rhs.rx) + self.d.anti_wedge(rhs.ry) + self.d.anti_wedge(rhs.rz) + self.d.anti_wedge(rhs.ux) + self.d.anti_wedge(rhs.uy) + self.d.anti_wedge(rhs.uz) + self.nx.anti_wedge(rhs.rw) + self.nx.anti_wedge(rhs.rx) + self.nx.anti_wedge(rhs.uy) + self.nx.anti_wedge(rhs.uz) + self.ny.anti_wedge(rhs.rw) + self.ny.anti_wedge(rhs.ry) + self.ny.anti_wedge(rhs.ux) + self.ny.anti_wedge(rhs.uz) + self.nz.anti_wedge(rhs.rw) + self.nz.anti_wedge(rhs.rz) + self.nz.anti_wedge(rhs.ux) + self.nz.anti_wedge(rhs.uy)
+// Omitted: Plane anti_wedge Motor3 = self.d & rhs.rw + self.d & rhs.rx + self.d & rhs.ry + self.d & rhs.rz + self.d & rhs.ux + self.d & rhs.uy + self.d & rhs.uz + self.nx & rhs.rw + self.nx & rhs.rx + self.nx & rhs.uy + self.nx & rhs.uz + self.ny & rhs.rw + self.ny & rhs.ry + self.ny & rhs.ux + self.ny & rhs.uz + self.nz & rhs.rw + self.nz & rhs.rz + self.nz & rhs.ux + self.nz & rhs.uy

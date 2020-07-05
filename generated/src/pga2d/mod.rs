@@ -21,12 +21,12 @@ pub mod rotor;
 pub mod motor;
 
 pub use self::{
-	blades::*,
-	line::*,
-	motor::*,
-	rotor::*,
-	traits::*,
-	translator::*,
-	vec2::*,
-	vec3::*,
+    blades::*,
+    line::*,
+    motor::*,
+    rotor::*,
+    traits::*,
+    translator::*,
+    vec2::*,
+    vec3::*,
 };

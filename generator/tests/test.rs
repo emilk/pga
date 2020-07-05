@@ -110,7 +110,7 @@ Line {
     my: -p.x ^ q.z + p.z ^ q.x,
     mz: p.x ^ q.y - p.y ^ q.x,
 }
-	"
+    "
 	);
 }
 
@@ -155,7 +155,7 @@ fn test_pga2d() {
 		rust(Expr::wedge(vec![Expr::var(0, "l", point), Expr::var(1, "r", point)])),
 		r"
 Line {
-	dx: -l.w ^ r.y + l.y ^ r.w,
+    dx: -l.w ^ r.y + l.y ^ r.w,
     dy: l.w ^ r.x - l.x ^ r.w,
     m : l.x ^ r.y - l.y ^ r.x,
 }"
@@ -225,20 +225,28 @@ fn test_generator() {
 	assert_eq_ignoring_whitespace!(
 		code,
 		r"
-		// Vec4.wedge(Vec4) -> Line3
-		impl Wedge<Vec4> for Vec4 {
-			type Output = Line3;
-			fn wedge(self, rhs: Vec4) -> Self::Output {
-				Line3 {
-					vx: self.w.wedge(rhs.x) - self.x.wedge(rhs.w),
-					vy: self.w.wedge(rhs.y) - self.y.wedge(rhs.w),
-					vz: self.w.wedge(rhs.z) - self.z.wedge(rhs.w),
-					mx: self.y.wedge(rhs.z) - self.z.wedge(rhs.y),
-					my: -self.x.wedge(rhs.z) + self.z.wedge(rhs.x),
-					mz: self.x.wedge(rhs.y) - self.y.wedge(rhs.x),
-				}
-			}
-		}
-		"
+// Vec4.wedge(Vec4) -> Line3
+impl Wedge<Vec4> for Vec4 {
+    type Output = Line3;
+    fn wedge(self, rhs: Vec4) -> Self::Output {
+        // Line3 {
+        //     vx: WX(self.w.0 * rhs.x.0) + WX(self.x.0 * rhs.w.0),
+        //     vy: WY(self.w.0 * rhs.y.0) + WY(self.y.0 * rhs.w.0),
+        //     vz: WZ(self.w.0 * rhs.z.0) + WZ(self.z.0 * rhs.w.0),
+        //     mx: YZ(self.y.0 * rhs.z.0) + YZ(self.z.0 * rhs.y.0),
+        //     my: ZX(self.x.0 * rhs.z.0) + ZX(self.z.0 * rhs.x.0),
+        //     mz: XY(self.x.0 * rhs.y.0) + XY(self.y.0 * rhs.x.0),
+        // }
+        Line3 {
+            vx: self.w.wedge(rhs.x) - self.x.wedge(rhs.w),
+            vy: self.w.wedge(rhs.y) - self.y.wedge(rhs.w),
+            vz: self.w.wedge(rhs.z) - self.z.wedge(rhs.w),
+            mx: self.y.wedge(rhs.z) - self.z.wedge(rhs.y),
+            my: -self.x.wedge(rhs.z) + self.z.wedge(rhs.x),
+            mz: self.x.wedge(rhs.y) - self.y.wedge(rhs.x),
+        }
+    }
+}
+        "
 	);
 }

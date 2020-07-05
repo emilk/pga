@@ -61,7 +61,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 	mod_file_contents += &format!(
 		"\npub use self::{{\n{}\n}};\n",
-		mods.iter().map(|mod_name| format!("\t{}::*,", mod_name)).join("\n")
+		mods.iter().map(|mod_name| format!("    {}::*,", mod_name)).join("\n")
 	);
 
 	write_file(&mod_file_contents, &out_dir.join("mod.rs"))?;

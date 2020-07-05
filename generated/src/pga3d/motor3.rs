@@ -81,41 +81,47 @@ impl AntiReverse for Motor3 {
 // ---------------------------------------------------------------------
 // Motor3 OP Vec3:
 
-// Omitted: Motor3 geometric Vec3 = self.rw.geometric(rhs.x) + self.rw.geometric(rhs.y) + self.rw.geometric(rhs.z) + self.rx.geometric(rhs.x) + self.rx.geometric(rhs.y) + self.rx.geometric(rhs.z) + self.ry.geometric(rhs.x) + self.ry.geometric(rhs.y) + self.ry.geometric(rhs.z) + self.rz.geometric(rhs.x) + self.rz.geometric(rhs.y) + self.rz.geometric(rhs.z) + self.uw.geometric(rhs.x) + self.uw.geometric(rhs.y) + self.uw.geometric(rhs.z) + self.ux.geometric(rhs.x) + self.ux.geometric(rhs.y) + self.ux.geometric(rhs.z) + self.uy.geometric(rhs.x) + self.uy.geometric(rhs.y) + self.uy.geometric(rhs.z) + self.uz.geometric(rhs.x) + self.uz.geometric(rhs.y) + self.uz.geometric(rhs.z)
-// Omitted: Motor3 anti_geometric Vec3 = self.rw.anti_geometric(rhs.x) + self.rw.anti_geometric(rhs.y) + self.rw.anti_geometric(rhs.z) + self.rx.anti_geometric(rhs.x) + self.rx.anti_geometric(rhs.y) + self.rx.anti_geometric(rhs.z) + self.ry.anti_geometric(rhs.x) + self.ry.anti_geometric(rhs.y) + self.ry.anti_geometric(rhs.z) + self.rz.anti_geometric(rhs.x) + self.rz.anti_geometric(rhs.y) + self.rz.anti_geometric(rhs.z) + self.ux.anti_geometric(rhs.x) + self.ux.anti_geometric(rhs.y) + self.ux.anti_geometric(rhs.z) + self.uy.anti_geometric(rhs.x) + self.uy.anti_geometric(rhs.y) + self.uy.anti_geometric(rhs.z) + self.uz.anti_geometric(rhs.x) + self.uz.anti_geometric(rhs.y) + self.uz.anti_geometric(rhs.z)
-// Omitted: Motor3 dot Vec3 = self.rw.dot(rhs.x) + self.rw.dot(rhs.y) + self.rw.dot(rhs.z) + self.rx.dot(rhs.x) + self.ry.dot(rhs.y) + self.rz.dot(rhs.z) + self.uw.dot(rhs.x) + self.uw.dot(rhs.y) + self.uw.dot(rhs.z) + self.ux.dot(rhs.y) + self.ux.dot(rhs.z) + self.uy.dot(rhs.x) + self.uy.dot(rhs.z) + self.uz.dot(rhs.x) + self.uz.dot(rhs.y)
-// Omitted: Motor3 wedge Vec3 = self.rx.wedge(rhs.y) + self.rx.wedge(rhs.z) + self.ry.wedge(rhs.x) + self.ry.wedge(rhs.z) + self.rz.wedge(rhs.x) + self.rz.wedge(rhs.y) + self.uw.wedge(rhs.x) + self.uw.wedge(rhs.y) + self.uw.wedge(rhs.z) + self.ux.wedge(rhs.x) + self.uy.wedge(rhs.y) + self.uz.wedge(rhs.z)
-// Omitted: Motor3 anti_wedge Vec3 = self.rw.anti_wedge(rhs.x) + self.rw.anti_wedge(rhs.y) + self.rw.anti_wedge(rhs.z) + self.ux.anti_wedge(rhs.x) + self.uy.anti_wedge(rhs.y) + self.uz.anti_wedge(rhs.z)
+// Omitted: Motor3 geometric Vec3 = self.rw * rhs.x + self.rw * rhs.y + self.rw * rhs.z + self.rx * rhs.x + self.rx * rhs.y + self.rx * rhs.z + self.ry * rhs.x + self.ry * rhs.y + self.ry * rhs.z + self.rz * rhs.x + self.rz * rhs.y + self.rz * rhs.z + self.uw * rhs.x + self.uw * rhs.y + self.uw * rhs.z + self.ux * rhs.x + self.ux * rhs.y + self.ux * rhs.z + self.uy * rhs.x + self.uy * rhs.y + self.uy * rhs.z + self.uz * rhs.x + self.uz * rhs.y + self.uz * rhs.z
+// Omitted: Motor3 anti_geometric Vec3 = self.rw !* rhs.x + self.rw !* rhs.y + self.rw !* rhs.z + self.rx !* rhs.x + self.rx !* rhs.y + self.rx !* rhs.z + self.ry !* rhs.x + self.ry !* rhs.y + self.ry !* rhs.z + self.rz !* rhs.x + self.rz !* rhs.y + self.rz !* rhs.z + self.ux !* rhs.x + self.ux !* rhs.y + self.ux !* rhs.z + self.uy !* rhs.x + self.uy !* rhs.y + self.uy !* rhs.z + self.uz !* rhs.x + self.uz !* rhs.y + self.uz !* rhs.z
+// Omitted: Motor3 dot Vec3 = self.rw | rhs.x + self.rw | rhs.y + self.rw | rhs.z + self.rx | rhs.x + self.ry | rhs.y + self.rz | rhs.z + self.uw | rhs.x + self.uw | rhs.y + self.uw | rhs.z + self.ux | rhs.y + self.ux | rhs.z + self.uy | rhs.x + self.uy | rhs.z + self.uz | rhs.x + self.uz | rhs.y
+// Omitted: Motor3 wedge Vec3 = self.rx ^ rhs.y + self.rx ^ rhs.z + self.ry ^ rhs.x + self.ry ^ rhs.z + self.rz ^ rhs.x + self.rz ^ rhs.y + self.uw ^ rhs.x + self.uw ^ rhs.y + self.uw ^ rhs.z + self.ux ^ rhs.x + self.uy ^ rhs.y + self.uz ^ rhs.z
+// Omitted: Motor3 anti_wedge Vec3 = self.rw & rhs.x + self.rw & rhs.y + self.rw & rhs.z + self.ux & rhs.x + self.uy & rhs.y + self.uz & rhs.z
 
 // ---------------------------------------------------------------------
 // Motor3 OP Vec4:
 
-// Omitted: Motor3 geometric Vec4 = self.rw.geometric(rhs.x) + self.rw.geometric(rhs.y) + self.rw.geometric(rhs.z) + self.rx.geometric(rhs.x) + self.rx.geometric(rhs.y) + self.rx.geometric(rhs.z) + self.ry.geometric(rhs.x) + self.ry.geometric(rhs.y) + self.ry.geometric(rhs.z) + self.rz.geometric(rhs.x) + self.rz.geometric(rhs.y) + self.rz.geometric(rhs.z) + self.uw.geometric(rhs.w) + self.uw.geometric(rhs.x) + self.uw.geometric(rhs.y) + self.uw.geometric(rhs.z) + self.ux.geometric(rhs.x) + self.ux.geometric(rhs.y) + self.ux.geometric(rhs.z) + self.uy.geometric(rhs.x) + self.uy.geometric(rhs.y) + self.uy.geometric(rhs.z) + self.uz.geometric(rhs.x) + self.uz.geometric(rhs.y) + self.uz.geometric(rhs.z)
-// Omitted: Motor3 anti_geometric Vec4 = self.rw.anti_geometric(rhs.w) + self.rw.anti_geometric(rhs.x) + self.rw.anti_geometric(rhs.y) + self.rw.anti_geometric(rhs.z) + self.rx.anti_geometric(rhs.w) + self.rx.anti_geometric(rhs.x) + self.rx.anti_geometric(rhs.y) + self.rx.anti_geometric(rhs.z) + self.ry.anti_geometric(rhs.w) + self.ry.anti_geometric(rhs.x) + self.ry.anti_geometric(rhs.y) + self.ry.anti_geometric(rhs.z) + self.rz.anti_geometric(rhs.w) + self.rz.anti_geometric(rhs.x) + self.rz.anti_geometric(rhs.y) + self.rz.anti_geometric(rhs.z) + self.uw.anti_geometric(rhs.w) + self.ux.anti_geometric(rhs.w) + self.ux.anti_geometric(rhs.x) + self.ux.anti_geometric(rhs.y) + self.ux.anti_geometric(rhs.z) + self.uy.anti_geometric(rhs.w) + self.uy.anti_geometric(rhs.x) + self.uy.anti_geometric(rhs.y) + self.uy.anti_geometric(rhs.z) + self.uz.anti_geometric(rhs.w) + self.uz.anti_geometric(rhs.x) + self.uz.anti_geometric(rhs.y) + self.uz.anti_geometric(rhs.z)
-// Omitted: Motor3 dot Vec4 = self.rw.dot(rhs.x) + self.rw.dot(rhs.y) + self.rw.dot(rhs.z) + self.rx.dot(rhs.x) + self.ry.dot(rhs.y) + self.rz.dot(rhs.z) + self.uw.dot(rhs.w) + self.uw.dot(rhs.x) + self.uw.dot(rhs.y) + self.uw.dot(rhs.z) + self.ux.dot(rhs.y) + self.ux.dot(rhs.z) + self.uy.dot(rhs.x) + self.uy.dot(rhs.z) + self.uz.dot(rhs.x) + self.uz.dot(rhs.y)
-// Omitted: Motor3 wedge Vec4 = self.rx.wedge(rhs.y) + self.rx.wedge(rhs.z) + self.ry.wedge(rhs.x) + self.ry.wedge(rhs.z) + self.rz.wedge(rhs.x) + self.rz.wedge(rhs.y) + self.uw.wedge(rhs.w) + self.uw.wedge(rhs.x) + self.uw.wedge(rhs.y) + self.uw.wedge(rhs.z) + self.ux.wedge(rhs.x) + self.uy.wedge(rhs.y) + self.uz.wedge(rhs.z)
-// Omitted: Motor3 anti_wedge Vec4 = self.rw.anti_wedge(rhs.w) + self.rw.anti_wedge(rhs.x) + self.rw.anti_wedge(rhs.y) + self.rw.anti_wedge(rhs.z) + self.ux.anti_wedge(rhs.x) + self.uy.anti_wedge(rhs.y) + self.uz.anti_wedge(rhs.z)
+// Omitted: Motor3 geometric Vec4 = self.rw * rhs.x + self.rw * rhs.y + self.rw * rhs.z + self.rx * rhs.x + self.rx * rhs.y + self.rx * rhs.z + self.ry * rhs.x + self.ry * rhs.y + self.ry * rhs.z + self.rz * rhs.x + self.rz * rhs.y + self.rz * rhs.z + self.uw * rhs.w + self.uw * rhs.x + self.uw * rhs.y + self.uw * rhs.z + self.ux * rhs.x + self.ux * rhs.y + self.ux * rhs.z + self.uy * rhs.x + self.uy * rhs.y + self.uy * rhs.z + self.uz * rhs.x + self.uz * rhs.y + self.uz * rhs.z
+// Omitted: Motor3 anti_geometric Vec4 = self.rw !* rhs.w + self.rw !* rhs.x + self.rw !* rhs.y + self.rw !* rhs.z + self.rx !* rhs.w + self.rx !* rhs.x + self.rx !* rhs.y + self.rx !* rhs.z + self.ry !* rhs.w + self.ry !* rhs.x + self.ry !* rhs.y + self.ry !* rhs.z + self.rz !* rhs.w + self.rz !* rhs.x + self.rz !* rhs.y + self.rz !* rhs.z + self.uw !* rhs.w + self.ux !* rhs.w + self.ux !* rhs.x + self.ux !* rhs.y + self.ux !* rhs.z + self.uy !* rhs.w + self.uy !* rhs.x + self.uy !* rhs.y + self.uy !* rhs.z + self.uz !* rhs.w + self.uz !* rhs.x + self.uz !* rhs.y + self.uz !* rhs.z
+// Omitted: Motor3 dot Vec4 = self.rw | rhs.x + self.rw | rhs.y + self.rw | rhs.z + self.rx | rhs.x + self.ry | rhs.y + self.rz | rhs.z + self.uw | rhs.w + self.uw | rhs.x + self.uw | rhs.y + self.uw | rhs.z + self.ux | rhs.y + self.ux | rhs.z + self.uy | rhs.x + self.uy | rhs.z + self.uz | rhs.x + self.uz | rhs.y
+// Omitted: Motor3 wedge Vec4 = self.rx ^ rhs.y + self.rx ^ rhs.z + self.ry ^ rhs.x + self.ry ^ rhs.z + self.rz ^ rhs.x + self.rz ^ rhs.y + self.uw ^ rhs.w + self.uw ^ rhs.x + self.uw ^ rhs.y + self.uw ^ rhs.z + self.ux ^ rhs.x + self.uy ^ rhs.y + self.uz ^ rhs.z
+// Omitted: Motor3 anti_wedge Vec4 = self.rw & rhs.w + self.rw & rhs.x + self.rw & rhs.y + self.rw & rhs.z + self.ux & rhs.x + self.uy & rhs.y + self.uz & rhs.z
 
 // ---------------------------------------------------------------------
 // Motor3 OP Line3:
 
-// Omitted: Motor3 geometric Line3 = self.rw.geometric(rhs.mx) + self.rw.geometric(rhs.my) + self.rw.geometric(rhs.mz) + self.rx.geometric(rhs.mx) + self.rx.geometric(rhs.my) + self.rx.geometric(rhs.mz) + self.ry.geometric(rhs.mx) + self.ry.geometric(rhs.my) + self.ry.geometric(rhs.mz) + self.rz.geometric(rhs.mx) + self.rz.geometric(rhs.my) + self.rz.geometric(rhs.mz) + self.uw.geometric(rhs.mx) + self.uw.geometric(rhs.my) + self.uw.geometric(rhs.mz) + self.uw.geometric(rhs.vx) + self.uw.geometric(rhs.vy) + self.uw.geometric(rhs.vz) + self.ux.geometric(rhs.mx) + self.ux.geometric(rhs.my) + self.ux.geometric(rhs.mz) + self.uy.geometric(rhs.mx) + self.uy.geometric(rhs.my) + self.uy.geometric(rhs.mz) + self.uz.geometric(rhs.mx) + self.uz.geometric(rhs.my) + self.uz.geometric(rhs.mz)
-// Omitted: Motor3 anti_geometric Line3 = self.rw.anti_geometric(rhs.mx) + self.rw.anti_geometric(rhs.my) + self.rw.anti_geometric(rhs.mz) + self.rw.anti_geometric(rhs.vx) + self.rw.anti_geometric(rhs.vy) + self.rw.anti_geometric(rhs.vz) + self.rx.anti_geometric(rhs.mx) + self.rx.anti_geometric(rhs.my) + self.rx.anti_geometric(rhs.mz) + self.rx.anti_geometric(rhs.vx) + self.rx.anti_geometric(rhs.vy) + self.rx.anti_geometric(rhs.vz) + self.ry.anti_geometric(rhs.mx) + self.ry.anti_geometric(rhs.my) + self.ry.anti_geometric(rhs.mz) + self.ry.anti_geometric(rhs.vx) + self.ry.anti_geometric(rhs.vy) + self.ry.anti_geometric(rhs.vz) + self.rz.anti_geometric(rhs.mx) + self.rz.anti_geometric(rhs.my) + self.rz.anti_geometric(rhs.mz) + self.rz.anti_geometric(rhs.vx) + self.rz.anti_geometric(rhs.vy) + self.rz.anti_geometric(rhs.vz) + self.uw.anti_geometric(rhs.vx) + self.uw.anti_geometric(rhs.vy) + self.uw.anti_geometric(rhs.vz) + self.ux.anti_geometric(rhs.mx) + self.ux.anti_geometric(rhs.my) + self.ux.anti_geometric(rhs.mz) + self.ux.anti_geometric(rhs.vx) + self.ux.anti_geometric(rhs.vy) + self.ux.anti_geometric(rhs.vz) + self.uy.anti_geometric(rhs.mx) + self.uy.anti_geometric(rhs.my) + self.uy.anti_geometric(rhs.mz) + self.uy.anti_geometric(rhs.vx) + self.uy.anti_geometric(rhs.vy) + self.uy.anti_geometric(rhs.vz) + self.uz.anti_geometric(rhs.mx) + self.uz.anti_geometric(rhs.my) + self.uz.anti_geometric(rhs.mz) + self.uz.anti_geometric(rhs.vx) + self.uz.anti_geometric(rhs.vy) + self.uz.anti_geometric(rhs.vz)
-// Omitted: Motor3 dot Line3 = self.rw.dot(rhs.mx) + self.rw.dot(rhs.my) + self.rw.dot(rhs.mz) + self.uw.dot(rhs.mx) + self.uw.dot(rhs.my) + self.uw.dot(rhs.mz) + self.uw.dot(rhs.vx) + self.uw.dot(rhs.vy) + self.uw.dot(rhs.vz) + self.ux.dot(rhs.mx) + self.uy.dot(rhs.my) + self.uz.dot(rhs.mz)
-// Omitted: Motor3 wedge Line3 = self.rx.wedge(rhs.mx) + self.ry.wedge(rhs.my) + self.rz.wedge(rhs.mz) + self.uw.wedge(rhs.mx) + self.uw.wedge(rhs.my) + self.uw.wedge(rhs.mz) + self.uw.wedge(rhs.vx) + self.uw.wedge(rhs.vy) + self.uw.wedge(rhs.vz)
-// Omitted: Motor3 anti_wedge Line3 = self.rw.anti_wedge(rhs.mx) + self.rw.anti_wedge(rhs.my) + self.rw.anti_wedge(rhs.mz) + self.rw.anti_wedge(rhs.vx) + self.rw.anti_wedge(rhs.vy) + self.rw.anti_wedge(rhs.vz) + self.rx.anti_wedge(rhs.mx) + self.ry.anti_wedge(rhs.my) + self.rz.anti_wedge(rhs.mz) + self.ux.anti_wedge(rhs.my) + self.ux.anti_wedge(rhs.mz) + self.ux.anti_wedge(rhs.vx) + self.uy.anti_wedge(rhs.mx) + self.uy.anti_wedge(rhs.mz) + self.uy.anti_wedge(rhs.vy) + self.uz.anti_wedge(rhs.mx) + self.uz.anti_wedge(rhs.my) + self.uz.anti_wedge(rhs.vz)
+// Omitted: Motor3 geometric Line3 = self.rw * rhs.mx + self.rw * rhs.my + self.rw * rhs.mz + self.rx * rhs.mx + self.rx * rhs.my + self.rx * rhs.mz + self.ry * rhs.mx + self.ry * rhs.my + self.ry * rhs.mz + self.rz * rhs.mx + self.rz * rhs.my + self.rz * rhs.mz + self.uw * rhs.mx + self.uw * rhs.my + self.uw * rhs.mz + self.uw * rhs.vx + self.uw * rhs.vy + self.uw * rhs.vz + self.ux * rhs.mx + self.ux * rhs.my + self.ux * rhs.mz + self.uy * rhs.mx + self.uy * rhs.my + self.uy * rhs.mz + self.uz * rhs.mx + self.uz * rhs.my + self.uz * rhs.mz
+// Omitted: Motor3 anti_geometric Line3 = self.rw !* rhs.mx + self.rw !* rhs.my + self.rw !* rhs.mz + self.rw !* rhs.vx + self.rw !* rhs.vy + self.rw !* rhs.vz + self.rx !* rhs.mx + self.rx !* rhs.my + self.rx !* rhs.mz + self.rx !* rhs.vx + self.rx !* rhs.vy + self.rx !* rhs.vz + self.ry !* rhs.mx + self.ry !* rhs.my + self.ry !* rhs.mz + self.ry !* rhs.vx + self.ry !* rhs.vy + self.ry !* rhs.vz + self.rz !* rhs.mx + self.rz !* rhs.my + self.rz !* rhs.mz + self.rz !* rhs.vx + self.rz !* rhs.vy + self.rz !* rhs.vz + self.uw !* rhs.vx + self.uw !* rhs.vy + self.uw !* rhs.vz + self.ux !* rhs.mx + self.ux !* rhs.my + self.ux !* rhs.mz + self.ux !* rhs.vx + self.ux !* rhs.vy + self.ux !* rhs.vz + self.uy !* rhs.mx + self.uy !* rhs.my + self.uy !* rhs.mz + self.uy !* rhs.vx + self.uy !* rhs.vy + self.uy !* rhs.vz + self.uz !* rhs.mx + self.uz !* rhs.my + self.uz !* rhs.mz + self.uz !* rhs.vx + self.uz !* rhs.vy + self.uz !* rhs.vz
+// Omitted: Motor3 dot Line3 = self.rw | rhs.mx + self.rw | rhs.my + self.rw | rhs.mz + self.uw | rhs.mx + self.uw | rhs.my + self.uw | rhs.mz + self.uw | rhs.vx + self.uw | rhs.vy + self.uw | rhs.vz + self.ux | rhs.mx + self.uy | rhs.my + self.uz | rhs.mz
+// Omitted: Motor3 wedge Line3 = self.rx ^ rhs.mx + self.ry ^ rhs.my + self.rz ^ rhs.mz + self.uw ^ rhs.mx + self.uw ^ rhs.my + self.uw ^ rhs.mz + self.uw ^ rhs.vx + self.uw ^ rhs.vy + self.uw ^ rhs.vz
+// Omitted: Motor3 anti_wedge Line3 = self.rw & rhs.mx + self.rw & rhs.my + self.rw & rhs.mz + self.rw & rhs.vx + self.rw & rhs.vy + self.rw & rhs.vz + self.rx & rhs.mx + self.ry & rhs.my + self.rz & rhs.mz + self.ux & rhs.my + self.ux & rhs.mz + self.ux & rhs.vx + self.uy & rhs.mx + self.uy & rhs.mz + self.uy & rhs.vy + self.uz & rhs.mx + self.uz & rhs.my + self.uz & rhs.vz
 
 // ---------------------------------------------------------------------
 // Motor3 OP Plane:
 
-// Omitted: Motor3 geometric Plane = self.rw.geometric(rhs.d) + self.rx.geometric(rhs.d) + self.ry.geometric(rhs.d) + self.rz.geometric(rhs.d) + self.uw.geometric(rhs.d) + self.uw.geometric(rhs.nx) + self.uw.geometric(rhs.ny) + self.uw.geometric(rhs.nz) + self.ux.geometric(rhs.d) + self.uy.geometric(rhs.d) + self.uz.geometric(rhs.d)
-// Omitted: Motor3 anti_geometric Plane = self.rw.anti_geometric(rhs.d) + self.rw.anti_geometric(rhs.nx) + self.rw.anti_geometric(rhs.ny) + self.rw.anti_geometric(rhs.nz) + self.rx.anti_geometric(rhs.d) + self.rx.anti_geometric(rhs.nx) + self.rx.anti_geometric(rhs.ny) + self.rx.anti_geometric(rhs.nz) + self.ry.anti_geometric(rhs.d) + self.ry.anti_geometric(rhs.nx) + self.ry.anti_geometric(rhs.ny) + self.ry.anti_geometric(rhs.nz) + self.rz.anti_geometric(rhs.d) + self.rz.anti_geometric(rhs.nx) + self.rz.anti_geometric(rhs.ny) + self.rz.anti_geometric(rhs.nz) + self.uw.anti_geometric(rhs.nx) + self.uw.anti_geometric(rhs.ny) + self.uw.anti_geometric(rhs.nz) + self.ux.anti_geometric(rhs.d) + self.ux.anti_geometric(rhs.nx) + self.ux.anti_geometric(rhs.ny) + self.ux.anti_geometric(rhs.nz) + self.uy.anti_geometric(rhs.d) + self.uy.anti_geometric(rhs.nx) + self.uy.anti_geometric(rhs.ny) + self.uy.anti_geometric(rhs.nz) + self.uz.anti_geometric(rhs.d) + self.uz.anti_geometric(rhs.nx) + self.uz.anti_geometric(rhs.ny) + self.uz.anti_geometric(rhs.nz)
-// Omitted: Motor3 dot Plane = self.rw.dot(rhs.d) + self.uw.dot(rhs.d) + self.uw.dot(rhs.nx) + self.uw.dot(rhs.ny) + self.uw.dot(rhs.nz)
+// Omitted: Motor3 geometric Plane = self.rw * rhs.d + self.rx * rhs.d + self.ry * rhs.d + self.rz * rhs.d + self.uw * rhs.d + self.uw * rhs.nx + self.uw * rhs.ny + self.uw * rhs.nz + self.ux * rhs.d + self.uy * rhs.d + self.uz * rhs.d
+// Omitted: Motor3 anti_geometric Plane = self.rw !* rhs.d + self.rw !* rhs.nx + self.rw !* rhs.ny + self.rw !* rhs.nz + self.rx !* rhs.d + self.rx !* rhs.nx + self.rx !* rhs.ny + self.rx !* rhs.nz + self.ry !* rhs.d + self.ry !* rhs.nx + self.ry !* rhs.ny + self.ry !* rhs.nz + self.rz !* rhs.d + self.rz !* rhs.nx + self.rz !* rhs.ny + self.rz !* rhs.nz + self.uw !* rhs.nx + self.uw !* rhs.ny + self.uw !* rhs.nz + self.ux !* rhs.d + self.ux !* rhs.nx + self.ux !* rhs.ny + self.ux !* rhs.nz + self.uy !* rhs.d + self.uy !* rhs.nx + self.uy !* rhs.ny + self.uy !* rhs.nz + self.uz !* rhs.d + self.uz !* rhs.nx + self.uz !* rhs.ny + self.uz !* rhs.nz
+// Omitted: Motor3 dot Plane = self.rw | rhs.d + self.uw | rhs.d + self.uw | rhs.nx + self.uw | rhs.ny + self.uw | rhs.nz
 
 // Motor3.wedge(Plane) -> Plane
 impl Wedge<Plane> for Motor3 {
     type Output = Plane;
     fn wedge(self, rhs: Plane) -> Self::Output {
+        // Plane {
+        //     nx: YZW(self.uw.0 * rhs.nx.0),
+        //     ny: ZXW(self.uw.0 * rhs.ny.0),
+        //     nz: XYW(self.uw.0 * rhs.nz.0),
+        //     d : ZYX(self.uw.0 * rhs.d.0),
+        // }
         Plane {
             nx: self.uw.wedge(rhs.nx),
             ny: self.uw.wedge(rhs.ny),
@@ -125,19 +131,25 @@ impl Wedge<Plane> for Motor3 {
     }
 }
 
-// Omitted: Motor3 anti_wedge Plane = self.rw.anti_wedge(rhs.d) + self.rw.anti_wedge(rhs.nx) + self.rw.anti_wedge(rhs.ny) + self.rw.anti_wedge(rhs.nz) + self.rx.anti_wedge(rhs.d) + self.rx.anti_wedge(rhs.nx) + self.ry.anti_wedge(rhs.d) + self.ry.anti_wedge(rhs.ny) + self.rz.anti_wedge(rhs.d) + self.rz.anti_wedge(rhs.nz) + self.ux.anti_wedge(rhs.d) + self.ux.anti_wedge(rhs.ny) + self.ux.anti_wedge(rhs.nz) + self.uy.anti_wedge(rhs.d) + self.uy.anti_wedge(rhs.nx) + self.uy.anti_wedge(rhs.nz) + self.uz.anti_wedge(rhs.d) + self.uz.anti_wedge(rhs.nx) + self.uz.anti_wedge(rhs.ny)
+// Omitted: Motor3 anti_wedge Plane = self.rw & rhs.d + self.rw & rhs.nx + self.rw & rhs.ny + self.rw & rhs.nz + self.rx & rhs.d + self.rx & rhs.nx + self.ry & rhs.d + self.ry & rhs.ny + self.rz & rhs.d + self.rz & rhs.nz + self.ux & rhs.d + self.ux & rhs.ny + self.ux & rhs.nz + self.uy & rhs.d + self.uy & rhs.nx + self.uy & rhs.nz + self.uz & rhs.d + self.uz & rhs.nx + self.uz & rhs.ny
 
 // ---------------------------------------------------------------------
 // Motor3 OP Translator3:
 
-// Omitted: Motor3 geometric Translator3 = self.rw.geometric(rhs.x) + self.rw.geometric(rhs.y) + self.rw.geometric(rhs.z) + self.rx.geometric(rhs.x) + self.rx.geometric(rhs.y) + self.rx.geometric(rhs.z) + self.ry.geometric(rhs.x) + self.ry.geometric(rhs.y) + self.ry.geometric(rhs.z) + self.rz.geometric(rhs.x) + self.rz.geometric(rhs.y) + self.rz.geometric(rhs.z) + self.uw.geometric(rhs.x) + self.uw.geometric(rhs.xyzw) + self.uw.geometric(rhs.y) + self.uw.geometric(rhs.z) + self.ux.geometric(rhs.x) + self.ux.geometric(rhs.y) + self.ux.geometric(rhs.z) + self.uy.geometric(rhs.x) + self.uy.geometric(rhs.y) + self.uy.geometric(rhs.z) + self.uz.geometric(rhs.x) + self.uz.geometric(rhs.y) + self.uz.geometric(rhs.z)
-// Omitted: Motor3 anti_geometric Translator3 = self.rw.anti_geometric(rhs.x) + self.rw.anti_geometric(rhs.xyzw) + self.rw.anti_geometric(rhs.y) + self.rw.anti_geometric(rhs.z) + self.rx.anti_geometric(rhs.x) + self.rx.anti_geometric(rhs.xyzw) + self.rx.anti_geometric(rhs.y) + self.rx.anti_geometric(rhs.z) + self.ry.anti_geometric(rhs.x) + self.ry.anti_geometric(rhs.xyzw) + self.ry.anti_geometric(rhs.y) + self.ry.anti_geometric(rhs.z) + self.rz.anti_geometric(rhs.x) + self.rz.anti_geometric(rhs.xyzw) + self.rz.anti_geometric(rhs.y) + self.rz.anti_geometric(rhs.z) + self.uw.anti_geometric(rhs.xyzw) + self.ux.anti_geometric(rhs.x) + self.ux.anti_geometric(rhs.xyzw) + self.ux.anti_geometric(rhs.y) + self.ux.anti_geometric(rhs.z) + self.uy.anti_geometric(rhs.x) + self.uy.anti_geometric(rhs.xyzw) + self.uy.anti_geometric(rhs.y) + self.uy.anti_geometric(rhs.z) + self.uz.anti_geometric(rhs.x) + self.uz.anti_geometric(rhs.xyzw) + self.uz.anti_geometric(rhs.y) + self.uz.anti_geometric(rhs.z)
-// Omitted: Motor3 dot Translator3 = self.rw.dot(rhs.x) + self.rw.dot(rhs.y) + self.rw.dot(rhs.z) + self.uw.dot(rhs.x) + self.uw.dot(rhs.xyzw) + self.uw.dot(rhs.y) + self.uw.dot(rhs.z) + self.ux.dot(rhs.x) + self.uy.dot(rhs.y) + self.uz.dot(rhs.z)
+// Omitted: Motor3 geometric Translator3 = self.rw * rhs.x + self.rw * rhs.y + self.rw * rhs.z + self.rx * rhs.x + self.rx * rhs.y + self.rx * rhs.z + self.ry * rhs.x + self.ry * rhs.y + self.ry * rhs.z + self.rz * rhs.x + self.rz * rhs.y + self.rz * rhs.z + self.uw * rhs.x + self.uw * rhs.xyzw + self.uw * rhs.y + self.uw * rhs.z + self.ux * rhs.x + self.ux * rhs.y + self.ux * rhs.z + self.uy * rhs.x + self.uy * rhs.y + self.uy * rhs.z + self.uz * rhs.x + self.uz * rhs.y + self.uz * rhs.z
+// Omitted: Motor3 anti_geometric Translator3 = self.rw !* rhs.x + self.rw !* rhs.xyzw + self.rw !* rhs.y + self.rw !* rhs.z + self.rx !* rhs.x + self.rx !* rhs.xyzw + self.rx !* rhs.y + self.rx !* rhs.z + self.ry !* rhs.x + self.ry !* rhs.xyzw + self.ry !* rhs.y + self.ry !* rhs.z + self.rz !* rhs.x + self.rz !* rhs.xyzw + self.rz !* rhs.y + self.rz !* rhs.z + self.uw !* rhs.xyzw + self.ux !* rhs.x + self.ux !* rhs.xyzw + self.ux !* rhs.y + self.ux !* rhs.z + self.uy !* rhs.x + self.uy !* rhs.xyzw + self.uy !* rhs.y + self.uy !* rhs.z + self.uz !* rhs.x + self.uz !* rhs.xyzw + self.uz !* rhs.y + self.uz !* rhs.z
+// Omitted: Motor3 dot Translator3 = self.rw | rhs.x + self.rw | rhs.y + self.rw | rhs.z + self.uw | rhs.x + self.uw | rhs.xyzw + self.uw | rhs.y + self.uw | rhs.z + self.ux | rhs.x + self.uy | rhs.y + self.uz | rhs.z
 
 // Motor3.wedge(Translator3) -> Translator3
 impl Wedge<Translator3> for Motor3 {
     type Output = Translator3;
     fn wedge(self, rhs: Translator3) -> Self::Output {
+        // Translator3 {
+        //     x   : YZ(self.uw.0 * rhs.x.0),
+        //     y   : ZX(self.uw.0 * rhs.y.0),
+        //     z   : XY(self.uw.0 * rhs.z.0),
+        //     xyzw: XYZW(self.rx.0 * rhs.x.0) + XYZW(self.ry.0 * rhs.y.0) + XYZW(self.rz.0 * rhs.z.0) + XYZW(self.uw.0 * rhs.xyzw.0),
+        // }
         Translator3 {
             x: self.uw.wedge(rhs.x),
             y: self.uw.wedge(rhs.y),
@@ -148,7 +160,7 @@ impl Wedge<Translator3> for Motor3 {
     }
 }
 
-// Omitted: Motor3 anti_wedge Translator3 = self.rw.anti_wedge(rhs.x) + self.rw.anti_wedge(rhs.xyzw) + self.rw.anti_wedge(rhs.y) + self.rw.anti_wedge(rhs.z) + self.rx.anti_wedge(rhs.x) + self.rx.anti_wedge(rhs.xyzw) + self.ry.anti_wedge(rhs.xyzw) + self.ry.anti_wedge(rhs.y) + self.rz.anti_wedge(rhs.xyzw) + self.rz.anti_wedge(rhs.z) + self.uw.anti_wedge(rhs.xyzw) + self.ux.anti_wedge(rhs.xyzw) + self.ux.anti_wedge(rhs.y) + self.ux.anti_wedge(rhs.z) + self.uy.anti_wedge(rhs.x) + self.uy.anti_wedge(rhs.xyzw) + self.uy.anti_wedge(rhs.z) + self.uz.anti_wedge(rhs.x) + self.uz.anti_wedge(rhs.xyzw) + self.uz.anti_wedge(rhs.y)
+// Omitted: Motor3 anti_wedge Translator3 = self.rw & rhs.x + self.rw & rhs.xyzw + self.rw & rhs.y + self.rw & rhs.z + self.rx & rhs.x + self.rx & rhs.xyzw + self.ry & rhs.xyzw + self.ry & rhs.y + self.rz & rhs.xyzw + self.rz & rhs.z + self.uw & rhs.xyzw + self.ux & rhs.xyzw + self.ux & rhs.y + self.ux & rhs.z + self.uy & rhs.x + self.uy & rhs.xyzw + self.uy & rhs.z + self.uz & rhs.x + self.uz & rhs.xyzw + self.uz & rhs.y
 
 // ---------------------------------------------------------------------
 // Motor3 OP Rotor3:
@@ -157,6 +169,12 @@ impl Wedge<Translator3> for Motor3 {
 impl Geometric<Rotor3> for Motor3 {
     type Output = Rotor3;
     fn geometric(self, rhs: Rotor3) -> Self::Output {
+        // Rotor3 {
+        //     x: WX(self.uw.0 * rhs.x.0),
+        //     y: WY(self.uw.0 * rhs.y.0),
+        //     z: WZ(self.uw.0 * rhs.z.0),
+        //     w: XYZW(self.uw.0 * rhs.w.0),
+        // }
         Rotor3 {
             x: self.uw.geometric(rhs.x),
             y: self.uw.geometric(rhs.y),
@@ -166,12 +184,18 @@ impl Geometric<Rotor3> for Motor3 {
     }
 }
 
-// Omitted: Motor3 anti_geometric Rotor3 = self.rw.anti_geometric(rhs.w) + self.rw.anti_geometric(rhs.x) + self.rw.anti_geometric(rhs.y) + self.rw.anti_geometric(rhs.z) + self.rx.anti_geometric(rhs.w) + self.rx.anti_geometric(rhs.x) + self.rx.anti_geometric(rhs.y) + self.rx.anti_geometric(rhs.z) + self.ry.anti_geometric(rhs.w) + self.ry.anti_geometric(rhs.x) + self.ry.anti_geometric(rhs.y) + self.ry.anti_geometric(rhs.z) + self.rz.anti_geometric(rhs.w) + self.rz.anti_geometric(rhs.x) + self.rz.anti_geometric(rhs.y) + self.rz.anti_geometric(rhs.z) + self.uw.anti_geometric(rhs.w) + self.uw.anti_geometric(rhs.x) + self.uw.anti_geometric(rhs.y) + self.uw.anti_geometric(rhs.z) + self.ux.anti_geometric(rhs.w) + self.ux.anti_geometric(rhs.x) + self.ux.anti_geometric(rhs.y) + self.ux.anti_geometric(rhs.z) + self.uy.anti_geometric(rhs.w) + self.uy.anti_geometric(rhs.x) + self.uy.anti_geometric(rhs.y) + self.uy.anti_geometric(rhs.z) + self.uz.anti_geometric(rhs.w) + self.uz.anti_geometric(rhs.x) + self.uz.anti_geometric(rhs.y) + self.uz.anti_geometric(rhs.z)
+// Omitted: Motor3 anti_geometric Rotor3 = self.rw !* rhs.w + self.rw !* rhs.x + self.rw !* rhs.y + self.rw !* rhs.z + self.rx !* rhs.w + self.rx !* rhs.x + self.rx !* rhs.y + self.rx !* rhs.z + self.ry !* rhs.w + self.ry !* rhs.x + self.ry !* rhs.y + self.ry !* rhs.z + self.rz !* rhs.w + self.rz !* rhs.x + self.rz !* rhs.y + self.rz !* rhs.z + self.uw !* rhs.w + self.uw !* rhs.x + self.uw !* rhs.y + self.uw !* rhs.z + self.ux !* rhs.w + self.ux !* rhs.x + self.ux !* rhs.y + self.ux !* rhs.z + self.uy !* rhs.w + self.uy !* rhs.x + self.uy !* rhs.y + self.uy !* rhs.z + self.uz !* rhs.w + self.uz !* rhs.x + self.uz !* rhs.y + self.uz !* rhs.z
 
 // Motor3.dot(Rotor3) -> Rotor3
 impl Dot<Rotor3> for Motor3 {
     type Output = Rotor3;
     fn dot(self, rhs: Rotor3) -> Self::Output {
+        // Rotor3 {
+        //     x: WX(self.uw.0 * rhs.x.0),
+        //     y: WY(self.uw.0 * rhs.y.0),
+        //     z: WZ(self.uw.0 * rhs.z.0),
+        //     w: XYZW(self.uw.0 * rhs.w.0),
+        // }
         Rotor3 {
             x: self.uw.dot(rhs.x),
             y: self.uw.dot(rhs.y),
@@ -185,6 +209,12 @@ impl Dot<Rotor3> for Motor3 {
 impl Wedge<Rotor3> for Motor3 {
     type Output = Rotor3;
     fn wedge(self, rhs: Rotor3) -> Self::Output {
+        // Rotor3 {
+        //     x: WX(self.uw.0 * rhs.x.0),
+        //     y: WY(self.uw.0 * rhs.y.0),
+        //     z: WZ(self.uw.0 * rhs.z.0),
+        //     w: XYZW(self.uw.0 * rhs.w.0),
+        // }
         Rotor3 {
             x: self.uw.wedge(rhs.x),
             y: self.uw.wedge(rhs.y),
@@ -194,7 +224,7 @@ impl Wedge<Rotor3> for Motor3 {
     }
 }
 
-// Omitted: Motor3 anti_wedge Rotor3 = self.rw.anti_wedge(rhs.w) + self.rw.anti_wedge(rhs.x) + self.rw.anti_wedge(rhs.y) + self.rw.anti_wedge(rhs.z) + self.rx.anti_wedge(rhs.w) + self.ry.anti_wedge(rhs.w) + self.rz.anti_wedge(rhs.w) + self.uw.anti_wedge(rhs.w) + self.ux.anti_wedge(rhs.w) + self.ux.anti_wedge(rhs.x) + self.uy.anti_wedge(rhs.w) + self.uy.anti_wedge(rhs.y) + self.uz.anti_wedge(rhs.w) + self.uz.anti_wedge(rhs.z)
+// Omitted: Motor3 anti_wedge Rotor3 = self.rw & rhs.w + self.rw & rhs.x + self.rw & rhs.y + self.rw & rhs.z + self.rx & rhs.w + self.ry & rhs.w + self.rz & rhs.w + self.uw & rhs.w + self.ux & rhs.w + self.ux & rhs.x + self.uy & rhs.w + self.uy & rhs.y + self.uz & rhs.w + self.uz & rhs.z
 
 // ---------------------------------------------------------------------
 // Motor3 OP Motor3:
@@ -203,6 +233,16 @@ impl Wedge<Rotor3> for Motor3 {
 impl Geometric<Motor3> for Motor3 {
     type Output = Motor3;
     fn geometric(self, rhs: Motor3) -> Self::Output {
+        // Motor3 {
+        //     rx: WX(self.rx.0 * rhs.uw.0) + WX(self.uw.0 * rhs.rx.0),
+        //     ry: WY(self.ry.0 * rhs.uw.0) + WY(self.uw.0 * rhs.ry.0),
+        //     rz: WZ(self.rz.0 * rhs.uw.0) + WZ(self.uw.0 * rhs.rz.0),
+        //     rw: XYZW(self.rw.0 * rhs.uw.0) + XYZW(self.uw.0 * rhs.rw.0),
+        //     ux: YZW(self.uw.0 * rhs.ux.0) + YZW(self.ux.0 * rhs.uw.0),
+        //     uy: ZXW(self.uw.0 * rhs.uy.0) + ZXW(self.uy.0 * rhs.uw.0),
+        //     uz: XYW(self.uw.0 * rhs.uz.0) + XYW(self.uz.0 * rhs.uw.0),
+        //     uw: S(self.uw.0 * rhs.uw.0),
+        // }
         Motor3 {
             rx: self.rx.geometric(rhs.uw) + self.uw.geometric(rhs.rx),
             ry: self.ry.geometric(rhs.uw) + self.uw.geometric(rhs.ry),
@@ -216,12 +256,22 @@ impl Geometric<Motor3> for Motor3 {
     }
 }
 
-// Omitted: Motor3 anti_geometric Motor3 = self.rw.anti_geometric(rhs.rw) + self.rw.anti_geometric(rhs.rx) + self.rw.anti_geometric(rhs.ry) + self.rw.anti_geometric(rhs.rz) + self.rw.anti_geometric(rhs.uw) + self.rw.anti_geometric(rhs.ux) + self.rw.anti_geometric(rhs.uy) + self.rw.anti_geometric(rhs.uz) + self.rx.anti_geometric(rhs.rw) + self.rx.anti_geometric(rhs.rx) + self.rx.anti_geometric(rhs.ry) + self.rx.anti_geometric(rhs.rz) + self.rx.anti_geometric(rhs.uw) + self.rx.anti_geometric(rhs.ux) + self.rx.anti_geometric(rhs.uy) + self.rx.anti_geometric(rhs.uz) + self.ry.anti_geometric(rhs.rw) + self.ry.anti_geometric(rhs.rx) + self.ry.anti_geometric(rhs.ry) + self.ry.anti_geometric(rhs.rz) + self.ry.anti_geometric(rhs.uw) + self.ry.anti_geometric(rhs.ux) + self.ry.anti_geometric(rhs.uy) + self.ry.anti_geometric(rhs.uz) + self.rz.anti_geometric(rhs.rw) + self.rz.anti_geometric(rhs.rx) + self.rz.anti_geometric(rhs.ry) + self.rz.anti_geometric(rhs.rz) + self.rz.anti_geometric(rhs.uw) + self.rz.anti_geometric(rhs.ux) + self.rz.anti_geometric(rhs.uy) + self.rz.anti_geometric(rhs.uz) + self.uw.anti_geometric(rhs.rw) + self.uw.anti_geometric(rhs.rx) + self.uw.anti_geometric(rhs.ry) + self.uw.anti_geometric(rhs.rz) + self.uw.anti_geometric(rhs.ux) + self.uw.anti_geometric(rhs.uy) + self.uw.anti_geometric(rhs.uz) + self.ux.anti_geometric(rhs.rw) + self.ux.anti_geometric(rhs.rx) + self.ux.anti_geometric(rhs.ry) + self.ux.anti_geometric(rhs.rz) + self.ux.anti_geometric(rhs.uw) + self.ux.anti_geometric(rhs.ux) + self.ux.anti_geometric(rhs.uy) + self.ux.anti_geometric(rhs.uz) + self.uy.anti_geometric(rhs.rw) + self.uy.anti_geometric(rhs.rx) + self.uy.anti_geometric(rhs.ry) + self.uy.anti_geometric(rhs.rz) + self.uy.anti_geometric(rhs.uw) + self.uy.anti_geometric(rhs.ux) + self.uy.anti_geometric(rhs.uy) + self.uy.anti_geometric(rhs.uz) + self.uz.anti_geometric(rhs.rw) + self.uz.anti_geometric(rhs.rx) + self.uz.anti_geometric(rhs.ry) + self.uz.anti_geometric(rhs.rz) + self.uz.anti_geometric(rhs.uw) + self.uz.anti_geometric(rhs.ux) + self.uz.anti_geometric(rhs.uy) + self.uz.anti_geometric(rhs.uz)
+// Omitted: Motor3 anti_geometric Motor3 = self.rw !* rhs.rw + self.rw !* rhs.rx + self.rw !* rhs.ry + self.rw !* rhs.rz + self.rw !* rhs.uw + self.rw !* rhs.ux + self.rw !* rhs.uy + self.rw !* rhs.uz + self.rx !* rhs.rw + self.rx !* rhs.rx + self.rx !* rhs.ry + self.rx !* rhs.rz + self.rx !* rhs.uw + self.rx !* rhs.ux + self.rx !* rhs.uy + self.rx !* rhs.uz + self.ry !* rhs.rw + self.ry !* rhs.rx + self.ry !* rhs.ry + self.ry !* rhs.rz + self.ry !* rhs.uw + self.ry !* rhs.ux + self.ry !* rhs.uy + self.ry !* rhs.uz + self.rz !* rhs.rw + self.rz !* rhs.rx + self.rz !* rhs.ry + self.rz !* rhs.rz + self.rz !* rhs.uw + self.rz !* rhs.ux + self.rz !* rhs.uy + self.rz !* rhs.uz + self.uw !* rhs.rw + self.uw !* rhs.rx + self.uw !* rhs.ry + self.uw !* rhs.rz + self.uw !* rhs.ux + self.uw !* rhs.uy + self.uw !* rhs.uz + self.ux !* rhs.rw + self.ux !* rhs.rx + self.ux !* rhs.ry + self.ux !* rhs.rz + self.ux !* rhs.uw + self.ux !* rhs.ux + self.ux !* rhs.uy + self.ux !* rhs.uz + self.uy !* rhs.rw + self.uy !* rhs.rx + self.uy !* rhs.ry + self.uy !* rhs.rz + self.uy !* rhs.uw + self.uy !* rhs.ux + self.uy !* rhs.uy + self.uy !* rhs.uz + self.uz !* rhs.rw + self.uz !* rhs.rx + self.uz !* rhs.ry + self.uz !* rhs.rz + self.uz !* rhs.uw + self.uz !* rhs.ux + self.uz !* rhs.uy + self.uz !* rhs.uz
 
 // Motor3.dot(Motor3) -> Motor3
 impl Dot<Motor3> for Motor3 {
     type Output = Motor3;
     fn dot(self, rhs: Motor3) -> Self::Output {
+        // Motor3 {
+        //     rx: WX(self.rx.0 * rhs.uw.0) + WX(self.uw.0 * rhs.rx.0),
+        //     ry: WY(self.ry.0 * rhs.uw.0) + WY(self.uw.0 * rhs.ry.0),
+        //     rz: WZ(self.rz.0 * rhs.uw.0) + WZ(self.uw.0 * rhs.rz.0),
+        //     rw: XYZW(self.rw.0 * rhs.uw.0) + XYZW(self.uw.0 * rhs.rw.0),
+        //     ux: YZW(self.uw.0 * rhs.ux.0) + YZW(self.ux.0 * rhs.uw.0),
+        //     uy: ZXW(self.uw.0 * rhs.uy.0) + ZXW(self.uy.0 * rhs.uw.0),
+        //     uz: XYW(self.uw.0 * rhs.uz.0) + XYW(self.uz.0 * rhs.uw.0),
+        //     uw: S(self.uw.0 * rhs.uw.0),
+        // }
         Motor3 {
             rx: self.rx.dot(rhs.uw) + self.uw.dot(rhs.rx),
             ry: self.ry.dot(rhs.uw) + self.uw.dot(rhs.ry),
@@ -239,6 +289,16 @@ impl Dot<Motor3> for Motor3 {
 impl Wedge<Motor3> for Motor3 {
     type Output = Motor3;
     fn wedge(self, rhs: Motor3) -> Self::Output {
+        // Motor3 {
+        //     rx: WX(self.rx.0 * rhs.uw.0) + WX(self.uw.0 * rhs.rx.0),
+        //     ry: WY(self.ry.0 * rhs.uw.0) + WY(self.uw.0 * rhs.ry.0),
+        //     rz: WZ(self.rz.0 * rhs.uw.0) + WZ(self.uw.0 * rhs.rz.0),
+        //     rw: XYZW(self.rw.0 * rhs.uw.0) + XYZW(self.uw.0 * rhs.rw.0),
+        //     ux: YZW(self.uw.0 * rhs.ux.0) + YZW(self.ux.0 * rhs.uw.0),
+        //     uy: ZXW(self.uw.0 * rhs.uy.0) + ZXW(self.uy.0 * rhs.uw.0),
+        //     uz: XYW(self.uw.0 * rhs.uz.0) + XYW(self.uz.0 * rhs.uw.0),
+        //     uw: S(self.uw.0 * rhs.uw.0),
+        // }
         Motor3 {
             rx: self.rx.wedge(rhs.uw) + self.uw.wedge(rhs.rx),
             ry: self.ry.wedge(rhs.uw) + self.uw.wedge(rhs.ry),
@@ -252,4 +312,4 @@ impl Wedge<Motor3> for Motor3 {
     }
 }
 
-// Omitted: Motor3 anti_wedge Motor3 = self.rw.anti_wedge(rhs.rw) + self.rw.anti_wedge(rhs.rx) + self.rw.anti_wedge(rhs.ry) + self.rw.anti_wedge(rhs.rz) + self.rw.anti_wedge(rhs.uw) + self.rw.anti_wedge(rhs.ux) + self.rw.anti_wedge(rhs.uy) + self.rw.anti_wedge(rhs.uz) + self.rx.anti_wedge(rhs.rw) + self.rx.anti_wedge(rhs.ux) + self.ry.anti_wedge(rhs.rw) + self.ry.anti_wedge(rhs.uy) + self.rz.anti_wedge(rhs.rw) + self.rz.anti_wedge(rhs.uz) + self.uw.anti_wedge(rhs.rw) + self.ux.anti_wedge(rhs.rw) + self.ux.anti_wedge(rhs.rx) + self.ux.anti_wedge(rhs.uy) + self.ux.anti_wedge(rhs.uz) + self.uy.anti_wedge(rhs.rw) + self.uy.anti_wedge(rhs.ry) + self.uy.anti_wedge(rhs.ux) + self.uy.anti_wedge(rhs.uz) + self.uz.anti_wedge(rhs.rw) + self.uz.anti_wedge(rhs.rz) + self.uz.anti_wedge(rhs.ux) + self.uz.anti_wedge(rhs.uy)
+// Omitted: Motor3 anti_wedge Motor3 = self.rw & rhs.rw + self.rw & rhs.rx + self.rw & rhs.ry + self.rw & rhs.rz + self.rw & rhs.uw + self.rw & rhs.ux + self.rw & rhs.uy + self.rw & rhs.uz + self.rx & rhs.rw + self.rx & rhs.ux + self.ry & rhs.rw + self.ry & rhs.uy + self.rz & rhs.rw + self.rz & rhs.uz + self.uw & rhs.rw + self.ux & rhs.rw + self.ux & rhs.rx + self.ux & rhs.uy + self.ux & rhs.uz + self.uy & rhs.rw + self.uy & rhs.ry + self.uy & rhs.ux + self.uy & rhs.uz + self.uz & rhs.rw + self.uz & rhs.rz + self.uz & rhs.ux + self.uz & rhs.uy

@@ -112,12 +112,17 @@ impl AntiReverse for Translator3 {
 // ---------------------------------------------------------------------
 // Translator3 OP Vec3:
 
-// Omitted: Translator3 geometric Vec3 = self.x.geometric(rhs.x) + self.x.geometric(rhs.y) + self.x.geometric(rhs.z) + self.xyzw.geometric(rhs.x) + self.xyzw.geometric(rhs.y) + self.xyzw.geometric(rhs.z) + self.y.geometric(rhs.x) + self.y.geometric(rhs.y) + self.y.geometric(rhs.z) + self.z.geometric(rhs.x) + self.z.geometric(rhs.y) + self.z.geometric(rhs.z)
+// Omitted: Translator3 geometric Vec3 = self.x * rhs.x + self.x * rhs.y + self.x * rhs.z + self.xyzw * rhs.x + self.xyzw * rhs.y + self.xyzw * rhs.z + self.y * rhs.x + self.y * rhs.y + self.y * rhs.z + self.z * rhs.x + self.z * rhs.y + self.z * rhs.z
 
 // Translator3.anti_geometric(Vec3) -> Vec3
 impl AntiGeometric<Vec3> for Translator3 {
     type Output = Vec3;
     fn anti_geometric(self, rhs: Vec3) -> Self::Output {
+        // Vec3 {
+        //     x: X(self.xyzw.0 * rhs.x.0),
+        //     y: Y(self.xyzw.0 * rhs.y.0),
+        //     z: Z(self.xyzw.0 * rhs.z.0),
+        // }
         Vec3 {
             x: self.xyzw.anti_geometric(rhs.x),
             y: self.xyzw.anti_geometric(rhs.y),
@@ -126,12 +131,13 @@ impl AntiGeometric<Vec3> for Translator3 {
     }
 }
 
-// Omitted: Translator3 dot Vec3 = self.x.dot(rhs.y) + self.x.dot(rhs.z) + self.xyzw.dot(rhs.x) + self.xyzw.dot(rhs.y) + self.xyzw.dot(rhs.z) + self.y.dot(rhs.x) + self.y.dot(rhs.z) + self.z.dot(rhs.x) + self.z.dot(rhs.y)
+// Omitted: Translator3 dot Vec3 = self.x | rhs.y + self.x | rhs.z + self.xyzw | rhs.x + self.xyzw | rhs.y + self.xyzw | rhs.z + self.y | rhs.x + self.y | rhs.z + self.z | rhs.x + self.z | rhs.y
 
 // Translator3.wedge(Vec3) -> ZYX
 impl Wedge<Vec3> for Translator3 {
     type Output = ZYX;
     fn wedge(self, rhs: Vec3) -> Self::Output {
+        // -ZYX(self.x.0 * rhs.x.0) - ZYX(self.y.0 * rhs.y.0) - ZYX(self.z.0 * rhs.z.0)
         self.x.wedge(rhs.x) + self.y.wedge(rhs.y) + self.z.wedge(rhs.z)
     }
 }
@@ -140,6 +146,11 @@ impl Wedge<Vec3> for Translator3 {
 impl AntiWedge<Vec3> for Translator3 {
     type Output = Vec3;
     fn anti_wedge(self, rhs: Vec3) -> Self::Output {
+        // Vec3 {
+        //     x: X(self.xyzw.0 * rhs.x.0),
+        //     y: Y(self.xyzw.0 * rhs.y.0),
+        //     z: Z(self.xyzw.0 * rhs.z.0),
+        // }
         Vec3 {
             x: self.xyzw.anti_wedge(rhs.x),
             y: self.xyzw.anti_wedge(rhs.y),
@@ -151,12 +162,18 @@ impl AntiWedge<Vec3> for Translator3 {
 // ---------------------------------------------------------------------
 // Translator3 OP Vec4:
 
-// Omitted: Translator3 geometric Vec4 = self.x.geometric(rhs.w) + self.x.geometric(rhs.x) + self.x.geometric(rhs.y) + self.x.geometric(rhs.z) + self.xyzw.geometric(rhs.x) + self.xyzw.geometric(rhs.y) + self.xyzw.geometric(rhs.z) + self.y.geometric(rhs.w) + self.y.geometric(rhs.x) + self.y.geometric(rhs.y) + self.y.geometric(rhs.z) + self.z.geometric(rhs.w) + self.z.geometric(rhs.x) + self.z.geometric(rhs.y) + self.z.geometric(rhs.z)
+// Omitted: Translator3 geometric Vec4 = self.x * rhs.w + self.x * rhs.x + self.x * rhs.y + self.x * rhs.z + self.xyzw * rhs.x + self.xyzw * rhs.y + self.xyzw * rhs.z + self.y * rhs.w + self.y * rhs.x + self.y * rhs.y + self.y * rhs.z + self.z * rhs.w + self.z * rhs.x + self.z * rhs.y + self.z * rhs.z
 
 // Translator3.anti_geometric(Vec4) -> Vec4
 impl AntiGeometric<Vec4> for Translator3 {
     type Output = Vec4;
     fn anti_geometric(self, rhs: Vec4) -> Self::Output {
+        // Vec4 {
+        //     x: X(self.x.0 * rhs.w.0) + X(self.xyzw.0 * rhs.x.0),
+        //     y: Y(self.xyzw.0 * rhs.y.0) + Y(self.y.0 * rhs.w.0),
+        //     z: Z(self.xyzw.0 * rhs.z.0) + Z(self.z.0 * rhs.w.0),
+        //     w: W(self.xyzw.0 * rhs.w.0),
+        // }
         Vec4 {
             x: self.x.anti_geometric(rhs.w) + self.xyzw.anti_geometric(rhs.x),
             y: self.xyzw.anti_geometric(rhs.y) + self.y.anti_geometric(rhs.w),
@@ -166,12 +183,18 @@ impl AntiGeometric<Vec4> for Translator3 {
     }
 }
 
-// Omitted: Translator3 dot Vec4 = self.x.dot(rhs.y) + self.x.dot(rhs.z) + self.xyzw.dot(rhs.x) + self.xyzw.dot(rhs.y) + self.xyzw.dot(rhs.z) + self.y.dot(rhs.x) + self.y.dot(rhs.z) + self.z.dot(rhs.x) + self.z.dot(rhs.y)
+// Omitted: Translator3 dot Vec4 = self.x | rhs.y + self.x | rhs.z + self.xyzw | rhs.x + self.xyzw | rhs.y + self.xyzw | rhs.z + self.y | rhs.x + self.y | rhs.z + self.z | rhs.x + self.z | rhs.y
 
 // Translator3.wedge(Vec4) -> Plane
 impl Wedge<Vec4> for Translator3 {
     type Output = Plane;
     fn wedge(self, rhs: Vec4) -> Self::Output {
+        // Plane {
+        //     nx: YZW(self.x.0 * rhs.w.0),
+        //     ny: ZXW(self.y.0 * rhs.w.0),
+        //     nz: XYW(self.z.0 * rhs.w.0),
+        //     d : ZYX(self.x.0 * rhs.x.0) + ZYX(self.y.0 * rhs.y.0) + ZYX(self.z.0 * rhs.z.0),
+        // }
         Plane {
             nx: self.x.wedge(rhs.w),
             ny: self.y.wedge(rhs.w),
@@ -185,6 +208,12 @@ impl Wedge<Vec4> for Translator3 {
 impl AntiWedge<Vec4> for Translator3 {
     type Output = Vec4;
     fn anti_wedge(self, rhs: Vec4) -> Self::Output {
+        // Vec4 {
+        //     x: X(self.xyzw.0 * rhs.x.0),
+        //     y: Y(self.xyzw.0 * rhs.y.0),
+        //     z: Z(self.xyzw.0 * rhs.z.0),
+        //     w: W(self.xyzw.0 * rhs.w.0),
+        // }
         Vec4 {
             x: self.xyzw.anti_wedge(rhs.x),
             y: self.xyzw.anti_wedge(rhs.y),
@@ -197,13 +226,23 @@ impl AntiWedge<Vec4> for Translator3 {
 // ---------------------------------------------------------------------
 // Translator3 OP Line3:
 
-// Omitted: Translator3 geometric Line3 = self.x.geometric(rhs.mx) + self.x.geometric(rhs.my) + self.x.geometric(rhs.mz) + self.x.geometric(rhs.vx) + self.x.geometric(rhs.vy) + self.x.geometric(rhs.vz) + self.xyzw.geometric(rhs.mx) + self.xyzw.geometric(rhs.my) + self.xyzw.geometric(rhs.mz) + self.y.geometric(rhs.mx) + self.y.geometric(rhs.my) + self.y.geometric(rhs.mz) + self.y.geometric(rhs.vx) + self.y.geometric(rhs.vy) + self.y.geometric(rhs.vz) + self.z.geometric(rhs.mx) + self.z.geometric(rhs.my) + self.z.geometric(rhs.mz) + self.z.geometric(rhs.vx) + self.z.geometric(rhs.vy) + self.z.geometric(rhs.vz)
-// Omitted: Translator3 anti_geometric Line3 = self.x.anti_geometric(rhs.vx) + self.x.anti_geometric(rhs.vy) + self.x.anti_geometric(rhs.vz) + self.xyzw.anti_geometric(rhs.mx) + self.xyzw.anti_geometric(rhs.my) + self.xyzw.anti_geometric(rhs.mz) + self.xyzw.anti_geometric(rhs.vx) + self.xyzw.anti_geometric(rhs.vy) + self.xyzw.anti_geometric(rhs.vz) + self.y.anti_geometric(rhs.vx) + self.y.anti_geometric(rhs.vy) + self.y.anti_geometric(rhs.vz) + self.z.anti_geometric(rhs.vx) + self.z.anti_geometric(rhs.vy) + self.z.anti_geometric(rhs.vz)
+// Omitted: Translator3 geometric Line3 = self.x * rhs.mx + self.x * rhs.my + self.x * rhs.mz + self.x * rhs.vx + self.x * rhs.vy + self.x * rhs.vz + self.xyzw * rhs.mx + self.xyzw * rhs.my + self.xyzw * rhs.mz + self.y * rhs.mx + self.y * rhs.my + self.y * rhs.mz + self.y * rhs.vx + self.y * rhs.vy + self.y * rhs.vz + self.z * rhs.mx + self.z * rhs.my + self.z * rhs.mz + self.z * rhs.vx + self.z * rhs.vy + self.z * rhs.vz
+// Omitted: Translator3 anti_geometric Line3 = self.x !* rhs.vx + self.x !* rhs.vy + self.x !* rhs.vz + self.xyzw !* rhs.mx + self.xyzw !* rhs.my + self.xyzw !* rhs.mz + self.xyzw !* rhs.vx + self.xyzw !* rhs.vy + self.xyzw !* rhs.vz + self.y !* rhs.vx + self.y !* rhs.vy + self.y !* rhs.vz + self.z !* rhs.vx + self.z !* rhs.vy + self.z !* rhs.vz
 
 // Translator3.dot(Line3) -> Motor3
 impl Dot<Line3> for Translator3 {
     type Output = Motor3;
     fn dot(self, rhs: Line3) -> Self::Output {
+        // Motor3 {
+        //     rx: WX(self.xyzw.0 * rhs.mx.0),
+        //     ry: WY(self.xyzw.0 * rhs.my.0),
+        //     rz: WZ(self.xyzw.0 * rhs.mz.0),
+        //     rw: Default::default(),
+        //     ux: Default::default(),
+        //     uy: Default::default(),
+        //     uz: Default::default(),
+        //     uw: S(self.x.0 * rhs.mx.0) + S(self.y.0 * rhs.my.0) + S(self.z.0 * rhs.mz.0),
+        // }
         Motor3 {
             rx: self.xyzw.dot(rhs.mx),
             ry: self.xyzw.dot(rhs.my),
@@ -221,22 +260,29 @@ impl Dot<Line3> for Translator3 {
 impl Wedge<Line3> for Translator3 {
     type Output = XYZW;
     fn wedge(self, rhs: Line3) -> Self::Output {
+        // -XYZW(self.x.0 * rhs.vx.0) - XYZW(self.y.0 * rhs.vy.0) - XYZW(self.z.0 * rhs.vz.0)
         self.x.wedge(rhs.vx) + self.y.wedge(rhs.vy) + self.z.wedge(rhs.vz)
     }
 }
 
-// Omitted: Translator3 anti_wedge Line3 = self.x.anti_wedge(rhs.vx) + self.xyzw.anti_wedge(rhs.mx) + self.xyzw.anti_wedge(rhs.my) + self.xyzw.anti_wedge(rhs.mz) + self.xyzw.anti_wedge(rhs.vx) + self.xyzw.anti_wedge(rhs.vy) + self.xyzw.anti_wedge(rhs.vz) + self.y.anti_wedge(rhs.vy) + self.z.anti_wedge(rhs.vz)
+// Omitted: Translator3 anti_wedge Line3 = self.x & rhs.vx + self.xyzw & rhs.mx + self.xyzw & rhs.my + self.xyzw & rhs.mz + self.xyzw & rhs.vx + self.xyzw & rhs.vy + self.xyzw & rhs.vz + self.y & rhs.vy + self.z & rhs.vz
 
 // ---------------------------------------------------------------------
 // Translator3 OP Plane:
 
-// Omitted: Translator3 geometric Plane = self.x.geometric(rhs.d) + self.x.geometric(rhs.nx) + self.x.geometric(rhs.ny) + self.x.geometric(rhs.nz) + self.xyzw.geometric(rhs.d) + self.y.geometric(rhs.d) + self.y.geometric(rhs.nx) + self.y.geometric(rhs.ny) + self.y.geometric(rhs.nz) + self.z.geometric(rhs.d) + self.z.geometric(rhs.nx) + self.z.geometric(rhs.ny) + self.z.geometric(rhs.nz)
-// Omitted: Translator3 anti_geometric Plane = self.x.anti_geometric(rhs.nx) + self.x.anti_geometric(rhs.ny) + self.x.anti_geometric(rhs.nz) + self.xyzw.anti_geometric(rhs.d) + self.xyzw.anti_geometric(rhs.nx) + self.xyzw.anti_geometric(rhs.ny) + self.xyzw.anti_geometric(rhs.nz) + self.y.anti_geometric(rhs.nx) + self.y.anti_geometric(rhs.ny) + self.y.anti_geometric(rhs.nz) + self.z.anti_geometric(rhs.nx) + self.z.anti_geometric(rhs.ny) + self.z.anti_geometric(rhs.nz)
+// Omitted: Translator3 geometric Plane = self.x * rhs.d + self.x * rhs.nx + self.x * rhs.ny + self.x * rhs.nz + self.xyzw * rhs.d + self.y * rhs.d + self.y * rhs.nx + self.y * rhs.ny + self.y * rhs.nz + self.z * rhs.d + self.z * rhs.nx + self.z * rhs.ny + self.z * rhs.nz
+// Omitted: Translator3 anti_geometric Plane = self.x !* rhs.nx + self.x !* rhs.ny + self.x !* rhs.nz + self.xyzw !* rhs.d + self.xyzw !* rhs.nx + self.xyzw !* rhs.ny + self.xyzw !* rhs.nz + self.y !* rhs.nx + self.y !* rhs.ny + self.y !* rhs.nz + self.z !* rhs.nx + self.z !* rhs.ny + self.z !* rhs.nz
 
 // Translator3.dot(Plane) -> Vec4
 impl Dot<Plane> for Translator3 {
     type Output = Vec4;
     fn dot(self, rhs: Plane) -> Self::Output {
+        // Vec4 {
+        //     x: X(self.x.0 * rhs.d.0),
+        //     y: Y(self.y.0 * rhs.d.0),
+        //     z: Z(self.z.0 * rhs.d.0),
+        //     w: W(self.x.0 * rhs.nx.0) + W(self.xyzw.0 * rhs.d.0) + W(self.y.0 * rhs.ny.0) + W(self.z.0 * rhs.nz.0),
+        // }
         Vec4 {
             x: self.x.dot(rhs.d),
             y: self.y.dot(rhs.d),
@@ -247,17 +293,23 @@ impl Dot<Plane> for Translator3 {
 }
 
 // Omitted: Translator3 wedge Plane = 0
-// Omitted: Translator3 anti_wedge Plane = self.x.anti_wedge(rhs.ny) + self.x.anti_wedge(rhs.nz) + self.xyzw.anti_wedge(rhs.d) + self.xyzw.anti_wedge(rhs.nx) + self.xyzw.anti_wedge(rhs.ny) + self.xyzw.anti_wedge(rhs.nz) + self.y.anti_wedge(rhs.nx) + self.y.anti_wedge(rhs.nz) + self.z.anti_wedge(rhs.nx) + self.z.anti_wedge(rhs.ny)
+// Omitted: Translator3 anti_wedge Plane = self.x & rhs.ny + self.x & rhs.nz + self.xyzw & rhs.d + self.xyzw & rhs.nx + self.xyzw & rhs.ny + self.xyzw & rhs.nz + self.y & rhs.nx + self.y & rhs.nz + self.z & rhs.nx + self.z & rhs.ny
 
 // ---------------------------------------------------------------------
 // Translator3 OP Translator3:
 
-// Omitted: Translator3 geometric Translator3 = self.x.geometric(rhs.x) + self.x.geometric(rhs.xyzw) + self.x.geometric(rhs.y) + self.x.geometric(rhs.z) + self.xyzw.geometric(rhs.x) + self.xyzw.geometric(rhs.y) + self.xyzw.geometric(rhs.z) + self.y.geometric(rhs.x) + self.y.geometric(rhs.xyzw) + self.y.geometric(rhs.y) + self.y.geometric(rhs.z) + self.z.geometric(rhs.x) + self.z.geometric(rhs.xyzw) + self.z.geometric(rhs.y) + self.z.geometric(rhs.z)
+// Omitted: Translator3 geometric Translator3 = self.x * rhs.x + self.x * rhs.xyzw + self.x * rhs.y + self.x * rhs.z + self.xyzw * rhs.x + self.xyzw * rhs.y + self.xyzw * rhs.z + self.y * rhs.x + self.y * rhs.xyzw + self.y * rhs.y + self.y * rhs.z + self.z * rhs.x + self.z * rhs.xyzw + self.z * rhs.y + self.z * rhs.z
 
 // Translator3.anti_geometric(Translator3) -> Translator3
 impl AntiGeometric<Translator3> for Translator3 {
     type Output = Translator3;
     fn anti_geometric(self, rhs: Translator3) -> Self::Output {
+        // Translator3 {
+        //     x   : YZ(self.x.0 * rhs.xyzw.0) + YZ(self.xyzw.0 * rhs.x.0),
+        //     y   : ZX(self.xyzw.0 * rhs.y.0) + ZX(self.y.0 * rhs.xyzw.0),
+        //     z   : XY(self.xyzw.0 * rhs.z.0) + XY(self.z.0 * rhs.xyzw.0),
+        //     xyzw: XYZW(self.xyzw.0 * rhs.xyzw.0),
+        // }
         Translator3 {
             x: self.x.anti_geometric(rhs.xyzw) + self.xyzw.anti_geometric(rhs.x),
             y: self.xyzw.anti_geometric(rhs.y) + self.y.anti_geometric(rhs.xyzw),
@@ -271,6 +323,16 @@ impl AntiGeometric<Translator3> for Translator3 {
 impl Dot<Translator3> for Translator3 {
     type Output = Motor3;
     fn dot(self, rhs: Translator3) -> Self::Output {
+        // Motor3 {
+        //     rx: WX(self.x.0 * rhs.xyzw.0) + WX(self.xyzw.0 * rhs.x.0),
+        //     ry: WY(self.xyzw.0 * rhs.y.0) + WY(self.y.0 * rhs.xyzw.0),
+        //     rz: WZ(self.xyzw.0 * rhs.z.0) + WZ(self.z.0 * rhs.xyzw.0),
+        //     rw: Default::default(),
+        //     ux: Default::default(),
+        //     uy: Default::default(),
+        //     uz: Default::default(),
+        //     uw: S(self.x.0 * rhs.x.0) + S(self.y.0 * rhs.y.0) + S(self.z.0 * rhs.z.0),
+        // }
         Motor3 {
             rx: self.x.dot(rhs.xyzw) + self.xyzw.dot(rhs.x),
             ry: self.xyzw.dot(rhs.y) + self.y.dot(rhs.xyzw),
@@ -290,6 +352,12 @@ impl Dot<Translator3> for Translator3 {
 impl AntiWedge<Translator3> for Translator3 {
     type Output = Translator3;
     fn anti_wedge(self, rhs: Translator3) -> Self::Output {
+        // Translator3 {
+        //     x   : YZ(self.x.0 * rhs.xyzw.0) + YZ(self.xyzw.0 * rhs.x.0),
+        //     y   : ZX(self.xyzw.0 * rhs.y.0) + ZX(self.y.0 * rhs.xyzw.0),
+        //     z   : XY(self.xyzw.0 * rhs.z.0) + XY(self.z.0 * rhs.xyzw.0),
+        //     xyzw: XYZW(self.xyzw.0 * rhs.xyzw.0),
+        // }
         Translator3 {
             x: self.x.anti_wedge(rhs.xyzw) + self.xyzw.anti_wedge(rhs.x),
             y: self.xyzw.anti_wedge(rhs.y) + self.y.anti_wedge(rhs.xyzw),
@@ -306,6 +374,12 @@ impl AntiWedge<Translator3> for Translator3 {
 impl Geometric<Rotor3> for Translator3 {
     type Output = Rotor3;
     fn geometric(self, rhs: Rotor3) -> Self::Output {
+        // Rotor3 {
+        //     x: WX(self.x.0 * rhs.w.0) + WX(self.y.0 * rhs.z.0) + WX(self.z.0 * rhs.y.0),
+        //     y: WY(self.x.0 * rhs.z.0) + WY(self.y.0 * rhs.w.0) + WY(self.z.0 * rhs.x.0),
+        //     z: WZ(self.x.0 * rhs.y.0) + WZ(self.y.0 * rhs.x.0) + WZ(self.z.0 * rhs.w.0),
+        //     w: XYZW(self.x.0 * rhs.x.0) + XYZW(self.y.0 * rhs.y.0) + XYZW(self.z.0 * rhs.z.0),
+        // }
         Rotor3 {
             x: self.x.geometric(rhs.w) - self.y.geometric(rhs.z) + self.z.geometric(rhs.y),
             y: self.x.geometric(rhs.z) + self.y.geometric(rhs.w) - self.z.geometric(rhs.x),
@@ -315,12 +389,20 @@ impl Geometric<Rotor3> for Translator3 {
     }
 }
 
-// Omitted: Translator3 anti_geometric Rotor3 = self.x.anti_geometric(rhs.w) + self.x.anti_geometric(rhs.x) + self.x.anti_geometric(rhs.y) + self.x.anti_geometric(rhs.z) + self.xyzw.anti_geometric(rhs.w) + self.xyzw.anti_geometric(rhs.x) + self.xyzw.anti_geometric(rhs.y) + self.xyzw.anti_geometric(rhs.z) + self.y.anti_geometric(rhs.w) + self.y.anti_geometric(rhs.x) + self.y.anti_geometric(rhs.y) + self.y.anti_geometric(rhs.z) + self.z.anti_geometric(rhs.w) + self.z.anti_geometric(rhs.x) + self.z.anti_geometric(rhs.y) + self.z.anti_geometric(rhs.z)
+// Omitted: Translator3 anti_geometric Rotor3 = self.x !* rhs.w + self.x !* rhs.x + self.x !* rhs.y + self.x !* rhs.z + self.xyzw !* rhs.w + self.xyzw !* rhs.x + self.xyzw !* rhs.y + self.xyzw !* rhs.z + self.y !* rhs.w + self.y !* rhs.x + self.y !* rhs.y + self.y !* rhs.z + self.z !* rhs.w + self.z !* rhs.x + self.z !* rhs.y + self.z !* rhs.z
 
 // Translator3.dot(Rotor3) -> Line3
 impl Dot<Rotor3> for Translator3 {
     type Output = Line3;
     fn dot(self, rhs: Rotor3) -> Self::Output {
+        // Line3 {
+        //     vx: WX(self.x.0 * rhs.w.0),
+        //     vy: WY(self.y.0 * rhs.w.0),
+        //     vz: WZ(self.z.0 * rhs.w.0),
+        //     mx: Default::default(),
+        //     my: Default::default(),
+        //     mz: Default::default(),
+        // }
         Line3 {
             vx: self.x.dot(rhs.w),
             vy: self.y.dot(rhs.w),
@@ -336,23 +418,30 @@ impl Dot<Rotor3> for Translator3 {
 impl Wedge<Rotor3> for Translator3 {
     type Output = XYZW;
     fn wedge(self, rhs: Rotor3) -> Self::Output {
+        // -XYZW(self.x.0 * rhs.x.0) - XYZW(self.y.0 * rhs.y.0) - XYZW(self.z.0 * rhs.z.0)
         self.x.wedge(rhs.x) + self.y.wedge(rhs.y) + self.z.wedge(rhs.z)
     }
 }
 
-// Omitted: Translator3 anti_wedge Rotor3 = self.x.anti_wedge(rhs.w) + self.x.anti_wedge(rhs.x) + self.xyzw.anti_wedge(rhs.w) + self.xyzw.anti_wedge(rhs.x) + self.xyzw.anti_wedge(rhs.y) + self.xyzw.anti_wedge(rhs.z) + self.y.anti_wedge(rhs.w) + self.y.anti_wedge(rhs.y) + self.z.anti_wedge(rhs.w) + self.z.anti_wedge(rhs.z)
+// Omitted: Translator3 anti_wedge Rotor3 = self.x & rhs.w + self.x & rhs.x + self.xyzw & rhs.w + self.xyzw & rhs.x + self.xyzw & rhs.y + self.xyzw & rhs.z + self.y & rhs.w + self.y & rhs.y + self.z & rhs.w + self.z & rhs.z
 
 // ---------------------------------------------------------------------
 // Translator3 OP Motor3:
 
-// Omitted: Translator3 geometric Motor3 = self.x.geometric(rhs.rw) + self.x.geometric(rhs.rx) + self.x.geometric(rhs.ry) + self.x.geometric(rhs.rz) + self.x.geometric(rhs.uw) + self.x.geometric(rhs.ux) + self.x.geometric(rhs.uy) + self.x.geometric(rhs.uz) + self.xyzw.geometric(rhs.uw) + self.y.geometric(rhs.rw) + self.y.geometric(rhs.rx) + self.y.geometric(rhs.ry) + self.y.geometric(rhs.rz) + self.y.geometric(rhs.uw) + self.y.geometric(rhs.ux) + self.y.geometric(rhs.uy) + self.y.geometric(rhs.uz) + self.z.geometric(rhs.rw) + self.z.geometric(rhs.rx) + self.z.geometric(rhs.ry) + self.z.geometric(rhs.rz) + self.z.geometric(rhs.uw) + self.z.geometric(rhs.ux) + self.z.geometric(rhs.uy) + self.z.geometric(rhs.uz)
-// Omitted: Translator3 anti_geometric Motor3 = self.x.anti_geometric(rhs.rw) + self.x.anti_geometric(rhs.rx) + self.x.anti_geometric(rhs.ry) + self.x.anti_geometric(rhs.rz) + self.x.anti_geometric(rhs.ux) + self.x.anti_geometric(rhs.uy) + self.x.anti_geometric(rhs.uz) + self.xyzw.anti_geometric(rhs.rw) + self.xyzw.anti_geometric(rhs.rx) + self.xyzw.anti_geometric(rhs.ry) + self.xyzw.anti_geometric(rhs.rz) + self.xyzw.anti_geometric(rhs.uw) + self.xyzw.anti_geometric(rhs.ux) + self.xyzw.anti_geometric(rhs.uy) + self.xyzw.anti_geometric(rhs.uz) + self.y.anti_geometric(rhs.rw) + self.y.anti_geometric(rhs.rx) + self.y.anti_geometric(rhs.ry) + self.y.anti_geometric(rhs.rz) + self.y.anti_geometric(rhs.ux) + self.y.anti_geometric(rhs.uy) + self.y.anti_geometric(rhs.uz) + self.z.anti_geometric(rhs.rw) + self.z.anti_geometric(rhs.rx) + self.z.anti_geometric(rhs.ry) + self.z.anti_geometric(rhs.rz) + self.z.anti_geometric(rhs.ux) + self.z.anti_geometric(rhs.uy) + self.z.anti_geometric(rhs.uz)
-// Omitted: Translator3 dot Motor3 = self.x.dot(rhs.rw) + self.x.dot(rhs.uw) + self.x.dot(rhs.ux) + self.xyzw.dot(rhs.uw) + self.y.dot(rhs.rw) + self.y.dot(rhs.uw) + self.y.dot(rhs.uy) + self.z.dot(rhs.rw) + self.z.dot(rhs.uw) + self.z.dot(rhs.uz)
+// Omitted: Translator3 geometric Motor3 = self.x * rhs.rw + self.x * rhs.rx + self.x * rhs.ry + self.x * rhs.rz + self.x * rhs.uw + self.x * rhs.ux + self.x * rhs.uy + self.x * rhs.uz + self.xyzw * rhs.uw + self.y * rhs.rw + self.y * rhs.rx + self.y * rhs.ry + self.y * rhs.rz + self.y * rhs.uw + self.y * rhs.ux + self.y * rhs.uy + self.y * rhs.uz + self.z * rhs.rw + self.z * rhs.rx + self.z * rhs.ry + self.z * rhs.rz + self.z * rhs.uw + self.z * rhs.ux + self.z * rhs.uy + self.z * rhs.uz
+// Omitted: Translator3 anti_geometric Motor3 = self.x !* rhs.rw + self.x !* rhs.rx + self.x !* rhs.ry + self.x !* rhs.rz + self.x !* rhs.ux + self.x !* rhs.uy + self.x !* rhs.uz + self.xyzw !* rhs.rw + self.xyzw !* rhs.rx + self.xyzw !* rhs.ry + self.xyzw !* rhs.rz + self.xyzw !* rhs.uw + self.xyzw !* rhs.ux + self.xyzw !* rhs.uy + self.xyzw !* rhs.uz + self.y !* rhs.rw + self.y !* rhs.rx + self.y !* rhs.ry + self.y !* rhs.rz + self.y !* rhs.ux + self.y !* rhs.uy + self.y !* rhs.uz + self.z !* rhs.rw + self.z !* rhs.rx + self.z !* rhs.ry + self.z !* rhs.rz + self.z !* rhs.ux + self.z !* rhs.uy + self.z !* rhs.uz
+// Omitted: Translator3 dot Motor3 = self.x | rhs.rw + self.x | rhs.uw + self.x | rhs.ux + self.xyzw | rhs.uw + self.y | rhs.rw + self.y | rhs.uw + self.y | rhs.uy + self.z | rhs.rw + self.z | rhs.uw + self.z | rhs.uz
 
 // Translator3.wedge(Motor3) -> Translator3
 impl Wedge<Motor3> for Translator3 {
     type Output = Translator3;
     fn wedge(self, rhs: Motor3) -> Self::Output {
+        // Translator3 {
+        //     x   : YZ(self.x.0 * rhs.uw.0),
+        //     y   : ZX(self.y.0 * rhs.uw.0),
+        //     z   : XY(self.z.0 * rhs.uw.0),
+        //     xyzw: XYZW(self.x.0 * rhs.rx.0) + XYZW(self.xyzw.0 * rhs.uw.0) + XYZW(self.y.0 * rhs.ry.0) + XYZW(self.z.0 * rhs.rz.0),
+        // }
         Translator3 {
             x: self.x.wedge(rhs.uw),
             y: self.y.wedge(rhs.uw),
@@ -364,4 +453,4 @@ impl Wedge<Motor3> for Translator3 {
     }
 }
 
-// Omitted: Translator3 anti_wedge Motor3 = self.x.anti_wedge(rhs.rw) + self.x.anti_wedge(rhs.rx) + self.x.anti_wedge(rhs.uy) + self.x.anti_wedge(rhs.uz) + self.xyzw.anti_wedge(rhs.rw) + self.xyzw.anti_wedge(rhs.rx) + self.xyzw.anti_wedge(rhs.ry) + self.xyzw.anti_wedge(rhs.rz) + self.xyzw.anti_wedge(rhs.uw) + self.xyzw.anti_wedge(rhs.ux) + self.xyzw.anti_wedge(rhs.uy) + self.xyzw.anti_wedge(rhs.uz) + self.y.anti_wedge(rhs.rw) + self.y.anti_wedge(rhs.ry) + self.y.anti_wedge(rhs.ux) + self.y.anti_wedge(rhs.uz) + self.z.anti_wedge(rhs.rw) + self.z.anti_wedge(rhs.rz) + self.z.anti_wedge(rhs.ux) + self.z.anti_wedge(rhs.uy)
+// Omitted: Translator3 anti_wedge Motor3 = self.x & rhs.rw + self.x & rhs.rx + self.x & rhs.uy + self.x & rhs.uz + self.xyzw & rhs.rw + self.xyzw & rhs.rx + self.xyzw & rhs.ry + self.xyzw & rhs.rz + self.xyzw & rhs.uw + self.xyzw & rhs.ux + self.xyzw & rhs.uy + self.xyzw & rhs.uz + self.y & rhs.rw + self.y & rhs.ry + self.y & rhs.ux + self.y & rhs.uz + self.z & rhs.rw + self.z & rhs.rz + self.z & rhs.ux + self.z & rhs.uy

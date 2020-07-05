@@ -38,16 +38,16 @@ pub mod blades {
 		let documentation = with_line_prefixes("//! ", &documentation(gen).trim());
 		format!(
 			"\
-		{}\n\n\
-		use derive_more::{{Add, Mul, Neg, Sub}};\n\
-		\n\
-		use super::*;\n\
-		\n\
-		{}\n\n\
-		{}\n\
-		{}\n\n\
-		{}\n\
-		{}\n",
+        {}\n\n\
+        use derive_more::{{Add, Mul, Neg, Sub}};\n\
+        \n\
+        use super::*;\n\
+        \n\
+        {}\n\n\
+        {}\n\
+        {}\n\n\
+        {}\n\
+        {}\n",
 			documentation,
 			declare_blades(gen),
 			CODE_SEPARATOR,
@@ -62,15 +62,15 @@ pub mod blades {
 		let unit_blades = gen.types.unit_blades();
 		format!(
 			"\
-	# Blade types\n\
-	The blades that make up this geometric algebra.\n\
-	\n\
-	## Unary operations\n\
-	{}\n\
-	\n\
-	## Multiplication tables\n\
-	{}\n\
-	",
+    # Blade types\n\
+    The blades that make up this geometric algebra.\n\
+    \n\
+    ## Unary operations\n\
+    {}\n\
+    \n\
+    ## Multiplication tables\n\
+    {}\n\
+    ",
 			unary_table(&unit_blades, &rust),
 			multiplication_tables(&unit_blades, &rust)
 		)
@@ -142,13 +142,13 @@ pub mod blades {
 			if unary.trait_has_output_type() {
 				format!(
 					r"
-		impl {Trait} for {sblade_name} {{
-			type Output = {Output};
-			fn {function_name}(self) -> Self::Output {{
-				{Output}({sign} self.0)
-			}}
-		}}
-		",
+        impl {Trait} for {sblade_name} {{
+            type Output = {Output};
+            fn {function_name}(self) -> Self::Output {{
+                {Output}({sign} self.0)
+            }}
+        }}
+        ",
 					sblade_name = sblade_name,
 					Trait = unary.trait_name(),
 					function_name = unary.trait_function_name(),
@@ -158,12 +158,12 @@ pub mod blades {
 			} else {
 				format!(
 					r"
-		impl {Trait} for {sblade_name} {{
-			fn {function_name}(self) -> Self {{
-				{sign} self
-			}}
-		}}
-		",
+        impl {Trait} for {sblade_name} {{
+            fn {function_name}(self) -> Self {{
+                {sign} self
+            }}
+        }}
+        ",
 					sblade_name = sblade_name,
 					Trait = unary.trait_name(),
 					function_name = unary.trait_function_name(),
@@ -205,13 +205,13 @@ pub mod blades {
 		if product_type.is_zero() {
 			format!(
 				r"
-	impl {Trait}<{Rhs}> for {Lhs} {{
-		type Output = Zero;
-		fn {function_name}(self, _rhs: {Rhs}) -> Self::Output {{
-			Zero {{}}
-		}}
-	}}
-	",
+    impl {Trait}<{Rhs}> for {Lhs} {{
+        type Output = Zero;
+        fn {function_name}(self, _rhs: {Rhs}) -> Self::Output {{
+            Zero {{}}
+        }}
+    }}
+    ",
 				Lhs = lhs.0,
 				Rhs = rhs.0,
 				Trait = product.trait_name(),
@@ -226,13 +226,13 @@ pub mod blades {
 
 			format!(
 				r"
-	impl {Trait}<{Rhs}> for {Lhs} {{
-		type Output = {Output};
-		fn {function_name}(self, rhs: {Rhs}) -> Self::Output {{
-			{Output}({sign} self.0 * rhs.0)
-		}}
-	}}
-	",
+    impl {Trait}<{Rhs}> for {Lhs} {{
+        type Output = {Output};
+        fn {function_name}(self, rhs: {Rhs}) -> Self::Output {{
+            {Output}({sign} self.0 * rhs.0)
+        }}
+    }}
+    ",
 				Lhs = lhs.0,
 				Rhs = rhs.0,
 				Trait = product.trait_name(),
@@ -271,13 +271,13 @@ pub mod strct {
 
 		format!(
 			"\
-		{}\n\n\
-		use super::*;\n\n\
-		{}\n\
-		{}\n\
-		{}\n\
-		{}\n\
-		{}\n",
+        {}\n\n\
+        use super::*;\n\n\
+        {}\n\
+        {}\n\
+        {}\n\
+        {}\n\
+        {}\n",
 			documentation,
 			declare_struct(gen, struct_name, strct),
 			CODE_SEPARATOR,
@@ -327,13 +327,13 @@ pub mod strct {
 
 		format!(
 			"\
-		# {}\n\n\
-		## Operations\n\
-		```text\n\
-		{}\n\
-		{}\n\
-		```\n\
-		",
+        # {}\n\n\
+        ## Operations\n\
+        ```text\n\
+        {}\n\
+        {}\n\
+        ```\n\
+        ",
 			struct_name, homo_ops, hetero_ops
 		)
 	}
@@ -341,17 +341,17 @@ pub mod strct {
 	fn declare_struct(_gen: &Generator, struct_name: &str, strct: &Struct) -> String {
 		// TODO: we can only implement Add, Sub if the struct has no Type::Constant
 		let derives =
-			"Copy, Clone, Debug, Default, PartialEq, PartialOrd, derive_more::Neg, derive_more::Add, derive_more::Sub\n";
+            "Copy, Clone, Debug, Default, PartialEq, PartialOrd, derive_more::Neg, derive_more::Add, derive_more::Sub\n";
 		let members = strct
 			.iter()
-			.map(|(member_name, member_type)| format!("\tpub {}: {},", member_name, member_type.name))
+			.map(|(member_name, member_type)| format!("    pub {}: {},", member_name, member_type.name))
 			.join("\n");
 		format!(
 			"\
-	#[derive({})]\n\
-	pub struct {} {{\n\
-			{}\n\
-	}}\n	",
+#[derive({})]\n\
+pub struct {} {{\n\
+    {}\n\
+}}\n	",
 			derives, struct_name, members
 		)
 	}
@@ -366,13 +366,13 @@ pub mod strct {
 				if unary.trait_has_output_type() {
 					format!(
 						r"
-				impl {Trait} for {struct_name} {{
-					type Output = {Output};
-					fn {function_name}(self) -> Self::Output {{
-						{code}
-					}}
-				}}
-				",
+                impl {Trait} for {struct_name} {{
+                    type Output = {Output};
+                    fn {function_name}(self) -> Self::Output {{
+                        {code}
+                    }}
+                }}
+                ",
 						struct_name = struct_name,
 						Trait = unary.trait_name(),
 						function_name = unary.trait_function_name(),
@@ -382,12 +382,12 @@ pub mod strct {
 				} else {
 					format!(
 						r"
-				impl {Trait} for {struct_name} {{
-					fn {function_name}(self) -> Self {{
-						{code}
-					}}
-				}}
-				",
+                impl {Trait} for {struct_name} {{
+                    fn {function_name}(self) -> Self {{
+                        {code}
+                    }}
+                }}
+                ",
 						struct_name = struct_name,
 						Trait = unary.trait_name(),
 						function_name = unary.trait_function_name(),
@@ -434,33 +434,46 @@ pub mod strct {
 		let expr = Expr::Prod(product, factors);
 		let expr = expr.simplify(Some(&gen.grammar));
 		let expr = expr.typify(&gen.types, &gen.grammar);
-		// let expr = expr.explicit(&gen.types, &gen.grammar);
-		let code = expr.rust(&gen.ro);
+
 		match type_name(gen, &expr) {
-			Some(output_type_name) => format!(
-				r"
-		// {comment}
-		impl {Trait}<{Rhs}> for {Lhs} {{
-			type Output = {Output};
-			fn {function_name}(self, rhs: {Rhs}) -> Self::Output {{
-				{code}
-			}}
-		}}
-		",
-				comment = struct_product_type_signature(gen, lhs, rhs, product).unwrap(),
-				Lhs = lhs.0,
-				Rhs = rhs.0,
-				Trait = product.trait_name(),
-				function_name = product.trait_function_name(),
-				Output = output_type_name,
-				code = code,
-			),
+			Some(output_type_name) => {
+				let explicit = expr
+					.clone()
+					.typify(&gen.types, &gen.grammar)
+					.explicit(&gen.types, &gen.grammar)
+					.simplify(Some(&gen.grammar))
+					.rust(&gen.ro);
+
+				let code = expr.rust(&gen.ro);
+
+				let code = format!("{}\n{}", with_line_prefixes("// ", &explicit), code);
+				let code = rust::indent_n(2, &code);
+
+				format!(
+					r"
+// {comment}
+impl {Trait}<{Rhs}> for {Lhs} {{
+    type Output = {Output};
+    fn {function_name}(self, rhs: {Rhs}) -> Self::Output {{
+{code}
+    }}
+}}
+        ",
+					comment = struct_product_type_signature(gen, lhs, rhs, product).unwrap(),
+					Lhs = lhs.0,
+					Rhs = rhs.0,
+					Trait = product.trait_name(),
+					function_name = product.trait_function_name(),
+					Output = output_type_name,
+					code = code,
+				)
+			}
 			None => format!(
 				"// Omitted: {} {} {} = {}",
 				lhs.0,
 				product.trait_function_name(),
 				rhs.0,
-				code.replace('\n', " ")
+				expr.rust(&RustOptions { operators: true }).replace('\n', " ")
 			),
 		}
 	}

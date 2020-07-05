@@ -154,9 +154,15 @@ impl Expr {
 
 				simplify_product(product, factors, g)
 			}
-			Expr::StructInstance(_) => {
-				panic!("You should NOT call typify() before calling simplify()");
-			}
+			Expr::StructInstance(si) => Expr::StructInstance(StructInstance {
+				struct_name: si.struct_name,
+				strct: si.strct,
+				members: si
+					.members
+					.into_iter()
+					.map(|(name, expr)| (name, expr.simplify(g)))
+					.collect(),
+			}),
 		}
 	}
 
@@ -227,6 +233,12 @@ fn simplify_product(product: Product, factors: Vec<Expr>, g: Option<&Grammar>) -
 		scalar *= collapse_factors(product, &mut factors, g);
 	}
 
+	if false {
+		if let Some(g) = g {
+			scalar *= sort_factors_to_avoid_sign_flips(product, &mut factors, g);
+		}
+	}
+
 	// eprintln!("simplify_product {} * {:?} {:?}", scalar, product, factors);
 
 	if scalar == 0 {
@@ -271,6 +283,44 @@ fn sort_factors(product: Product, factors: &mut [Expr], g: Option<&Grammar>) -> 
 	} {}
 
 	sign
+}
+
+/// Rewrite `y*x` to `-x*y` to avoid implicit sign change in product.
+/// This is so that generated code is easier to read and copy-paste elsewhere.
+#[must_use]
+fn sort_factors_to_avoid_sign_flips(product: Product, factors: &mut [Expr], g: &Grammar) -> i32 {
+	// Any sign-change due to swapping
+	let mut sign = 1;
+
+	// Bubble-sort:
+	while {
+		let mut did_swap = false;
+		for i in 1..factors.len() {
+			let lt = factors[i - 1].typ(Some(g));
+			let rt = factors[i].typ(Some(g));
+
+			if swapping_order_would_remove_sign(product, lt, rt, g) == Some(true) {
+				factors.swap(i - 1, i);
+				did_swap = true;
+				sign *= -1;
+			}
+		}
+		did_swap
+	} {}
+
+	sign
+}
+
+fn swapping_order_would_remove_sign(product: Product, l: Option<Type>, r: Option<Type>, g: &Grammar) -> Option<bool> {
+	let l = l?.into_sblade()?;
+	let r = r?.into_sblade()?;
+	let lr = SBlade::binary_product(&l, product, &r, g);
+	let rl = SBlade::binary_product(&r, product, &l, g);
+	assert_eq!(lr.is_zero(), rl.is_zero());
+	assert_eq!(lr.blade, rl.blade);
+	assert_eq!(lr.sign.abs(), rl.sign.abs());
+
+	Some(lr.sign == -1 && rl.sign == 1)
 }
 
 #[must_use]

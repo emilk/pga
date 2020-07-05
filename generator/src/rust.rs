@@ -144,6 +144,10 @@ pub fn indent(s: &str) -> String {
 	with_line_prefixes("    ", s)
 }
 
+pub fn indent_n(n: usize, s: &str) -> String {
+	with_line_prefixes(&"    ".repeat(n), s)
+}
+
 pub fn with_line_prefixes(prefix: &str, s: &str) -> String {
 	s.lines().map(|line| format!("{}{}", prefix, line)).join("\n")
 }

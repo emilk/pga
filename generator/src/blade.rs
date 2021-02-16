@@ -1,8 +1,10 @@
 use crate::*;
 
+/// ```
 /// Blade(vec![])     = scalar
 /// Blade(vec![0])    = e0
 /// Blade(vec![0, 2]) = e02
+/// ```
 /// Always sorted, always unique.
 #[derive(Clone, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct Blade(Vec<VecIdx>);

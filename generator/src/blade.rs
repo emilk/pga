@@ -1,6 +1,6 @@
 use crate::*;
 
-/// ```
+/// ``` text
 /// Blade(vec![])     = scalar
 /// Blade(vec![0])    = e0
 /// Blade(vec![0, 2]) = e02

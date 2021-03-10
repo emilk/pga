@@ -7,15 +7,15 @@ macro_rules! assert_eq_ignoring_whitespace {
 		let r = $r;
 		if tokenize(&l) != tokenize(&r) {
 			panic!("Got this:\n{}\n\nExpected this:\n{}", l, r);
-			}
-		}};
+		}
+	}};
 	($l:expr, $r:expr, $msg:expr) => {{
 		let l = $l;
 		let r = $r;
 		if tokenize(&l) != tokenize(&r) {
 			panic!("{}. Got this:\n{}\n\nExpected this:\n{}", $msg, l, r);
-			}
-		}};
+		}
+	}};
 }
 
 fn tokenize(s: &str) -> Vec<&str> {

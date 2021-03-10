@@ -21,6 +21,8 @@ members = [
 	\"generator\",
 ]" > Cargo.toml
 
+cargo fmt
+
 cargo check -q --all-features
 cargo test -q --all-features
 cargo clippy -q

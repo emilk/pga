@@ -14,10 +14,11 @@ pub struct Zero {}
 
 // Types:
 pub mod line3;
+pub mod moment3;
 pub mod motor3;
 pub mod plane;
 pub mod rotor3;
 pub mod vec3;
 pub mod vec4;
 
-pub use self::{blades::*, line3::*, motor3::*, plane::*, rotor3::*, traits::*, vec3::*, vec4::*};
+pub use self::{blades::*, line3::*, moment3::*, motor3::*, plane::*, rotor3::*, traits::*, vec3::*, vec4::*};

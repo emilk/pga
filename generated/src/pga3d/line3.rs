@@ -13,6 +13,12 @@
 //! Vec4.dot(Line3) -> Vec4
 //! Line3.wedge(Vec4) -> Plane
 //! Vec4.wedge(Line3) -> Plane
+//! Line3.dot(Moment3) -> S
+//! Moment3.dot(Line3) -> S
+//! Line3.wedge(Moment3) -> XYZW
+//! Moment3.wedge(Line3) -> XYZW
+//! Line3.anti_wedge(Moment3) -> S
+//! Moment3.anti_wedge(Line3) -> S
 //! Line3.dot(Plane) -> Vec4
 //! Plane.dot(Line3) -> Vec4
 //! Line3.anti_wedge(Plane) -> Vec4
@@ -185,6 +191,39 @@ impl Wedge<Vec4> for Line3 {
 }
 
 // Omitted: Line3 anti_wedge Vec4 = 0  (unnamed type)
+
+// ---------------------------------------------------------------------
+// Line3 OP Moment3:
+
+// Omitted: Line3 geometric Moment3 = self.mx * rhs.mx + self.mx * rhs.my + self.mx * rhs.mz + self.my * rhs.mx + self.my * rhs.my + self.my * rhs.mz + self.mz * rhs.mx + self.mz * rhs.my + self.mz * rhs.mz + self.vx * rhs.mx + self.vx * rhs.my + self.vx * rhs.mz + self.vy * rhs.mx + self.vy * rhs.my + self.vy * rhs.mz + self.vz * rhs.mx + self.vz * rhs.my + self.vz * rhs.mz  (unnamed type)
+// Omitted: Line3 anti_geometric Moment3 = self.vx !* rhs.mx + self.vx !* rhs.my + self.vx !* rhs.mz + self.vy !* rhs.mx + self.vy !* rhs.my + self.vy !* rhs.mz + self.vz !* rhs.mx + self.vz !* rhs.my + self.vz !* rhs.mz  (unnamed type)
+
+// Line3.dot(Moment3) -> S
+impl Dot<Moment3> for Line3 {
+	type Output = S;
+	fn dot(self, rhs: Moment3) -> Self::Output {
+		// -S(self.mx.0 * rhs.mx.0) - S(self.my.0 * rhs.my.0) - S(self.mz.0 * rhs.mz.0)
+		self.mx.dot(rhs.mx) + self.my.dot(rhs.my) + self.mz.dot(rhs.mz)
+	}
+}
+
+// Line3.wedge(Moment3) -> XYZW
+impl Wedge<Moment3> for Line3 {
+	type Output = XYZW;
+	fn wedge(self, rhs: Moment3) -> Self::Output {
+		// -XYZW(self.vx.0 * rhs.mx.0) - XYZW(self.vy.0 * rhs.my.0) - XYZW(self.vz.0 * rhs.mz.0)
+		self.vx.wedge(rhs.mx) + self.vy.wedge(rhs.my) + self.vz.wedge(rhs.mz)
+	}
+}
+
+// Line3.anti_wedge(Moment3) -> S
+impl AntiWedge<Moment3> for Line3 {
+	type Output = S;
+	fn anti_wedge(self, rhs: Moment3) -> Self::Output {
+		// -S(self.vx.0 * rhs.mx.0) - S(self.vy.0 * rhs.my.0) - S(self.vz.0 * rhs.mz.0)
+		self.vx.anti_wedge(rhs.mx) + self.vy.anti_wedge(rhs.my) + self.vz.anti_wedge(rhs.mz)
+	}
+}
 
 // ---------------------------------------------------------------------
 // Line3 OP Line3:

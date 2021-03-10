@@ -8,6 +8,7 @@
 //!
 //!
 //!
+//!
 //! Motor3.wedge(Plane) -> Plane
 //! Plane.wedge(Motor3) -> Plane
 //! Motor3.geometric(Rotor3) -> Rotor3
@@ -83,6 +84,15 @@ impl AntiReverse for Motor3 {
 // Omitted: Motor3 dot Vec4 = self.rw | rhs.x + self.rw | rhs.y + self.rw | rhs.z + self.rx | rhs.x + self.ry | rhs.y + self.rz | rhs.z + self.uw | rhs.w + self.uw | rhs.x + self.uw | rhs.y + self.uw | rhs.z + self.ux | rhs.y + self.ux | rhs.z + self.uy | rhs.x + self.uy | rhs.z + self.uz | rhs.x + self.uz | rhs.y  (unnamed type)
 // Omitted: Motor3 wedge Vec4 = self.rx ^ rhs.y + self.rx ^ rhs.z + self.ry ^ rhs.x + self.ry ^ rhs.z + self.rz ^ rhs.x + self.rz ^ rhs.y + self.uw ^ rhs.w + self.uw ^ rhs.x + self.uw ^ rhs.y + self.uw ^ rhs.z + self.ux ^ rhs.x + self.uy ^ rhs.y + self.uz ^ rhs.z  (unnamed type)
 // Omitted: Motor3 anti_wedge Vec4 = self.rw & rhs.w + self.rw & rhs.x + self.rw & rhs.y + self.rw & rhs.z + self.ux & rhs.x + self.uy & rhs.y + self.uz & rhs.z  (unnamed type)
+
+// ---------------------------------------------------------------------
+// Motor3 OP Moment3:
+
+// Omitted: Motor3 geometric Moment3 = self.rw * rhs.mx + self.rw * rhs.my + self.rw * rhs.mz + self.rx * rhs.mx + self.rx * rhs.my + self.rx * rhs.mz + self.ry * rhs.mx + self.ry * rhs.my + self.ry * rhs.mz + self.rz * rhs.mx + self.rz * rhs.my + self.rz * rhs.mz + self.uw * rhs.mx + self.uw * rhs.my + self.uw * rhs.mz + self.ux * rhs.mx + self.ux * rhs.my + self.ux * rhs.mz + self.uy * rhs.mx + self.uy * rhs.my + self.uy * rhs.mz + self.uz * rhs.mx + self.uz * rhs.my + self.uz * rhs.mz  (unnamed type)
+// Omitted: Motor3 anti_geometric Moment3 = self.rw !* rhs.mx + self.rw !* rhs.my + self.rw !* rhs.mz + self.rx !* rhs.mx + self.rx !* rhs.my + self.rx !* rhs.mz + self.ry !* rhs.mx + self.ry !* rhs.my + self.ry !* rhs.mz + self.rz !* rhs.mx + self.rz !* rhs.my + self.rz !* rhs.mz + self.ux !* rhs.mx + self.ux !* rhs.my + self.ux !* rhs.mz + self.uy !* rhs.mx + self.uy !* rhs.my + self.uy !* rhs.mz + self.uz !* rhs.mx + self.uz !* rhs.my + self.uz !* rhs.mz  (unnamed type)
+// Omitted: Motor3 dot Moment3 = self.rw | rhs.mx + self.rw | rhs.my + self.rw | rhs.mz + self.uw | rhs.mx + self.uw | rhs.my + self.uw | rhs.mz + self.ux | rhs.mx + self.uy | rhs.my + self.uz | rhs.mz  (unnamed type)
+// Omitted: Motor3 wedge Moment3 = self.rx ^ rhs.mx + self.ry ^ rhs.my + self.rz ^ rhs.mz + self.uw ^ rhs.mx + self.uw ^ rhs.my + self.uw ^ rhs.mz  (unnamed type)
+// Omitted: Motor3 anti_wedge Moment3 = self.rw & rhs.mx + self.rw & rhs.my + self.rw & rhs.mz + self.rx & rhs.mx + self.ry & rhs.my + self.rz & rhs.mz + self.ux & rhs.my + self.ux & rhs.mz + self.uy & rhs.mx + self.uy & rhs.mz + self.uz & rhs.mx + self.uz & rhs.my  (unnamed type)
 
 // ---------------------------------------------------------------------
 // Motor3 OP Line3:

@@ -101,8 +101,9 @@ pub fn pga3d() -> (Grammar, Types) {
 	t.insert_struct("Vec3", &[("x", "X"), ("y", "Y"), ("z", "Z")]);
 	t.insert_struct("Vec4", &[("x", "X"), ("y", "Y"), ("z", "Z"), ("w", "W")]);
 
-	// The result of Dir ^ Dir, which is numerically identical to a cross product but with different units (blades)
-	// t.insert_struct("Moment3", &[("yz", "YZ"), ("zx", "ZX"), ("xy", "XY")]);
+	// The result of Vec3 ^ Vec3, which is numerically identical to a cross product.
+	// Use this to represent e.g. a normal.
+	t.insert_struct("Moment3", &[("mx", "YZ"), ("my", "ZX"), ("mz", "XY")]);
 
 	// Plücker coordinates
 	t.insert_struct(

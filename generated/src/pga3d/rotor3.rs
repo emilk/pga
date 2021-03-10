@@ -12,6 +12,12 @@
 //! Vec4.wedge(Rotor3) -> Plane
 //! Rotor3.anti_wedge(Vec4) -> Vec4
 //! Vec4.anti_wedge(Rotor3) -> Vec4
+//! Rotor3.geometric(Moment3) -> Rotor3
+//! Moment3.geometric(Rotor3) -> Rotor3
+//! Rotor3.dot(Moment3) -> Line3
+//! Moment3.dot(Rotor3) -> Line3
+//! Rotor3.wedge(Moment3) -> XYZW
+//! Moment3.wedge(Rotor3) -> XYZW
 //! Rotor3.geometric(Line3) -> Rotor3
 //! Line3.geometric(Rotor3) -> Rotor3
 //! Rotor3.dot(Line3) -> Line3
@@ -151,6 +157,42 @@ impl AntiWedge<Vec4> for Rotor3 {
 		}
 	}
 }
+
+// ---------------------------------------------------------------------
+// Rotor3 OP Moment3:
+
+// Rotor3.geometric(Moment3) -> Rotor3
+impl Geometric<Moment3> for Rotor3 {
+	type Output = Rotor3;
+	fn geometric(self, rhs: Moment3) -> Self::Output {
+		// Rotor3 {
+		//     x: WX(self.w.0 * rhs.mx.0) + WX(self.y.0 * rhs.mz.0) + WX(self.z.0 * rhs.my.0),
+		//     y: WY(self.w.0 * rhs.my.0) + WY(self.x.0 * rhs.mz.0) + WY(self.z.0 * rhs.mx.0),
+		//     z: WZ(self.w.0 * rhs.mz.0) + WZ(self.x.0 * rhs.my.0) + WZ(self.y.0 * rhs.mx.0),
+		//     w: XYZW(self.x.0 * rhs.mx.0) + XYZW(self.y.0 * rhs.my.0) + XYZW(self.z.0 * rhs.mz.0),
+		// }
+		Rotor3 {
+			x: self.w.geometric(rhs.mx) - self.y.geometric(rhs.mz) + self.z.geometric(rhs.my),
+			y: self.w.geometric(rhs.my) + self.x.geometric(rhs.mz) - self.z.geometric(rhs.mx),
+			z: self.w.geometric(rhs.mz) - self.x.geometric(rhs.my) + self.y.geometric(rhs.mx),
+			w: -self.x.geometric(rhs.mx) - self.y.geometric(rhs.my) - self.z.geometric(rhs.mz),
+		}
+	}
+}
+
+// Omitted: Rotor3 anti_geometric Moment3 = self.w !* rhs.mx + self.w !* rhs.my + self.w !* rhs.mz + self.x !* rhs.mx + self.x !* rhs.my + self.x !* rhs.mz + self.y !* rhs.mx + self.y !* rhs.my + self.y !* rhs.mz + self.z !* rhs.mx + self.z !* rhs.my + self.z !* rhs.mz  (unnamed type)
+// Omitted: Rotor3 dot Moment3 = Line3 {     vx: self.w | rhs.mx,     vy: self.w | rhs.my,     vz: self.w | rhs.mz,     mx: 0,     my: 0,     mz: 0, }  (too many zeros)
+
+// Rotor3.wedge(Moment3) -> XYZW
+impl Wedge<Moment3> for Rotor3 {
+	type Output = XYZW;
+	fn wedge(self, rhs: Moment3) -> Self::Output {
+		// -XYZW(self.x.0 * rhs.mx.0) - XYZW(self.y.0 * rhs.my.0) - XYZW(self.z.0 * rhs.mz.0)
+		self.x.wedge(rhs.mx) + self.y.wedge(rhs.my) + self.z.wedge(rhs.mz)
+	}
+}
+
+// Omitted: Rotor3 anti_wedge Moment3 = self.w & rhs.mx + self.w & rhs.my + self.w & rhs.mz + self.x & rhs.mx + self.y & rhs.my + self.z & rhs.mz  (unnamed type)
 
 // ---------------------------------------------------------------------
 // Rotor3 OP Line3:

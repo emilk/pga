@@ -17,6 +17,10 @@
 //! Vec4.wedge(Plane) -> XYZW
 //! Plane.anti_wedge(Vec4) -> S
 //! Vec4.anti_wedge(Plane) -> S
+//! Plane.dot(Moment3) -> Vec4
+//! Moment3.dot(Plane) -> Vec4
+//! Plane.anti_wedge(Moment3) -> Vec3
+//! Moment3.anti_wedge(Plane) -> Vec3
 //! Plane.dot(Line3) -> Vec4
 //! Line3.dot(Plane) -> Vec4
 //! Plane.anti_wedge(Line3) -> Vec4
@@ -176,6 +180,50 @@ impl AntiWedge<Vec4> for Plane {
 	fn anti_wedge(self, rhs: Vec4) -> Self::Output {
 		// -S(self.d.0 * rhs.w.0) - S(self.nx.0 * rhs.x.0) - S(self.ny.0 * rhs.y.0) - S(self.nz.0 * rhs.z.0)
 		self.d.anti_wedge(rhs.w) + self.nx.anti_wedge(rhs.x) + self.ny.anti_wedge(rhs.y) + self.nz.anti_wedge(rhs.z)
+	}
+}
+
+// ---------------------------------------------------------------------
+// Plane OP Moment3:
+
+// Omitted: Plane geometric Moment3 = self.d * rhs.mx + self.d * rhs.my + self.d * rhs.mz + self.nx * rhs.mx + self.nx * rhs.my + self.nx * rhs.mz + self.ny * rhs.mx + self.ny * rhs.my + self.ny * rhs.mz + self.nz * rhs.mx + self.nz * rhs.my + self.nz * rhs.mz  (unnamed type)
+// Omitted: Plane anti_geometric Moment3 = self.nx !* rhs.mx + self.nx !* rhs.my + self.nx !* rhs.mz + self.ny !* rhs.mx + self.ny !* rhs.my + self.ny !* rhs.mz + self.nz !* rhs.mx + self.nz !* rhs.my + self.nz !* rhs.mz  (unnamed type)
+
+// Plane.dot(Moment3) -> Vec4
+impl Dot<Moment3> for Plane {
+	type Output = Vec4;
+	fn dot(self, rhs: Moment3) -> Self::Output {
+		// Vec4 {
+		//     x: X(self.d.0 * rhs.mx.0),
+		//     y: Y(self.d.0 * rhs.my.0),
+		//     z: Z(self.d.0 * rhs.mz.0),
+		//     w: W(self.nx.0 * rhs.mx.0) + W(self.ny.0 * rhs.my.0) + W(self.nz.0 * rhs.mz.0),
+		// }
+		Vec4 {
+			x: self.d.dot(rhs.mx),
+			y: self.d.dot(rhs.my),
+			z: self.d.dot(rhs.mz),
+			w: -self.nx.dot(rhs.mx) - self.ny.dot(rhs.my) - self.nz.dot(rhs.mz),
+		}
+	}
+}
+
+// Omitted: Plane wedge Moment3 = 0  (unnamed type)
+
+// Plane.anti_wedge(Moment3) -> Vec3
+impl AntiWedge<Moment3> for Plane {
+	type Output = Vec3;
+	fn anti_wedge(self, rhs: Moment3) -> Self::Output {
+		// Vec3 {
+		//     x: X(self.ny.0 * rhs.mz.0) + X(self.nz.0 * rhs.my.0),
+		//     y: Y(self.nx.0 * rhs.mz.0) + Y(self.nz.0 * rhs.mx.0),
+		//     z: Z(self.nx.0 * rhs.my.0) + Z(self.ny.0 * rhs.mx.0),
+		// }
+		Vec3 {
+			x: -self.ny.anti_wedge(rhs.mz) + self.nz.anti_wedge(rhs.my),
+			y: self.nx.anti_wedge(rhs.mz) - self.nz.anti_wedge(rhs.mx),
+			z: -self.nx.anti_wedge(rhs.my) + self.ny.anti_wedge(rhs.mx),
+		}
 	}
 }
 

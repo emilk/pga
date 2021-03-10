@@ -68,7 +68,8 @@ pub fn pga3d() -> (Grammar, Types) {
 	t.insert_blade("YZW", SBlade::from_unsorted(&[y, z, w]));
 	t.insert_blade("ZXW", SBlade::from_unsorted(&[z, x, w]));
 	t.insert_blade("XYW", SBlade::from_unsorted(&[x, y, w]));
-	t.insert_blade("ZYX", SBlade::from_unsorted(&[z, y, x]));
+	// t.insert_blade("ZYX", SBlade::from_unsorted(&[z, y, x]));
+	t.insert_blade("XYZ", SBlade::from_unsorted(&[x, y, z]));
 	t.insert_blade("XYZW", SBlade::from_unsorted(&[x, y, z, w]));
 	// -----------------------------------
 	// 2D
@@ -120,7 +121,8 @@ pub fn pga3d() -> (Grammar, Types) {
 		],
 	);
 
-	t.insert_struct("Plane", &[("nx", "YZW"), ("ny", "ZXW"), ("nz", "XYW"), ("d", "ZYX")]);
+	// t.insert_struct("Plane", &[("nx", "YZW"), ("ny", "ZXW"), ("nz", "XYW"), ("d", "ZYX")]);
+	t.insert_struct("Plane", &[("nx", "YZW"), ("ny", "ZXW"), ("nz", "XYW"), ("d", "XYZ")]);
 
 	// t.insert_struct(
 	// 	"Translator3",

@@ -240,7 +240,7 @@ impl Wedge<Line3> for Rotor3 {
 impl Dot<Plane> for Rotor3 {
 	type Output = W;
 	fn dot(self, rhs: Plane) -> Self::Output {
-		// -W(self.w.0 * rhs.d.0)
+		// W(self.w.0 * rhs.d.0)
 		self.w.dot(rhs.d)
 	}
 }

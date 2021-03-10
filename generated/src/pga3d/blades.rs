@@ -2,123 +2,123 @@
 //! The blades that make up this geometric algebra.
 //!
 //! ## Unary operations
-//! | Op \ Blade       | 1    | X    | Y    | Z    | W    | WX  | WY  | WZ  | YZ  | ZX  | XY  | YZW  | ZXW  | XYW  | ZYX  | XYZW |
+//! | Op \ Blade       | 1    | X    | Y    | Z    | W    | WX  | WY  | WZ  | YZ  | ZX  | XY  | YZW  | ZXW  | XYW  | XYZ  | XYZW |
 //! | ---------------- | ---- | ---- | ---- | ---- | ---- | --- | --- | --- | --- | --- | --- | ---- | ---- | ---- | ---- | ---- |
-//! | Right complement | XYZW | YZW  | ZXW  | XYW  | ZYX  | -YZ | -ZX | -XY | -WX | -WY | -WZ | -X   | -Y   | -Z   | -W   | 1    |
-//! | Left complement  | XYZW | -YZW | -ZXW | -XYW | -ZYX | -YZ | -ZX | -XY | -WX | -WY | -WZ | X    | Y    | Z    | W    | 1    |
-//! | Reverse          | 1    | X    | Y    | Z    | W    | -WX | -WY | -WZ | -YZ | -ZX | -XY | -YZW | -ZXW | -XYW | -ZYX | XYZW |
-//! | Anti-reverse     | 1    | -X   | -Y   | -Z   | -W   | -WX | -WY | -WZ | -YZ | -ZX | -XY | YZW  | ZXW  | XYW  | ZYX  | XYZW |
+//! | Right complement | XYZW | YZW  | ZXW  | XYW  | -XYZ | -YZ | -ZX | -XY | -WX | -WY | -WZ | -X   | -Y   | -Z   | W    | 1    |
+//! | Left complement  | XYZW | -YZW | -ZXW | -XYW | XYZ  | -YZ | -ZX | -XY | -WX | -WY | -WZ | X    | Y    | Z    | -W   | 1    |
+//! | Reverse          | 1    | X    | Y    | Z    | W    | -WX | -WY | -WZ | -YZ | -ZX | -XY | -YZW | -ZXW | -XYW | -XYZ | XYZW |
+//! | Anti-reverse     | 1    | -X   | -Y   | -Z   | -W   | -WX | -WY | -WZ | -YZ | -ZX | -XY | YZW  | ZXW  | XYW  | XYZ  | XYZW |
 //!
 //!
 //! ## Multiplication tables
 //! ### Geometric multiplication table
 //!
-//! |      | 1    | X     | Y     | Z     | W     | WX    | WY    | WZ    | YZ    | ZX    | XY    | YZW  | ZXW  | XYW  | ZYX  | XYZW |
-//! | ---- | ---- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ---- | ---- | ---- | ---- | ---- |
-//! | 1    | 1    | X     | Y     | Z     | W     | WX    | WY    | WZ    | YZ    | ZX    | XY    | YZW  | ZXW  | XYW  | ZYX  | XYZW |
-//! | X    | X    | 1     | XY    | -ZX   | -WX   | -W    | -XYW  | ZXW   | -ZYX  | -Z    | Y     | XYZW | WZ   | -WY  | -YZ  | YZW  |
-//! | Y    | Y    | -XY   | 1     | YZ    | -WY   | XYW   | -W    | -YZW  | Z     | -ZYX  | -X    | -WZ  | XYZW | WX   | -ZX  | ZXW  |
-//! | Z    | Z    | ZX    | -YZ   | 1     | -WZ   | -ZXW  | YZW   | -W    | -Y    | X     | -ZYX  | WY   | -WX  | XYZW | -XY  | XYW  |
-//! | W    | W    | WX    | WY    | WZ    | 0     | 0     | 0     | 0     | YZW   | ZXW   | XYW   | 0    | 0    | 0    | XYZW | 0    |
-//! | WX   | WX   | W     | XYW   | -ZXW  | 0     | 0     | 0     | 0     | -XYZW | -WZ   | WY    | 0    | 0    | 0    | -YZW | 0    |
-//! | WY   | WY   | -XYW  | W     | YZW   | 0     | 0     | 0     | 0     | WZ    | -XYZW | -WX   | 0    | 0    | 0    | -ZXW | 0    |
-//! | WZ   | WZ   | ZXW   | -YZW  | W     | 0     | 0     | 0     | 0     | -WY   | WX    | -XYZW | 0    | 0    | 0    | -XYW | 0    |
-//! | YZ   | YZ   | -ZYX  | -Z    | Y     | YZW   | -XYZW | -WZ   | WY    | -1    | -XY   | ZX    | -W   | -XYW | ZXW  | X    | WX   |
-//! | ZX   | ZX   | Z     | -ZYX  | -X    | ZXW   | WZ    | -XYZW | -WX   | XY    | -1    | -YZ   | XYW  | -W   | -YZW | Y    | WY   |
-//! | XY   | XY   | -Y    | X     | -ZYX  | XYW   | -WY   | WX    | -XYZW | -ZX   | YZ    | -1    | -ZXW | YZW  | -W   | Z    | WZ   |
-//! | YZW  | YZW  | -XYZW | -WZ   | WY    | 0     | 0     | 0     | 0     | -W    | -XYW  | ZXW   | 0    | 0    | 0    | WX   | 0    |
-//! | ZXW  | ZXW  | WZ    | -XYZW | -WX   | 0     | 0     | 0     | 0     | XYW   | -W    | -YZW  | 0    | 0    | 0    | WY   | 0    |
-//! | XYW  | XYW  | -WY   | WX    | -XYZW | 0     | 0     | 0     | 0     | -ZXW  | YZW   | -W    | 0    | 0    | 0    | WZ   | 0    |
-//! | ZYX  | ZYX  | -YZ   | -ZX   | -XY   | -XYZW | YZW   | ZXW   | XYW   | X     | Y     | Z     | -WX  | -WY  | -WZ  | -1   | W    |
-//! | XYZW | XYZW | -YZW  | -ZXW  | -XYW  | 0     | 0     | 0     | 0     | WX    | WY    | WZ    | 0    | 0    | 0    | -W   | 0    |
+//! |      | 1    | X     | Y     | Z     | W    | WX    | WY    | WZ    | YZ    | ZX    | XY    | YZW  | ZXW  | XYW  | XYZ   | XYZW |
+//! | ---- | ---- | ----- | ----- | ----- | ---- | ----- | ----- | ----- | ----- | ----- | ----- | ---- | ---- | ---- | ----- | ---- |
+//! | 1    | 1    | X     | Y     | Z     | W    | WX    | WY    | WZ    | YZ    | ZX    | XY    | YZW  | ZXW  | XYW  | XYZ   | XYZW |
+//! | X    | X    | 1     | XY    | -ZX   | -WX  | -W    | -XYW  | ZXW   | XYZ   | -Z    | Y     | XYZW | WZ   | -WY  | YZ    | YZW  |
+//! | Y    | Y    | -XY   | 1     | YZ    | -WY  | XYW   | -W    | -YZW  | Z     | XYZ   | -X    | -WZ  | XYZW | WX   | ZX    | ZXW  |
+//! | Z    | Z    | ZX    | -YZ   | 1     | -WZ  | -ZXW  | YZW   | -W    | -Y    | X     | XYZ   | WY   | -WX  | XYZW | XY    | XYW  |
+//! | W    | W    | WX    | WY    | WZ    | 0    | 0     | 0     | 0     | YZW   | ZXW   | XYW   | 0    | 0    | 0    | -XYZW | 0    |
+//! | WX   | WX   | W     | XYW   | -ZXW  | 0    | 0     | 0     | 0     | -XYZW | -WZ   | WY    | 0    | 0    | 0    | YZW   | 0    |
+//! | WY   | WY   | -XYW  | W     | YZW   | 0    | 0     | 0     | 0     | WZ    | -XYZW | -WX   | 0    | 0    | 0    | ZXW   | 0    |
+//! | WZ   | WZ   | ZXW   | -YZW  | W     | 0    | 0     | 0     | 0     | -WY   | WX    | -XYZW | 0    | 0    | 0    | XYW   | 0    |
+//! | YZ   | YZ   | XYZ   | -Z    | Y     | YZW  | -XYZW | -WZ   | WY    | -1    | -XY   | ZX    | -W   | -XYW | ZXW  | -X    | WX   |
+//! | ZX   | ZX   | Z     | XYZ   | -X    | ZXW  | WZ    | -XYZW | -WX   | XY    | -1    | -YZ   | XYW  | -W   | -YZW | -Y    | WY   |
+//! | XY   | XY   | -Y    | X     | XYZ   | XYW  | -WY   | WX    | -XYZW | -ZX   | YZ    | -1    | -ZXW | YZW  | -W   | -Z    | WZ   |
+//! | YZW  | YZW  | -XYZW | -WZ   | WY    | 0    | 0     | 0     | 0     | -W    | -XYW  | ZXW   | 0    | 0    | 0    | -WX   | 0    |
+//! | ZXW  | ZXW  | WZ    | -XYZW | -WX   | 0    | 0     | 0     | 0     | XYW   | -W    | -YZW  | 0    | 0    | 0    | -WY   | 0    |
+//! | XYW  | XYW  | -WY   | WX    | -XYZW | 0    | 0     | 0     | 0     | -ZXW  | YZW   | -W    | 0    | 0    | 0    | -WZ   | 0    |
+//! | XYZ  | XYZ  | YZ    | ZX    | XY    | XYZW | -YZW  | -ZXW  | -XYW  | -X    | -Y    | -Z    | WX   | WY   | WZ   | -1    | -W   |
+//! | XYZW | XYZW | -YZW  | -ZXW  | -XYW  | 0    | 0     | 0     | 0     | WX    | WY    | WZ    | 0    | 0    | 0    | W     | 0    |
 //!
 //!
 //! ### AntiGeometric multiplication table
 //!
-//! |      | 1    | X     | Y     | Z     | W     | WX    | WY    | WZ    | YZ    | ZX    | XY    | YZW  | ZXW  | XYW  | ZYX  | XYZW |
-//! | ---- | ---- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ---- | ---- | ---- | ---- | ---- |
-//! | 1    | 1    | X     | Y     | Z     | W     | WX    | WY    | WZ    | YZ    | ZX    | XY    | YZW  | ZXW  | XYW  | ZYX  | XYZW |
-//! | X    | X    | 1     | XY    | -ZX   | -WX   | -W    | -XYW  | ZXW   | -ZYX  | -Z    | Y     | XYZW | WZ   | -WY  | -YZ  | YZW  |
-//! | Y    | Y    | -XY   | 1     | YZ    | -WY   | XYW   | -W    | -YZW  | Z     | -ZYX  | -X    | -WZ  | XYZW | WX   | -ZX  | ZXW  |
-//! | Z    | Z    | ZX    | -YZ   | 1     | -WZ   | -ZXW  | YZW   | -W    | -Y    | X     | -ZYX  | WY   | -WX  | XYZW | -XY  | XYW  |
-//! | W    | W    | WX    | WY    | WZ    | 0     | 0     | 0     | 0     | YZW   | ZXW   | XYW   | 0    | 0    | 0    | XYZW | 0    |
-//! | WX   | WX   | W     | XYW   | -ZXW  | 0     | 0     | 0     | 0     | -XYZW | -WZ   | WY    | 0    | 0    | 0    | -YZW | 0    |
-//! | WY   | WY   | -XYW  | W     | YZW   | 0     | 0     | 0     | 0     | WZ    | -XYZW | -WX   | 0    | 0    | 0    | -ZXW | 0    |
-//! | WZ   | WZ   | ZXW   | -YZW  | W     | 0     | 0     | 0     | 0     | -WY   | WX    | -XYZW | 0    | 0    | 0    | -XYW | 0    |
-//! | YZ   | YZ   | -ZYX  | -Z    | Y     | YZW   | -XYZW | -WZ   | WY    | -1    | -XY   | ZX    | -W   | -XYW | ZXW  | X    | WX   |
-//! | ZX   | ZX   | Z     | -ZYX  | -X    | ZXW   | WZ    | -XYZW | -WX   | XY    | -1    | -YZ   | XYW  | -W   | -YZW | Y    | WY   |
-//! | XY   | XY   | -Y    | X     | -ZYX  | XYW   | -WY   | WX    | -XYZW | -ZX   | YZ    | -1    | -ZXW | YZW  | -W   | Z    | WZ   |
-//! | YZW  | YZW  | -XYZW | -WZ   | WY    | 0     | 0     | 0     | 0     | -W    | -XYW  | ZXW   | 0    | 0    | 0    | WX   | 0    |
-//! | ZXW  | ZXW  | WZ    | -XYZW | -WX   | 0     | 0     | 0     | 0     | XYW   | -W    | -YZW  | 0    | 0    | 0    | WY   | 0    |
-//! | XYW  | XYW  | -WY   | WX    | -XYZW | 0     | 0     | 0     | 0     | -ZXW  | YZW   | -W    | 0    | 0    | 0    | WZ   | 0    |
-//! | ZYX  | ZYX  | -YZ   | -ZX   | -XY   | -XYZW | YZW   | ZXW   | XYW   | X     | Y     | Z     | -WX  | -WY  | -WZ  | -1   | W    |
-//! | XYZW | XYZW | -YZW  | -ZXW  | -XYW  | 0     | 0     | 0     | 0     | WX    | WY    | WZ    | 0    | 0    | 0    | -W   | 0    |
+//! |      | 1    | X     | Y     | Z     | W    | WX    | WY    | WZ    | YZ    | ZX    | XY    | YZW  | ZXW  | XYW  | XYZ   | XYZW |
+//! | ---- | ---- | ----- | ----- | ----- | ---- | ----- | ----- | ----- | ----- | ----- | ----- | ---- | ---- | ---- | ----- | ---- |
+//! | 1    | 1    | X     | Y     | Z     | W    | WX    | WY    | WZ    | YZ    | ZX    | XY    | YZW  | ZXW  | XYW  | XYZ   | XYZW |
+//! | X    | X    | 1     | XY    | -ZX   | -WX  | -W    | -XYW  | ZXW   | XYZ   | -Z    | Y     | XYZW | WZ   | -WY  | YZ    | YZW  |
+//! | Y    | Y    | -XY   | 1     | YZ    | -WY  | XYW   | -W    | -YZW  | Z     | XYZ   | -X    | -WZ  | XYZW | WX   | ZX    | ZXW  |
+//! | Z    | Z    | ZX    | -YZ   | 1     | -WZ  | -ZXW  | YZW   | -W    | -Y    | X     | XYZ   | WY   | -WX  | XYZW | XY    | XYW  |
+//! | W    | W    | WX    | WY    | WZ    | 0    | 0     | 0     | 0     | YZW   | ZXW   | XYW   | 0    | 0    | 0    | -XYZW | 0    |
+//! | WX   | WX   | W     | XYW   | -ZXW  | 0    | 0     | 0     | 0     | -XYZW | -WZ   | WY    | 0    | 0    | 0    | YZW   | 0    |
+//! | WY   | WY   | -XYW  | W     | YZW   | 0    | 0     | 0     | 0     | WZ    | -XYZW | -WX   | 0    | 0    | 0    | ZXW   | 0    |
+//! | WZ   | WZ   | ZXW   | -YZW  | W     | 0    | 0     | 0     | 0     | -WY   | WX    | -XYZW | 0    | 0    | 0    | XYW   | 0    |
+//! | YZ   | YZ   | XYZ   | -Z    | Y     | YZW  | -XYZW | -WZ   | WY    | -1    | -XY   | ZX    | -W   | -XYW | ZXW  | -X    | WX   |
+//! | ZX   | ZX   | Z     | XYZ   | -X    | ZXW  | WZ    | -XYZW | -WX   | XY    | -1    | -YZ   | XYW  | -W   | -YZW | -Y    | WY   |
+//! | XY   | XY   | -Y    | X     | XYZ   | XYW  | -WY   | WX    | -XYZW | -ZX   | YZ    | -1    | -ZXW | YZW  | -W   | -Z    | WZ   |
+//! | YZW  | YZW  | -XYZW | -WZ   | WY    | 0    | 0     | 0     | 0     | -W    | -XYW  | ZXW   | 0    | 0    | 0    | -WX   | 0    |
+//! | ZXW  | ZXW  | WZ    | -XYZW | -WX   | 0    | 0     | 0     | 0     | XYW   | -W    | -YZW  | 0    | 0    | 0    | -WY   | 0    |
+//! | XYW  | XYW  | -WY   | WX    | -XYZW | 0    | 0     | 0     | 0     | -ZXW  | YZW   | -W    | 0    | 0    | 0    | -WZ   | 0    |
+//! | XYZ  | XYZ  | YZ    | ZX    | XY    | XYZW | -YZW  | -ZXW  | -XYW  | -X    | -Y    | -Z    | WX   | WY   | WZ   | -1    | -W   |
+//! | XYZW | XYZW | -YZW  | -ZXW  | -XYW  | 0    | 0     | 0     | 0     | WX    | WY    | WZ    | 0    | 0    | 0    | W     | 0    |
 //!
 //!
 //! ### Dot multiplication table
 //!
-//! |      | 1    | X     | Y     | Z     | W     | WX    | WY    | WZ    | YZ    | ZX    | XY    | YZW  | ZXW  | XYW  | ZYX  | XYZW |
-//! | ---- | ---- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ---- | ---- | ---- | ---- | ---- |
-//! | 1    | 1    | X     | Y     | Z     | W     | WX    | WY    | WZ    | YZ    | ZX    | XY    | YZW  | ZXW  | XYW  | ZYX  | XYZW |
-//! | X    | X    | 1     | XY    | -ZX   | -WX   | -W    | -XYW  | ZXW   | -ZYX  | -Z    | Y     | XYZW | WZ   | -WY  | -YZ  | YZW  |
-//! | Y    | Y    | -XY   | 1     | YZ    | -WY   | XYW   | -W    | -YZW  | Z     | -ZYX  | -X    | -WZ  | XYZW | WX   | -ZX  | ZXW  |
-//! | Z    | Z    | ZX    | -YZ   | 1     | -WZ   | -ZXW  | YZW   | -W    | -Y    | X     | -ZYX  | WY   | -WX  | XYZW | -XY  | XYW  |
-//! | W    | W    | WX    | WY    | WZ    | 0     | 0     | 0     | 0     | YZW   | ZXW   | XYW   | 0    | 0    | 0    | XYZW | 0    |
-//! | WX   | WX   | W     | XYW   | -ZXW  | 0     | 0     | 0     | 0     | -XYZW | -WZ   | WY    | 0    | 0    | 0    | -YZW | 0    |
-//! | WY   | WY   | -XYW  | W     | YZW   | 0     | 0     | 0     | 0     | WZ    | -XYZW | -WX   | 0    | 0    | 0    | -ZXW | 0    |
-//! | WZ   | WZ   | ZXW   | -YZW  | W     | 0     | 0     | 0     | 0     | -WY   | WX    | -XYZW | 0    | 0    | 0    | -XYW | 0    |
-//! | YZ   | YZ   | -ZYX  | -Z    | Y     | YZW   | -XYZW | -WZ   | WY    | -1    | -XY   | ZX    | -W   | -XYW | ZXW  | X    | WX   |
-//! | ZX   | ZX   | Z     | -ZYX  | -X    | ZXW   | WZ    | -XYZW | -WX   | XY    | -1    | -YZ   | XYW  | -W   | -YZW | Y    | WY   |
-//! | XY   | XY   | -Y    | X     | -ZYX  | XYW   | -WY   | WX    | -XYZW | -ZX   | YZ    | -1    | -ZXW | YZW  | -W   | Z    | WZ   |
-//! | YZW  | YZW  | -XYZW | -WZ   | WY    | 0     | 0     | 0     | 0     | -W    | -XYW  | ZXW   | 0    | 0    | 0    | WX   | 0    |
-//! | ZXW  | ZXW  | WZ    | -XYZW | -WX   | 0     | 0     | 0     | 0     | XYW   | -W    | -YZW  | 0    | 0    | 0    | WY   | 0    |
-//! | XYW  | XYW  | -WY   | WX    | -XYZW | 0     | 0     | 0     | 0     | -ZXW  | YZW   | -W    | 0    | 0    | 0    | WZ   | 0    |
-//! | ZYX  | ZYX  | -YZ   | -ZX   | -XY   | -XYZW | YZW   | ZXW   | XYW   | X     | Y     | Z     | -WX  | -WY  | -WZ  | -1   | W    |
-//! | XYZW | XYZW | -YZW  | -ZXW  | -XYW  | 0     | 0     | 0     | 0     | WX    | WY    | WZ    | 0    | 0    | 0    | -W   | 0    |
+//! |      | 1    | X     | Y     | Z     | W    | WX    | WY    | WZ    | YZ    | ZX    | XY    | YZW  | ZXW  | XYW  | XYZ   | XYZW |
+//! | ---- | ---- | ----- | ----- | ----- | ---- | ----- | ----- | ----- | ----- | ----- | ----- | ---- | ---- | ---- | ----- | ---- |
+//! | 1    | 1    | X     | Y     | Z     | W    | WX    | WY    | WZ    | YZ    | ZX    | XY    | YZW  | ZXW  | XYW  | XYZ   | XYZW |
+//! | X    | X    | 1     | XY    | -ZX   | -WX  | -W    | -XYW  | ZXW   | XYZ   | -Z    | Y     | XYZW | WZ   | -WY  | YZ    | YZW  |
+//! | Y    | Y    | -XY   | 1     | YZ    | -WY  | XYW   | -W    | -YZW  | Z     | XYZ   | -X    | -WZ  | XYZW | WX   | ZX    | ZXW  |
+//! | Z    | Z    | ZX    | -YZ   | 1     | -WZ  | -ZXW  | YZW   | -W    | -Y    | X     | XYZ   | WY   | -WX  | XYZW | XY    | XYW  |
+//! | W    | W    | WX    | WY    | WZ    | 0    | 0     | 0     | 0     | YZW   | ZXW   | XYW   | 0    | 0    | 0    | -XYZW | 0    |
+//! | WX   | WX   | W     | XYW   | -ZXW  | 0    | 0     | 0     | 0     | -XYZW | -WZ   | WY    | 0    | 0    | 0    | YZW   | 0    |
+//! | WY   | WY   | -XYW  | W     | YZW   | 0    | 0     | 0     | 0     | WZ    | -XYZW | -WX   | 0    | 0    | 0    | ZXW   | 0    |
+//! | WZ   | WZ   | ZXW   | -YZW  | W     | 0    | 0     | 0     | 0     | -WY   | WX    | -XYZW | 0    | 0    | 0    | XYW   | 0    |
+//! | YZ   | YZ   | XYZ   | -Z    | Y     | YZW  | -XYZW | -WZ   | WY    | -1    | -XY   | ZX    | -W   | -XYW | ZXW  | -X    | WX   |
+//! | ZX   | ZX   | Z     | XYZ   | -X    | ZXW  | WZ    | -XYZW | -WX   | XY    | -1    | -YZ   | XYW  | -W   | -YZW | -Y    | WY   |
+//! | XY   | XY   | -Y    | X     | XYZ   | XYW  | -WY   | WX    | -XYZW | -ZX   | YZ    | -1    | -ZXW | YZW  | -W   | -Z    | WZ   |
+//! | YZW  | YZW  | -XYZW | -WZ   | WY    | 0    | 0     | 0     | 0     | -W    | -XYW  | ZXW   | 0    | 0    | 0    | -WX   | 0    |
+//! | ZXW  | ZXW  | WZ    | -XYZW | -WX   | 0    | 0     | 0     | 0     | XYW   | -W    | -YZW  | 0    | 0    | 0    | -WY   | 0    |
+//! | XYW  | XYW  | -WY   | WX    | -XYZW | 0    | 0     | 0     | 0     | -ZXW  | YZW   | -W    | 0    | 0    | 0    | -WZ   | 0    |
+//! | XYZ  | XYZ  | YZ    | ZX    | XY    | XYZW | -YZW  | -ZXW  | -XYW  | -X    | -Y    | -Z    | WX   | WY   | WZ   | -1    | -W   |
+//! | XYZW | XYZW | -YZW  | -ZXW  | -XYW  | 0    | 0     | 0     | 0     | WX    | WY    | WZ    | 0    | 0    | 0    | W     | 0    |
 //!
 //!
 //! ### Wedge multiplication table
 //!
-//! |      | 1    | X     | Y     | Z     | W     | WX    | WY    | WZ    | YZ    | ZX    | XY    | YZW  | ZXW  | XYW  | ZYX  | XYZW |
-//! | ---- | ---- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ---- | ---- | ---- | ---- | ---- |
-//! | 1    | 1    | X     | Y     | Z     | W     | WX    | WY    | WZ    | YZ    | ZX    | XY    | YZW  | ZXW  | XYW  | ZYX  | XYZW |
-//! | X    | X    | 1     | XY    | -ZX   | -WX   | -W    | -XYW  | ZXW   | -ZYX  | -Z    | Y     | XYZW | WZ   | -WY  | -YZ  | YZW  |
-//! | Y    | Y    | -XY   | 1     | YZ    | -WY   | XYW   | -W    | -YZW  | Z     | -ZYX  | -X    | -WZ  | XYZW | WX   | -ZX  | ZXW  |
-//! | Z    | Z    | ZX    | -YZ   | 1     | -WZ   | -ZXW  | YZW   | -W    | -Y    | X     | -ZYX  | WY   | -WX  | XYZW | -XY  | XYW  |
-//! | W    | W    | WX    | WY    | WZ    | 0     | 0     | 0     | 0     | YZW   | ZXW   | XYW   | 0    | 0    | 0    | XYZW | 0    |
-//! | WX   | WX   | W     | XYW   | -ZXW  | 0     | 0     | 0     | 0     | -XYZW | -WZ   | WY    | 0    | 0    | 0    | -YZW | 0    |
-//! | WY   | WY   | -XYW  | W     | YZW   | 0     | 0     | 0     | 0     | WZ    | -XYZW | -WX   | 0    | 0    | 0    | -ZXW | 0    |
-//! | WZ   | WZ   | ZXW   | -YZW  | W     | 0     | 0     | 0     | 0     | -WY   | WX    | -XYZW | 0    | 0    | 0    | -XYW | 0    |
-//! | YZ   | YZ   | -ZYX  | -Z    | Y     | YZW   | -XYZW | -WZ   | WY    | -1    | -XY   | ZX    | -W   | -XYW | ZXW  | X    | WX   |
-//! | ZX   | ZX   | Z     | -ZYX  | -X    | ZXW   | WZ    | -XYZW | -WX   | XY    | -1    | -YZ   | XYW  | -W   | -YZW | Y    | WY   |
-//! | XY   | XY   | -Y    | X     | -ZYX  | XYW   | -WY   | WX    | -XYZW | -ZX   | YZ    | -1    | -ZXW | YZW  | -W   | Z    | WZ   |
-//! | YZW  | YZW  | -XYZW | -WZ   | WY    | 0     | 0     | 0     | 0     | -W    | -XYW  | ZXW   | 0    | 0    | 0    | WX   | 0    |
-//! | ZXW  | ZXW  | WZ    | -XYZW | -WX   | 0     | 0     | 0     | 0     | XYW   | -W    | -YZW  | 0    | 0    | 0    | WY   | 0    |
-//! | XYW  | XYW  | -WY   | WX    | -XYZW | 0     | 0     | 0     | 0     | -ZXW  | YZW   | -W    | 0    | 0    | 0    | WZ   | 0    |
-//! | ZYX  | ZYX  | -YZ   | -ZX   | -XY   | -XYZW | YZW   | ZXW   | XYW   | X     | Y     | Z     | -WX  | -WY  | -WZ  | -1   | W    |
-//! | XYZW | XYZW | -YZW  | -ZXW  | -XYW  | 0     | 0     | 0     | 0     | WX    | WY    | WZ    | 0    | 0    | 0    | -W   | 0    |
+//! |      | 1    | X     | Y     | Z     | W    | WX    | WY    | WZ    | YZ    | ZX    | XY    | YZW  | ZXW  | XYW  | XYZ   | XYZW |
+//! | ---- | ---- | ----- | ----- | ----- | ---- | ----- | ----- | ----- | ----- | ----- | ----- | ---- | ---- | ---- | ----- | ---- |
+//! | 1    | 1    | X     | Y     | Z     | W    | WX    | WY    | WZ    | YZ    | ZX    | XY    | YZW  | ZXW  | XYW  | XYZ   | XYZW |
+//! | X    | X    | 1     | XY    | -ZX   | -WX  | -W    | -XYW  | ZXW   | XYZ   | -Z    | Y     | XYZW | WZ   | -WY  | YZ    | YZW  |
+//! | Y    | Y    | -XY   | 1     | YZ    | -WY  | XYW   | -W    | -YZW  | Z     | XYZ   | -X    | -WZ  | XYZW | WX   | ZX    | ZXW  |
+//! | Z    | Z    | ZX    | -YZ   | 1     | -WZ  | -ZXW  | YZW   | -W    | -Y    | X     | XYZ   | WY   | -WX  | XYZW | XY    | XYW  |
+//! | W    | W    | WX    | WY    | WZ    | 0    | 0     | 0     | 0     | YZW   | ZXW   | XYW   | 0    | 0    | 0    | -XYZW | 0    |
+//! | WX   | WX   | W     | XYW   | -ZXW  | 0    | 0     | 0     | 0     | -XYZW | -WZ   | WY    | 0    | 0    | 0    | YZW   | 0    |
+//! | WY   | WY   | -XYW  | W     | YZW   | 0    | 0     | 0     | 0     | WZ    | -XYZW | -WX   | 0    | 0    | 0    | ZXW   | 0    |
+//! | WZ   | WZ   | ZXW   | -YZW  | W     | 0    | 0     | 0     | 0     | -WY   | WX    | -XYZW | 0    | 0    | 0    | XYW   | 0    |
+//! | YZ   | YZ   | XYZ   | -Z    | Y     | YZW  | -XYZW | -WZ   | WY    | -1    | -XY   | ZX    | -W   | -XYW | ZXW  | -X    | WX   |
+//! | ZX   | ZX   | Z     | XYZ   | -X    | ZXW  | WZ    | -XYZW | -WX   | XY    | -1    | -YZ   | XYW  | -W   | -YZW | -Y    | WY   |
+//! | XY   | XY   | -Y    | X     | XYZ   | XYW  | -WY   | WX    | -XYZW | -ZX   | YZ    | -1    | -ZXW | YZW  | -W   | -Z    | WZ   |
+//! | YZW  | YZW  | -XYZW | -WZ   | WY    | 0    | 0     | 0     | 0     | -W    | -XYW  | ZXW   | 0    | 0    | 0    | -WX   | 0    |
+//! | ZXW  | ZXW  | WZ    | -XYZW | -WX   | 0    | 0     | 0     | 0     | XYW   | -W    | -YZW  | 0    | 0    | 0    | -WY   | 0    |
+//! | XYW  | XYW  | -WY   | WX    | -XYZW | 0    | 0     | 0     | 0     | -ZXW  | YZW   | -W    | 0    | 0    | 0    | -WZ   | 0    |
+//! | XYZ  | XYZ  | YZ    | ZX    | XY    | XYZW | -YZW  | -ZXW  | -XYW  | -X    | -Y    | -Z    | WX   | WY   | WZ   | -1    | -W   |
+//! | XYZW | XYZW | -YZW  | -ZXW  | -XYW  | 0    | 0     | 0     | 0     | WX    | WY    | WZ    | 0    | 0    | 0    | W     | 0    |
 //!
 //!
 //! ### AntiWedge multiplication table
 //!
-//! |      | 1    | X     | Y     | Z     | W     | WX    | WY    | WZ    | YZ    | ZX    | XY    | YZW  | ZXW  | XYW  | ZYX  | XYZW |
-//! | ---- | ---- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ---- | ---- | ---- | ---- | ---- |
-//! | 1    | 1    | X     | Y     | Z     | W     | WX    | WY    | WZ    | YZ    | ZX    | XY    | YZW  | ZXW  | XYW  | ZYX  | XYZW |
-//! | X    | X    | 1     | XY    | -ZX   | -WX   | -W    | -XYW  | ZXW   | -ZYX  | -Z    | Y     | XYZW | WZ   | -WY  | -YZ  | YZW  |
-//! | Y    | Y    | -XY   | 1     | YZ    | -WY   | XYW   | -W    | -YZW  | Z     | -ZYX  | -X    | -WZ  | XYZW | WX   | -ZX  | ZXW  |
-//! | Z    | Z    | ZX    | -YZ   | 1     | -WZ   | -ZXW  | YZW   | -W    | -Y    | X     | -ZYX  | WY   | -WX  | XYZW | -XY  | XYW  |
-//! | W    | W    | WX    | WY    | WZ    | 0     | 0     | 0     | 0     | YZW   | ZXW   | XYW   | 0    | 0    | 0    | XYZW | 0    |
-//! | WX   | WX   | W     | XYW   | -ZXW  | 0     | 0     | 0     | 0     | -XYZW | -WZ   | WY    | 0    | 0    | 0    | -YZW | 0    |
-//! | WY   | WY   | -XYW  | W     | YZW   | 0     | 0     | 0     | 0     | WZ    | -XYZW | -WX   | 0    | 0    | 0    | -ZXW | 0    |
-//! | WZ   | WZ   | ZXW   | -YZW  | W     | 0     | 0     | 0     | 0     | -WY   | WX    | -XYZW | 0    | 0    | 0    | -XYW | 0    |
-//! | YZ   | YZ   | -ZYX  | -Z    | Y     | YZW   | -XYZW | -WZ   | WY    | -1    | -XY   | ZX    | -W   | -XYW | ZXW  | X    | WX   |
-//! | ZX   | ZX   | Z     | -ZYX  | -X    | ZXW   | WZ    | -XYZW | -WX   | XY    | -1    | -YZ   | XYW  | -W   | -YZW | Y    | WY   |
-//! | XY   | XY   | -Y    | X     | -ZYX  | XYW   | -WY   | WX    | -XYZW | -ZX   | YZ    | -1    | -ZXW | YZW  | -W   | Z    | WZ   |
-//! | YZW  | YZW  | -XYZW | -WZ   | WY    | 0     | 0     | 0     | 0     | -W    | -XYW  | ZXW   | 0    | 0    | 0    | WX   | 0    |
-//! | ZXW  | ZXW  | WZ    | -XYZW | -WX   | 0     | 0     | 0     | 0     | XYW   | -W    | -YZW  | 0    | 0    | 0    | WY   | 0    |
-//! | XYW  | XYW  | -WY   | WX    | -XYZW | 0     | 0     | 0     | 0     | -ZXW  | YZW   | -W    | 0    | 0    | 0    | WZ   | 0    |
-//! | ZYX  | ZYX  | -YZ   | -ZX   | -XY   | -XYZW | YZW   | ZXW   | XYW   | X     | Y     | Z     | -WX  | -WY  | -WZ  | -1   | W    |
-//! | XYZW | XYZW | -YZW  | -ZXW  | -XYW  | 0     | 0     | 0     | 0     | WX    | WY    | WZ    | 0    | 0    | 0    | -W   | 0    |
+//! |      | 1    | X     | Y     | Z     | W    | WX    | WY    | WZ    | YZ    | ZX    | XY    | YZW  | ZXW  | XYW  | XYZ   | XYZW |
+//! | ---- | ---- | ----- | ----- | ----- | ---- | ----- | ----- | ----- | ----- | ----- | ----- | ---- | ---- | ---- | ----- | ---- |
+//! | 1    | 1    | X     | Y     | Z     | W    | WX    | WY    | WZ    | YZ    | ZX    | XY    | YZW  | ZXW  | XYW  | XYZ   | XYZW |
+//! | X    | X    | 1     | XY    | -ZX   | -WX  | -W    | -XYW  | ZXW   | XYZ   | -Z    | Y     | XYZW | WZ   | -WY  | YZ    | YZW  |
+//! | Y    | Y    | -XY   | 1     | YZ    | -WY  | XYW   | -W    | -YZW  | Z     | XYZ   | -X    | -WZ  | XYZW | WX   | ZX    | ZXW  |
+//! | Z    | Z    | ZX    | -YZ   | 1     | -WZ  | -ZXW  | YZW   | -W    | -Y    | X     | XYZ   | WY   | -WX  | XYZW | XY    | XYW  |
+//! | W    | W    | WX    | WY    | WZ    | 0    | 0     | 0     | 0     | YZW   | ZXW   | XYW   | 0    | 0    | 0    | -XYZW | 0    |
+//! | WX   | WX   | W     | XYW   | -ZXW  | 0    | 0     | 0     | 0     | -XYZW | -WZ   | WY    | 0    | 0    | 0    | YZW   | 0    |
+//! | WY   | WY   | -XYW  | W     | YZW   | 0    | 0     | 0     | 0     | WZ    | -XYZW | -WX   | 0    | 0    | 0    | ZXW   | 0    |
+//! | WZ   | WZ   | ZXW   | -YZW  | W     | 0    | 0     | 0     | 0     | -WY   | WX    | -XYZW | 0    | 0    | 0    | XYW   | 0    |
+//! | YZ   | YZ   | XYZ   | -Z    | Y     | YZW  | -XYZW | -WZ   | WY    | -1    | -XY   | ZX    | -W   | -XYW | ZXW  | -X    | WX   |
+//! | ZX   | ZX   | Z     | XYZ   | -X    | ZXW  | WZ    | -XYZW | -WX   | XY    | -1    | -YZ   | XYW  | -W   | -YZW | -Y    | WY   |
+//! | XY   | XY   | -Y    | X     | XYZ   | XYW  | -WY   | WX    | -XYZW | -ZX   | YZ    | -1    | -ZXW | YZW  | -W   | -Z    | WZ   |
+//! | YZW  | YZW  | -XYZW | -WZ   | WY    | 0    | 0     | 0     | 0     | -W    | -XYW  | ZXW   | 0    | 0    | 0    | -WX   | 0    |
+//! | ZXW  | ZXW  | WZ    | -XYZW | -WX   | 0    | 0     | 0     | 0     | XYW   | -W    | -YZW  | 0    | 0    | 0    | -WY   | 0    |
+//! | XYW  | XYW  | -WY   | WX    | -XYZW | 0    | 0     | 0     | 0     | -ZXW  | YZW   | -W    | 0    | 0    | 0    | -WZ   | 0    |
+//! | XYZ  | XYZ  | YZ    | ZX    | XY    | XYZW | -YZW  | -ZXW  | -XYW  | -X    | -Y    | -Z    | WX   | WY   | WZ   | -1    | -W   |
+//! | XYZW | XYZW | -YZW  | -ZXW  | -XYW  | 0    | 0     | 0     | 0     | WX    | WY    | WZ    | 0    | 0    | 0    | W     | 0    |
 
 use derive_more::{Add, Mul, Neg, Sub};
 
@@ -183,7 +183,7 @@ pub struct XYW(pub f64);
 
 /// Squares to -1.
 #[derive(Copy, Clone, Debug, Default, PartialEq, PartialOrd, Neg, Add, Sub)]
-pub struct ZYX(pub f64);
+pub struct XYZ(pub f64);
 
 /// The pseudo-scalar.
 /// Squares to 0.
@@ -222,9 +222,9 @@ impl RCompl for Z {
 }
 
 impl RCompl for W {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn rcompl(self) -> Self::Output {
-		ZYX(self.0)
+		XYZ(-self.0)
 	}
 }
 
@@ -291,10 +291,10 @@ impl RCompl for XYW {
 	}
 }
 
-impl RCompl for ZYX {
+impl RCompl for XYZ {
 	type Output = W;
 	fn rcompl(self) -> Self::Output {
-		W(-self.0)
+		W(self.0)
 	}
 }
 
@@ -337,9 +337,9 @@ impl LCompl for Z {
 }
 
 impl LCompl for W {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn lcompl(self) -> Self::Output {
-		ZYX(-self.0)
+		XYZ(self.0)
 	}
 }
 
@@ -406,10 +406,10 @@ impl LCompl for XYW {
 	}
 }
 
-impl LCompl for ZYX {
+impl LCompl for XYZ {
 	type Output = W;
 	fn lcompl(self) -> Self::Output {
-		W(self.0)
+		W(-self.0)
 	}
 }
 
@@ -507,7 +507,7 @@ impl Reverse for XYW {
 	}
 }
 
-impl Reverse for ZYX {
+impl Reverse for XYZ {
 	fn rev(self) -> Self {
 		-self
 	}
@@ -606,7 +606,7 @@ impl AntiReverse for XYW {
 	}
 }
 
-impl AntiReverse for ZYX {
+impl AntiReverse for XYZ {
 	fn arev(self) -> Self {
 		self
 	}
@@ -719,10 +719,10 @@ impl Geometric<XYW> for S {
 	}
 }
 
-impl Geometric<ZYX> for S {
-	type Output = ZYX;
-	fn geometric(self, rhs: ZYX) -> Self::Output {
-		ZYX(self.0 * rhs.0)
+impl Geometric<XYZ> for S {
+	type Output = XYZ;
+	fn geometric(self, rhs: XYZ) -> Self::Output {
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -790,9 +790,9 @@ impl Geometric<WZ> for X {
 }
 
 impl Geometric<YZ> for X {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn geometric(self, rhs: YZ) -> Self::Output {
-		ZYX(-self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -831,10 +831,10 @@ impl Geometric<XYW> for X {
 	}
 }
 
-impl Geometric<ZYX> for X {
+impl Geometric<XYZ> for X {
 	type Output = YZ;
-	fn geometric(self, rhs: ZYX) -> Self::Output {
-		YZ(-self.0 * rhs.0)
+	fn geometric(self, rhs: XYZ) -> Self::Output {
+		YZ(self.0 * rhs.0)
 	}
 }
 
@@ -909,9 +909,9 @@ impl Geometric<YZ> for Y {
 }
 
 impl Geometric<ZX> for Y {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn geometric(self, rhs: ZX) -> Self::Output {
-		ZYX(-self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -943,10 +943,10 @@ impl Geometric<XYW> for Y {
 	}
 }
 
-impl Geometric<ZYX> for Y {
+impl Geometric<XYZ> for Y {
 	type Output = ZX;
-	fn geometric(self, rhs: ZYX) -> Self::Output {
-		ZX(-self.0 * rhs.0)
+	fn geometric(self, rhs: XYZ) -> Self::Output {
+		ZX(self.0 * rhs.0)
 	}
 }
 
@@ -1028,9 +1028,9 @@ impl Geometric<ZX> for Z {
 }
 
 impl Geometric<XY> for Z {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn geometric(self, rhs: XY) -> Self::Output {
-		ZYX(-self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -1055,10 +1055,10 @@ impl Geometric<XYW> for Z {
 	}
 }
 
-impl Geometric<ZYX> for Z {
+impl Geometric<XYZ> for Z {
 	type Output = XY;
-	fn geometric(self, rhs: ZYX) -> Self::Output {
-		XY(-self.0 * rhs.0)
+	fn geometric(self, rhs: XYZ) -> Self::Output {
+		XY(self.0 * rhs.0)
 	}
 }
 
@@ -1167,10 +1167,10 @@ impl Geometric<XYW> for W {
 	}
 }
 
-impl Geometric<ZYX> for W {
+impl Geometric<XYZ> for W {
 	type Output = XYZW;
-	fn geometric(self, rhs: ZYX) -> Self::Output {
-		XYZW(self.0 * rhs.0)
+	fn geometric(self, rhs: XYZ) -> Self::Output {
+		XYZW(-self.0 * rhs.0)
 	}
 }
 
@@ -1279,10 +1279,10 @@ impl Geometric<XYW> for WX {
 	}
 }
 
-impl Geometric<ZYX> for WX {
+impl Geometric<XYZ> for WX {
 	type Output = YZW;
-	fn geometric(self, rhs: ZYX) -> Self::Output {
-		YZW(-self.0 * rhs.0)
+	fn geometric(self, rhs: XYZ) -> Self::Output {
+		YZW(self.0 * rhs.0)
 	}
 }
 
@@ -1391,10 +1391,10 @@ impl Geometric<XYW> for WY {
 	}
 }
 
-impl Geometric<ZYX> for WY {
+impl Geometric<XYZ> for WY {
 	type Output = ZXW;
-	fn geometric(self, rhs: ZYX) -> Self::Output {
-		ZXW(-self.0 * rhs.0)
+	fn geometric(self, rhs: XYZ) -> Self::Output {
+		ZXW(self.0 * rhs.0)
 	}
 }
 
@@ -1503,10 +1503,10 @@ impl Geometric<XYW> for WZ {
 	}
 }
 
-impl Geometric<ZYX> for WZ {
+impl Geometric<XYZ> for WZ {
 	type Output = XYW;
-	fn geometric(self, rhs: ZYX) -> Self::Output {
-		XYW(-self.0 * rhs.0)
+	fn geometric(self, rhs: XYZ) -> Self::Output {
+		XYW(self.0 * rhs.0)
 	}
 }
 
@@ -1525,9 +1525,9 @@ impl Geometric<S> for YZ {
 }
 
 impl Geometric<X> for YZ {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn geometric(self, rhs: X) -> Self::Output {
-		ZYX(-self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -1615,10 +1615,10 @@ impl Geometric<XYW> for YZ {
 	}
 }
 
-impl Geometric<ZYX> for YZ {
+impl Geometric<XYZ> for YZ {
 	type Output = X;
-	fn geometric(self, rhs: ZYX) -> Self::Output {
-		X(self.0 * rhs.0)
+	fn geometric(self, rhs: XYZ) -> Self::Output {
+		X(-self.0 * rhs.0)
 	}
 }
 
@@ -1644,9 +1644,9 @@ impl Geometric<X> for ZX {
 }
 
 impl Geometric<Y> for ZX {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn geometric(self, rhs: Y) -> Self::Output {
-		ZYX(-self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -1727,10 +1727,10 @@ impl Geometric<XYW> for ZX {
 	}
 }
 
-impl Geometric<ZYX> for ZX {
+impl Geometric<XYZ> for ZX {
 	type Output = Y;
-	fn geometric(self, rhs: ZYX) -> Self::Output {
-		Y(self.0 * rhs.0)
+	fn geometric(self, rhs: XYZ) -> Self::Output {
+		Y(-self.0 * rhs.0)
 	}
 }
 
@@ -1763,9 +1763,9 @@ impl Geometric<Y> for XY {
 }
 
 impl Geometric<Z> for XY {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn geometric(self, rhs: Z) -> Self::Output {
-		ZYX(-self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -1839,10 +1839,10 @@ impl Geometric<XYW> for XY {
 	}
 }
 
-impl Geometric<ZYX> for XY {
+impl Geometric<XYZ> for XY {
 	type Output = Z;
-	fn geometric(self, rhs: ZYX) -> Self::Output {
-		Z(self.0 * rhs.0)
+	fn geometric(self, rhs: XYZ) -> Self::Output {
+		Z(-self.0 * rhs.0)
 	}
 }
 
@@ -1951,10 +1951,10 @@ impl Geometric<XYW> for YZW {
 	}
 }
 
-impl Geometric<ZYX> for YZW {
+impl Geometric<XYZ> for YZW {
 	type Output = WX;
-	fn geometric(self, rhs: ZYX) -> Self::Output {
-		WX(self.0 * rhs.0)
+	fn geometric(self, rhs: XYZ) -> Self::Output {
+		WX(-self.0 * rhs.0)
 	}
 }
 
@@ -2063,10 +2063,10 @@ impl Geometric<XYW> for ZXW {
 	}
 }
 
-impl Geometric<ZYX> for ZXW {
+impl Geometric<XYZ> for ZXW {
 	type Output = WY;
-	fn geometric(self, rhs: ZYX) -> Self::Output {
-		WY(self.0 * rhs.0)
+	fn geometric(self, rhs: XYZ) -> Self::Output {
+		WY(-self.0 * rhs.0)
 	}
 }
 
@@ -2175,10 +2175,10 @@ impl Geometric<XYW> for XYW {
 	}
 }
 
-impl Geometric<ZYX> for XYW {
+impl Geometric<XYZ> for XYW {
 	type Output = WZ;
-	fn geometric(self, rhs: ZYX) -> Self::Output {
-		WZ(self.0 * rhs.0)
+	fn geometric(self, rhs: XYZ) -> Self::Output {
+		WZ(-self.0 * rhs.0)
 	}
 }
 
@@ -2189,115 +2189,115 @@ impl Geometric<XYZW> for XYW {
 	}
 }
 
-impl Geometric<S> for ZYX {
-	type Output = ZYX;
+impl Geometric<S> for XYZ {
+	type Output = XYZ;
 	fn geometric(self, rhs: S) -> Self::Output {
-		ZYX(self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
-impl Geometric<X> for ZYX {
+impl Geometric<X> for XYZ {
 	type Output = YZ;
 	fn geometric(self, rhs: X) -> Self::Output {
-		YZ(-self.0 * rhs.0)
+		YZ(self.0 * rhs.0)
 	}
 }
 
-impl Geometric<Y> for ZYX {
+impl Geometric<Y> for XYZ {
 	type Output = ZX;
 	fn geometric(self, rhs: Y) -> Self::Output {
-		ZX(-self.0 * rhs.0)
+		ZX(self.0 * rhs.0)
 	}
 }
 
-impl Geometric<Z> for ZYX {
+impl Geometric<Z> for XYZ {
 	type Output = XY;
 	fn geometric(self, rhs: Z) -> Self::Output {
-		XY(-self.0 * rhs.0)
+		XY(self.0 * rhs.0)
 	}
 }
 
-impl Geometric<W> for ZYX {
+impl Geometric<W> for XYZ {
 	type Output = XYZW;
 	fn geometric(self, rhs: W) -> Self::Output {
-		XYZW(-self.0 * rhs.0)
+		XYZW(self.0 * rhs.0)
 	}
 }
 
-impl Geometric<WX> for ZYX {
+impl Geometric<WX> for XYZ {
 	type Output = YZW;
 	fn geometric(self, rhs: WX) -> Self::Output {
-		YZW(self.0 * rhs.0)
+		YZW(-self.0 * rhs.0)
 	}
 }
 
-impl Geometric<WY> for ZYX {
+impl Geometric<WY> for XYZ {
 	type Output = ZXW;
 	fn geometric(self, rhs: WY) -> Self::Output {
-		ZXW(self.0 * rhs.0)
+		ZXW(-self.0 * rhs.0)
 	}
 }
 
-impl Geometric<WZ> for ZYX {
+impl Geometric<WZ> for XYZ {
 	type Output = XYW;
 	fn geometric(self, rhs: WZ) -> Self::Output {
-		XYW(self.0 * rhs.0)
+		XYW(-self.0 * rhs.0)
 	}
 }
 
-impl Geometric<YZ> for ZYX {
+impl Geometric<YZ> for XYZ {
 	type Output = X;
 	fn geometric(self, rhs: YZ) -> Self::Output {
-		X(self.0 * rhs.0)
+		X(-self.0 * rhs.0)
 	}
 }
 
-impl Geometric<ZX> for ZYX {
+impl Geometric<ZX> for XYZ {
 	type Output = Y;
 	fn geometric(self, rhs: ZX) -> Self::Output {
-		Y(self.0 * rhs.0)
+		Y(-self.0 * rhs.0)
 	}
 }
 
-impl Geometric<XY> for ZYX {
+impl Geometric<XY> for XYZ {
 	type Output = Z;
 	fn geometric(self, rhs: XY) -> Self::Output {
-		Z(self.0 * rhs.0)
+		Z(-self.0 * rhs.0)
 	}
 }
 
-impl Geometric<YZW> for ZYX {
+impl Geometric<YZW> for XYZ {
 	type Output = WX;
 	fn geometric(self, rhs: YZW) -> Self::Output {
-		WX(-self.0 * rhs.0)
+		WX(self.0 * rhs.0)
 	}
 }
 
-impl Geometric<ZXW> for ZYX {
+impl Geometric<ZXW> for XYZ {
 	type Output = WY;
 	fn geometric(self, rhs: ZXW) -> Self::Output {
-		WY(-self.0 * rhs.0)
+		WY(self.0 * rhs.0)
 	}
 }
 
-impl Geometric<XYW> for ZYX {
+impl Geometric<XYW> for XYZ {
 	type Output = WZ;
 	fn geometric(self, rhs: XYW) -> Self::Output {
-		WZ(-self.0 * rhs.0)
+		WZ(self.0 * rhs.0)
 	}
 }
 
-impl Geometric<ZYX> for ZYX {
+impl Geometric<XYZ> for XYZ {
 	type Output = S;
-	fn geometric(self, rhs: ZYX) -> Self::Output {
+	fn geometric(self, rhs: XYZ) -> Self::Output {
 		S(-self.0 * rhs.0)
 	}
 }
 
-impl Geometric<XYZW> for ZYX {
+impl Geometric<XYZW> for XYZ {
 	type Output = W;
 	fn geometric(self, rhs: XYZW) -> Self::Output {
-		W(self.0 * rhs.0)
+		W(-self.0 * rhs.0)
 	}
 }
 
@@ -2399,10 +2399,10 @@ impl Geometric<XYW> for XYZW {
 	}
 }
 
-impl Geometric<ZYX> for XYZW {
+impl Geometric<XYZ> for XYZW {
 	type Output = W;
-	fn geometric(self, rhs: ZYX) -> Self::Output {
-		W(-self.0 * rhs.0)
+	fn geometric(self, rhs: XYZ) -> Self::Output {
+		W(self.0 * rhs.0)
 	}
 }
 
@@ -2445,9 +2445,9 @@ impl AntiGeometric<Z> for S {
 }
 
 impl AntiGeometric<W> for S {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn anti_geometric(self, rhs: W) -> Self::Output {
-		ZYX(self.0 * rhs.0)
+		XYZ(-self.0 * rhs.0)
 	}
 }
 
@@ -2514,9 +2514,9 @@ impl AntiGeometric<XYW> for S {
 	}
 }
 
-impl AntiGeometric<ZYX> for S {
+impl AntiGeometric<XYZ> for S {
 	type Output = Zero;
-	fn anti_geometric(self, _rhs: ZYX) -> Self::Output {
+	fn anti_geometric(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -2564,9 +2564,9 @@ impl AntiGeometric<W> for X {
 }
 
 impl AntiGeometric<WX> for X {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn anti_geometric(self, rhs: WX) -> Self::Output {
-		ZYX(-self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -2626,9 +2626,9 @@ impl AntiGeometric<XYW> for X {
 	}
 }
 
-impl AntiGeometric<ZYX> for X {
+impl AntiGeometric<XYZ> for X {
 	type Output = Zero;
-	fn anti_geometric(self, _rhs: ZYX) -> Self::Output {
+	fn anti_geometric(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -2683,9 +2683,9 @@ impl AntiGeometric<WX> for Y {
 }
 
 impl AntiGeometric<WY> for Y {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn anti_geometric(self, rhs: WY) -> Self::Output {
-		ZYX(-self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -2738,9 +2738,9 @@ impl AntiGeometric<XYW> for Y {
 	}
 }
 
-impl AntiGeometric<ZYX> for Y {
+impl AntiGeometric<XYZ> for Y {
 	type Output = Zero;
-	fn anti_geometric(self, _rhs: ZYX) -> Self::Output {
+	fn anti_geometric(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -2802,9 +2802,9 @@ impl AntiGeometric<WY> for Z {
 }
 
 impl AntiGeometric<WZ> for Z {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn anti_geometric(self, rhs: WZ) -> Self::Output {
-		ZYX(-self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -2850,9 +2850,9 @@ impl AntiGeometric<XYW> for Z {
 	}
 }
 
-impl AntiGeometric<ZYX> for Z {
+impl AntiGeometric<XYZ> for Z {
 	type Output = Zero;
-	fn anti_geometric(self, _rhs: ZYX) -> Self::Output {
+	fn anti_geometric(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -2865,9 +2865,9 @@ impl AntiGeometric<XYZW> for Z {
 }
 
 impl AntiGeometric<S> for W {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn anti_geometric(self, rhs: S) -> Self::Output {
-		ZYX(-self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -2962,10 +2962,10 @@ impl AntiGeometric<XYW> for W {
 	}
 }
 
-impl AntiGeometric<ZYX> for W {
+impl AntiGeometric<XYZ> for W {
 	type Output = S;
-	fn anti_geometric(self, rhs: ZYX) -> Self::Output {
-		S(self.0 * rhs.0)
+	fn anti_geometric(self, rhs: XYZ) -> Self::Output {
+		S(-self.0 * rhs.0)
 	}
 }
 
@@ -2984,9 +2984,9 @@ impl AntiGeometric<S> for WX {
 }
 
 impl AntiGeometric<X> for WX {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn anti_geometric(self, rhs: X) -> Self::Output {
-		ZYX(-self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -3074,10 +3074,10 @@ impl AntiGeometric<XYW> for WX {
 	}
 }
 
-impl AntiGeometric<ZYX> for WX {
+impl AntiGeometric<XYZ> for WX {
 	type Output = X;
-	fn anti_geometric(self, rhs: ZYX) -> Self::Output {
-		X(self.0 * rhs.0)
+	fn anti_geometric(self, rhs: XYZ) -> Self::Output {
+		X(-self.0 * rhs.0)
 	}
 }
 
@@ -3103,9 +3103,9 @@ impl AntiGeometric<X> for WY {
 }
 
 impl AntiGeometric<Y> for WY {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn anti_geometric(self, rhs: Y) -> Self::Output {
-		ZYX(-self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -3186,10 +3186,10 @@ impl AntiGeometric<XYW> for WY {
 	}
 }
 
-impl AntiGeometric<ZYX> for WY {
+impl AntiGeometric<XYZ> for WY {
 	type Output = Y;
-	fn anti_geometric(self, rhs: ZYX) -> Self::Output {
-		Y(self.0 * rhs.0)
+	fn anti_geometric(self, rhs: XYZ) -> Self::Output {
+		Y(-self.0 * rhs.0)
 	}
 }
 
@@ -3222,9 +3222,9 @@ impl AntiGeometric<Y> for WZ {
 }
 
 impl AntiGeometric<Z> for WZ {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn anti_geometric(self, rhs: Z) -> Self::Output {
-		ZYX(-self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -3298,10 +3298,10 @@ impl AntiGeometric<XYW> for WZ {
 	}
 }
 
-impl AntiGeometric<ZYX> for WZ {
+impl AntiGeometric<XYZ> for WZ {
 	type Output = Z;
-	fn anti_geometric(self, rhs: ZYX) -> Self::Output {
-		Z(self.0 * rhs.0)
+	fn anti_geometric(self, rhs: XYZ) -> Self::Output {
+		Z(-self.0 * rhs.0)
 	}
 }
 
@@ -3390,9 +3390,9 @@ impl AntiGeometric<XY> for YZ {
 }
 
 impl AntiGeometric<YZW> for YZ {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn anti_geometric(self, rhs: YZW) -> Self::Output {
-		ZYX(-self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -3410,9 +3410,9 @@ impl AntiGeometric<XYW> for YZ {
 	}
 }
 
-impl AntiGeometric<ZYX> for YZ {
+impl AntiGeometric<XYZ> for YZ {
 	type Output = Zero;
-	fn anti_geometric(self, _rhs: ZYX) -> Self::Output {
+	fn anti_geometric(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -3509,9 +3509,9 @@ impl AntiGeometric<YZW> for ZX {
 }
 
 impl AntiGeometric<ZXW> for ZX {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn anti_geometric(self, rhs: ZXW) -> Self::Output {
-		ZYX(-self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -3522,9 +3522,9 @@ impl AntiGeometric<XYW> for ZX {
 	}
 }
 
-impl AntiGeometric<ZYX> for ZX {
+impl AntiGeometric<XYZ> for ZX {
 	type Output = Zero;
-	fn anti_geometric(self, _rhs: ZYX) -> Self::Output {
+	fn anti_geometric(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -3628,15 +3628,15 @@ impl AntiGeometric<ZXW> for XY {
 }
 
 impl AntiGeometric<XYW> for XY {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn anti_geometric(self, rhs: XYW) -> Self::Output {
-		ZYX(-self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
-impl AntiGeometric<ZYX> for XY {
+impl AntiGeometric<XYZ> for XY {
 	type Output = Zero;
-	fn anti_geometric(self, _rhs: ZYX) -> Self::Output {
+	fn anti_geometric(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -3705,9 +3705,9 @@ impl AntiGeometric<WZ> for YZW {
 }
 
 impl AntiGeometric<YZ> for YZW {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn anti_geometric(self, rhs: YZ) -> Self::Output {
-		ZYX(self.0 * rhs.0)
+		XYZ(-self.0 * rhs.0)
 	}
 }
 
@@ -3746,10 +3746,10 @@ impl AntiGeometric<XYW> for YZW {
 	}
 }
 
-impl AntiGeometric<ZYX> for YZW {
+impl AntiGeometric<XYZ> for YZW {
 	type Output = YZ;
-	fn anti_geometric(self, rhs: ZYX) -> Self::Output {
-		YZ(self.0 * rhs.0)
+	fn anti_geometric(self, rhs: XYZ) -> Self::Output {
+		YZ(-self.0 * rhs.0)
 	}
 }
 
@@ -3824,9 +3824,9 @@ impl AntiGeometric<YZ> for ZXW {
 }
 
 impl AntiGeometric<ZX> for ZXW {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn anti_geometric(self, rhs: ZX) -> Self::Output {
-		ZYX(self.0 * rhs.0)
+		XYZ(-self.0 * rhs.0)
 	}
 }
 
@@ -3858,10 +3858,10 @@ impl AntiGeometric<XYW> for ZXW {
 	}
 }
 
-impl AntiGeometric<ZYX> for ZXW {
+impl AntiGeometric<XYZ> for ZXW {
 	type Output = ZX;
-	fn anti_geometric(self, rhs: ZYX) -> Self::Output {
-		ZX(self.0 * rhs.0)
+	fn anti_geometric(self, rhs: XYZ) -> Self::Output {
+		ZX(-self.0 * rhs.0)
 	}
 }
 
@@ -3943,9 +3943,9 @@ impl AntiGeometric<ZX> for XYW {
 }
 
 impl AntiGeometric<XY> for XYW {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn anti_geometric(self, rhs: XY) -> Self::Output {
-		ZYX(self.0 * rhs.0)
+		XYZ(-self.0 * rhs.0)
 	}
 }
 
@@ -3970,10 +3970,10 @@ impl AntiGeometric<XYW> for XYW {
 	}
 }
 
-impl AntiGeometric<ZYX> for XYW {
+impl AntiGeometric<XYZ> for XYW {
 	type Output = XY;
-	fn anti_geometric(self, rhs: ZYX) -> Self::Output {
-		XY(self.0 * rhs.0)
+	fn anti_geometric(self, rhs: XYZ) -> Self::Output {
+		XY(-self.0 * rhs.0)
 	}
 }
 
@@ -3984,115 +3984,115 @@ impl AntiGeometric<XYZW> for XYW {
 	}
 }
 
-impl AntiGeometric<S> for ZYX {
+impl AntiGeometric<S> for XYZ {
 	type Output = Zero;
 	fn anti_geometric(self, _rhs: S) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl AntiGeometric<X> for ZYX {
+impl AntiGeometric<X> for XYZ {
 	type Output = Zero;
 	fn anti_geometric(self, _rhs: X) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl AntiGeometric<Y> for ZYX {
+impl AntiGeometric<Y> for XYZ {
 	type Output = Zero;
 	fn anti_geometric(self, _rhs: Y) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl AntiGeometric<Z> for ZYX {
+impl AntiGeometric<Z> for XYZ {
 	type Output = Zero;
 	fn anti_geometric(self, _rhs: Z) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl AntiGeometric<W> for ZYX {
+impl AntiGeometric<W> for XYZ {
 	type Output = S;
 	fn anti_geometric(self, rhs: W) -> Self::Output {
-		S(-self.0 * rhs.0)
+		S(self.0 * rhs.0)
 	}
 }
 
-impl AntiGeometric<WX> for ZYX {
+impl AntiGeometric<WX> for XYZ {
 	type Output = X;
 	fn anti_geometric(self, rhs: WX) -> Self::Output {
-		X(self.0 * rhs.0)
+		X(-self.0 * rhs.0)
 	}
 }
 
-impl AntiGeometric<WY> for ZYX {
+impl AntiGeometric<WY> for XYZ {
 	type Output = Y;
 	fn anti_geometric(self, rhs: WY) -> Self::Output {
-		Y(self.0 * rhs.0)
+		Y(-self.0 * rhs.0)
 	}
 }
 
-impl AntiGeometric<WZ> for ZYX {
+impl AntiGeometric<WZ> for XYZ {
 	type Output = Z;
 	fn anti_geometric(self, rhs: WZ) -> Self::Output {
-		Z(self.0 * rhs.0)
+		Z(-self.0 * rhs.0)
 	}
 }
 
-impl AntiGeometric<YZ> for ZYX {
+impl AntiGeometric<YZ> for XYZ {
 	type Output = Zero;
 	fn anti_geometric(self, _rhs: YZ) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl AntiGeometric<ZX> for ZYX {
+impl AntiGeometric<ZX> for XYZ {
 	type Output = Zero;
 	fn anti_geometric(self, _rhs: ZX) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl AntiGeometric<XY> for ZYX {
+impl AntiGeometric<XY> for XYZ {
 	type Output = Zero;
 	fn anti_geometric(self, _rhs: XY) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl AntiGeometric<YZW> for ZYX {
+impl AntiGeometric<YZW> for XYZ {
 	type Output = YZ;
 	fn anti_geometric(self, rhs: YZW) -> Self::Output {
-		YZ(-self.0 * rhs.0)
+		YZ(self.0 * rhs.0)
 	}
 }
 
-impl AntiGeometric<ZXW> for ZYX {
+impl AntiGeometric<ZXW> for XYZ {
 	type Output = ZX;
 	fn anti_geometric(self, rhs: ZXW) -> Self::Output {
-		ZX(-self.0 * rhs.0)
+		ZX(self.0 * rhs.0)
 	}
 }
 
-impl AntiGeometric<XYW> for ZYX {
+impl AntiGeometric<XYW> for XYZ {
 	type Output = XY;
 	fn anti_geometric(self, rhs: XYW) -> Self::Output {
-		XY(-self.0 * rhs.0)
+		XY(self.0 * rhs.0)
 	}
 }
 
-impl AntiGeometric<ZYX> for ZYX {
+impl AntiGeometric<XYZ> for XYZ {
 	type Output = Zero;
-	fn anti_geometric(self, _rhs: ZYX) -> Self::Output {
+	fn anti_geometric(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl AntiGeometric<XYZW> for ZYX {
-	type Output = ZYX;
+impl AntiGeometric<XYZW> for XYZ {
+	type Output = XYZ;
 	fn anti_geometric(self, rhs: XYZW) -> Self::Output {
-		ZYX(self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -4194,10 +4194,10 @@ impl AntiGeometric<XYW> for XYZW {
 	}
 }
 
-impl AntiGeometric<ZYX> for XYZW {
-	type Output = ZYX;
-	fn anti_geometric(self, rhs: ZYX) -> Self::Output {
-		ZYX(self.0 * rhs.0)
+impl AntiGeometric<XYZ> for XYZW {
+	type Output = XYZ;
+	fn anti_geometric(self, rhs: XYZ) -> Self::Output {
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -4309,10 +4309,10 @@ impl Dot<XYW> for S {
 	}
 }
 
-impl Dot<ZYX> for S {
-	type Output = ZYX;
-	fn dot(self, rhs: ZYX) -> Self::Output {
-		ZYX(self.0 * rhs.0)
+impl Dot<XYZ> for S {
+	type Output = XYZ;
+	fn dot(self, rhs: XYZ) -> Self::Output {
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -4421,10 +4421,10 @@ impl Dot<XYW> for X {
 	}
 }
 
-impl Dot<ZYX> for X {
+impl Dot<XYZ> for X {
 	type Output = YZ;
-	fn dot(self, rhs: ZYX) -> Self::Output {
-		YZ(-self.0 * rhs.0)
+	fn dot(self, rhs: XYZ) -> Self::Output {
+		YZ(self.0 * rhs.0)
 	}
 }
 
@@ -4533,10 +4533,10 @@ impl Dot<XYW> for Y {
 	}
 }
 
-impl Dot<ZYX> for Y {
+impl Dot<XYZ> for Y {
 	type Output = ZX;
-	fn dot(self, rhs: ZYX) -> Self::Output {
-		ZX(-self.0 * rhs.0)
+	fn dot(self, rhs: XYZ) -> Self::Output {
+		ZX(self.0 * rhs.0)
 	}
 }
 
@@ -4645,10 +4645,10 @@ impl Dot<XYW> for Z {
 	}
 }
 
-impl Dot<ZYX> for Z {
+impl Dot<XYZ> for Z {
 	type Output = XY;
-	fn dot(self, rhs: ZYX) -> Self::Output {
-		XY(-self.0 * rhs.0)
+	fn dot(self, rhs: XYZ) -> Self::Output {
+		XY(self.0 * rhs.0)
 	}
 }
 
@@ -4757,9 +4757,9 @@ impl Dot<XYW> for W {
 	}
 }
 
-impl Dot<ZYX> for W {
+impl Dot<XYZ> for W {
 	type Output = Zero;
-	fn dot(self, _rhs: ZYX) -> Self::Output {
+	fn dot(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -4869,9 +4869,9 @@ impl Dot<XYW> for WX {
 	}
 }
 
-impl Dot<ZYX> for WX {
+impl Dot<XYZ> for WX {
 	type Output = Zero;
-	fn dot(self, _rhs: ZYX) -> Self::Output {
+	fn dot(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -4981,9 +4981,9 @@ impl Dot<XYW> for WY {
 	}
 }
 
-impl Dot<ZYX> for WY {
+impl Dot<XYZ> for WY {
 	type Output = Zero;
-	fn dot(self, _rhs: ZYX) -> Self::Output {
+	fn dot(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -5093,9 +5093,9 @@ impl Dot<XYW> for WZ {
 	}
 }
 
-impl Dot<ZYX> for WZ {
+impl Dot<XYZ> for WZ {
 	type Output = Zero;
-	fn dot(self, _rhs: ZYX) -> Self::Output {
+	fn dot(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -5205,10 +5205,10 @@ impl Dot<XYW> for YZ {
 	}
 }
 
-impl Dot<ZYX> for YZ {
+impl Dot<XYZ> for YZ {
 	type Output = X;
-	fn dot(self, rhs: ZYX) -> Self::Output {
-		X(self.0 * rhs.0)
+	fn dot(self, rhs: XYZ) -> Self::Output {
+		X(-self.0 * rhs.0)
 	}
 }
 
@@ -5317,10 +5317,10 @@ impl Dot<XYW> for ZX {
 	}
 }
 
-impl Dot<ZYX> for ZX {
+impl Dot<XYZ> for ZX {
 	type Output = Y;
-	fn dot(self, rhs: ZYX) -> Self::Output {
-		Y(self.0 * rhs.0)
+	fn dot(self, rhs: XYZ) -> Self::Output {
+		Y(-self.0 * rhs.0)
 	}
 }
 
@@ -5429,10 +5429,10 @@ impl Dot<XYW> for XY {
 	}
 }
 
-impl Dot<ZYX> for XY {
+impl Dot<XYZ> for XY {
 	type Output = Z;
-	fn dot(self, rhs: ZYX) -> Self::Output {
-		Z(self.0 * rhs.0)
+	fn dot(self, rhs: XYZ) -> Self::Output {
+		Z(-self.0 * rhs.0)
 	}
 }
 
@@ -5541,9 +5541,9 @@ impl Dot<XYW> for YZW {
 	}
 }
 
-impl Dot<ZYX> for YZW {
+impl Dot<XYZ> for YZW {
 	type Output = Zero;
-	fn dot(self, _rhs: ZYX) -> Self::Output {
+	fn dot(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -5653,9 +5653,9 @@ impl Dot<XYW> for ZXW {
 	}
 }
 
-impl Dot<ZYX> for ZXW {
+impl Dot<XYZ> for ZXW {
 	type Output = Zero;
-	fn dot(self, _rhs: ZYX) -> Self::Output {
+	fn dot(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -5765,9 +5765,9 @@ impl Dot<XYW> for XYW {
 	}
 }
 
-impl Dot<ZYX> for XYW {
+impl Dot<XYZ> for XYW {
 	type Output = Zero;
-	fn dot(self, _rhs: ZYX) -> Self::Output {
+	fn dot(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -5779,115 +5779,115 @@ impl Dot<XYZW> for XYW {
 	}
 }
 
-impl Dot<S> for ZYX {
-	type Output = ZYX;
+impl Dot<S> for XYZ {
+	type Output = XYZ;
 	fn dot(self, rhs: S) -> Self::Output {
-		ZYX(self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
-impl Dot<X> for ZYX {
+impl Dot<X> for XYZ {
 	type Output = YZ;
 	fn dot(self, rhs: X) -> Self::Output {
-		YZ(-self.0 * rhs.0)
+		YZ(self.0 * rhs.0)
 	}
 }
 
-impl Dot<Y> for ZYX {
+impl Dot<Y> for XYZ {
 	type Output = ZX;
 	fn dot(self, rhs: Y) -> Self::Output {
-		ZX(-self.0 * rhs.0)
+		ZX(self.0 * rhs.0)
 	}
 }
 
-impl Dot<Z> for ZYX {
+impl Dot<Z> for XYZ {
 	type Output = XY;
 	fn dot(self, rhs: Z) -> Self::Output {
-		XY(-self.0 * rhs.0)
+		XY(self.0 * rhs.0)
 	}
 }
 
-impl Dot<W> for ZYX {
+impl Dot<W> for XYZ {
 	type Output = Zero;
 	fn dot(self, _rhs: W) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl Dot<WX> for ZYX {
+impl Dot<WX> for XYZ {
 	type Output = Zero;
 	fn dot(self, _rhs: WX) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl Dot<WY> for ZYX {
+impl Dot<WY> for XYZ {
 	type Output = Zero;
 	fn dot(self, _rhs: WY) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl Dot<WZ> for ZYX {
+impl Dot<WZ> for XYZ {
 	type Output = Zero;
 	fn dot(self, _rhs: WZ) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl Dot<YZ> for ZYX {
+impl Dot<YZ> for XYZ {
 	type Output = X;
 	fn dot(self, rhs: YZ) -> Self::Output {
-		X(self.0 * rhs.0)
+		X(-self.0 * rhs.0)
 	}
 }
 
-impl Dot<ZX> for ZYX {
+impl Dot<ZX> for XYZ {
 	type Output = Y;
 	fn dot(self, rhs: ZX) -> Self::Output {
-		Y(self.0 * rhs.0)
+		Y(-self.0 * rhs.0)
 	}
 }
 
-impl Dot<XY> for ZYX {
+impl Dot<XY> for XYZ {
 	type Output = Z;
 	fn dot(self, rhs: XY) -> Self::Output {
-		Z(self.0 * rhs.0)
+		Z(-self.0 * rhs.0)
 	}
 }
 
-impl Dot<YZW> for ZYX {
+impl Dot<YZW> for XYZ {
 	type Output = Zero;
 	fn dot(self, _rhs: YZW) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl Dot<ZXW> for ZYX {
+impl Dot<ZXW> for XYZ {
 	type Output = Zero;
 	fn dot(self, _rhs: ZXW) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl Dot<XYW> for ZYX {
+impl Dot<XYW> for XYZ {
 	type Output = Zero;
 	fn dot(self, _rhs: XYW) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl Dot<ZYX> for ZYX {
+impl Dot<XYZ> for XYZ {
 	type Output = S;
-	fn dot(self, rhs: ZYX) -> Self::Output {
+	fn dot(self, rhs: XYZ) -> Self::Output {
 		S(-self.0 * rhs.0)
 	}
 }
 
-impl Dot<XYZW> for ZYX {
+impl Dot<XYZW> for XYZ {
 	type Output = W;
 	fn dot(self, rhs: XYZW) -> Self::Output {
-		W(self.0 * rhs.0)
+		W(-self.0 * rhs.0)
 	}
 }
 
@@ -5989,10 +5989,10 @@ impl Dot<XYW> for XYZW {
 	}
 }
 
-impl Dot<ZYX> for XYZW {
+impl Dot<XYZ> for XYZW {
 	type Output = W;
-	fn dot(self, rhs: ZYX) -> Self::Output {
-		W(-self.0 * rhs.0)
+	fn dot(self, rhs: XYZ) -> Self::Output {
+		W(self.0 * rhs.0)
 	}
 }
 
@@ -6104,10 +6104,10 @@ impl Wedge<XYW> for S {
 	}
 }
 
-impl Wedge<ZYX> for S {
-	type Output = ZYX;
-	fn wedge(self, rhs: ZYX) -> Self::Output {
-		ZYX(self.0 * rhs.0)
+impl Wedge<XYZ> for S {
+	type Output = XYZ;
+	fn wedge(self, rhs: XYZ) -> Self::Output {
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -6175,9 +6175,9 @@ impl Wedge<WZ> for X {
 }
 
 impl Wedge<YZ> for X {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn wedge(self, rhs: YZ) -> Self::Output {
-		ZYX(-self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -6216,9 +6216,9 @@ impl Wedge<XYW> for X {
 	}
 }
 
-impl Wedge<ZYX> for X {
+impl Wedge<XYZ> for X {
 	type Output = Zero;
-	fn wedge(self, _rhs: ZYX) -> Self::Output {
+	fn wedge(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -6294,9 +6294,9 @@ impl Wedge<YZ> for Y {
 }
 
 impl Wedge<ZX> for Y {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn wedge(self, rhs: ZX) -> Self::Output {
-		ZYX(-self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -6328,9 +6328,9 @@ impl Wedge<XYW> for Y {
 	}
 }
 
-impl Wedge<ZYX> for Y {
+impl Wedge<XYZ> for Y {
 	type Output = Zero;
-	fn wedge(self, _rhs: ZYX) -> Self::Output {
+	fn wedge(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -6413,9 +6413,9 @@ impl Wedge<ZX> for Z {
 }
 
 impl Wedge<XY> for Z {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn wedge(self, rhs: XY) -> Self::Output {
-		ZYX(-self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -6440,9 +6440,9 @@ impl Wedge<XYW> for Z {
 	}
 }
 
-impl Wedge<ZYX> for Z {
+impl Wedge<XYZ> for Z {
 	type Output = Zero;
-	fn wedge(self, _rhs: ZYX) -> Self::Output {
+	fn wedge(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -6552,10 +6552,10 @@ impl Wedge<XYW> for W {
 	}
 }
 
-impl Wedge<ZYX> for W {
+impl Wedge<XYZ> for W {
 	type Output = XYZW;
-	fn wedge(self, rhs: ZYX) -> Self::Output {
-		XYZW(self.0 * rhs.0)
+	fn wedge(self, rhs: XYZ) -> Self::Output {
+		XYZW(-self.0 * rhs.0)
 	}
 }
 
@@ -6664,9 +6664,9 @@ impl Wedge<XYW> for WX {
 	}
 }
 
-impl Wedge<ZYX> for WX {
+impl Wedge<XYZ> for WX {
 	type Output = Zero;
-	fn wedge(self, _rhs: ZYX) -> Self::Output {
+	fn wedge(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -6776,9 +6776,9 @@ impl Wedge<XYW> for WY {
 	}
 }
 
-impl Wedge<ZYX> for WY {
+impl Wedge<XYZ> for WY {
 	type Output = Zero;
-	fn wedge(self, _rhs: ZYX) -> Self::Output {
+	fn wedge(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -6888,9 +6888,9 @@ impl Wedge<XYW> for WZ {
 	}
 }
 
-impl Wedge<ZYX> for WZ {
+impl Wedge<XYZ> for WZ {
 	type Output = Zero;
-	fn wedge(self, _rhs: ZYX) -> Self::Output {
+	fn wedge(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -6910,9 +6910,9 @@ impl Wedge<S> for YZ {
 }
 
 impl Wedge<X> for YZ {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn wedge(self, rhs: X) -> Self::Output {
-		ZYX(-self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -7000,9 +7000,9 @@ impl Wedge<XYW> for YZ {
 	}
 }
 
-impl Wedge<ZYX> for YZ {
+impl Wedge<XYZ> for YZ {
 	type Output = Zero;
-	fn wedge(self, _rhs: ZYX) -> Self::Output {
+	fn wedge(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -7029,9 +7029,9 @@ impl Wedge<X> for ZX {
 }
 
 impl Wedge<Y> for ZX {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn wedge(self, rhs: Y) -> Self::Output {
-		ZYX(-self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -7112,9 +7112,9 @@ impl Wedge<XYW> for ZX {
 	}
 }
 
-impl Wedge<ZYX> for ZX {
+impl Wedge<XYZ> for ZX {
 	type Output = Zero;
-	fn wedge(self, _rhs: ZYX) -> Self::Output {
+	fn wedge(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -7148,9 +7148,9 @@ impl Wedge<Y> for XY {
 }
 
 impl Wedge<Z> for XY {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn wedge(self, rhs: Z) -> Self::Output {
-		ZYX(-self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -7224,9 +7224,9 @@ impl Wedge<XYW> for XY {
 	}
 }
 
-impl Wedge<ZYX> for XY {
+impl Wedge<XYZ> for XY {
 	type Output = Zero;
-	fn wedge(self, _rhs: ZYX) -> Self::Output {
+	fn wedge(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -7336,9 +7336,9 @@ impl Wedge<XYW> for YZW {
 	}
 }
 
-impl Wedge<ZYX> for YZW {
+impl Wedge<XYZ> for YZW {
 	type Output = Zero;
-	fn wedge(self, _rhs: ZYX) -> Self::Output {
+	fn wedge(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -7448,9 +7448,9 @@ impl Wedge<XYW> for ZXW {
 	}
 }
 
-impl Wedge<ZYX> for ZXW {
+impl Wedge<XYZ> for ZXW {
 	type Output = Zero;
-	fn wedge(self, _rhs: ZYX) -> Self::Output {
+	fn wedge(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -7560,9 +7560,9 @@ impl Wedge<XYW> for XYW {
 	}
 }
 
-impl Wedge<ZYX> for XYW {
+impl Wedge<XYZ> for XYW {
 	type Output = Zero;
-	fn wedge(self, _rhs: ZYX) -> Self::Output {
+	fn wedge(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -7574,112 +7574,112 @@ impl Wedge<XYZW> for XYW {
 	}
 }
 
-impl Wedge<S> for ZYX {
-	type Output = ZYX;
+impl Wedge<S> for XYZ {
+	type Output = XYZ;
 	fn wedge(self, rhs: S) -> Self::Output {
-		ZYX(self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
-impl Wedge<X> for ZYX {
+impl Wedge<X> for XYZ {
 	type Output = Zero;
 	fn wedge(self, _rhs: X) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl Wedge<Y> for ZYX {
+impl Wedge<Y> for XYZ {
 	type Output = Zero;
 	fn wedge(self, _rhs: Y) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl Wedge<Z> for ZYX {
+impl Wedge<Z> for XYZ {
 	type Output = Zero;
 	fn wedge(self, _rhs: Z) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl Wedge<W> for ZYX {
+impl Wedge<W> for XYZ {
 	type Output = XYZW;
 	fn wedge(self, rhs: W) -> Self::Output {
-		XYZW(-self.0 * rhs.0)
+		XYZW(self.0 * rhs.0)
 	}
 }
 
-impl Wedge<WX> for ZYX {
+impl Wedge<WX> for XYZ {
 	type Output = Zero;
 	fn wedge(self, _rhs: WX) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl Wedge<WY> for ZYX {
+impl Wedge<WY> for XYZ {
 	type Output = Zero;
 	fn wedge(self, _rhs: WY) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl Wedge<WZ> for ZYX {
+impl Wedge<WZ> for XYZ {
 	type Output = Zero;
 	fn wedge(self, _rhs: WZ) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl Wedge<YZ> for ZYX {
+impl Wedge<YZ> for XYZ {
 	type Output = Zero;
 	fn wedge(self, _rhs: YZ) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl Wedge<ZX> for ZYX {
+impl Wedge<ZX> for XYZ {
 	type Output = Zero;
 	fn wedge(self, _rhs: ZX) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl Wedge<XY> for ZYX {
+impl Wedge<XY> for XYZ {
 	type Output = Zero;
 	fn wedge(self, _rhs: XY) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl Wedge<YZW> for ZYX {
+impl Wedge<YZW> for XYZ {
 	type Output = Zero;
 	fn wedge(self, _rhs: YZW) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl Wedge<ZXW> for ZYX {
+impl Wedge<ZXW> for XYZ {
 	type Output = Zero;
 	fn wedge(self, _rhs: ZXW) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl Wedge<XYW> for ZYX {
+impl Wedge<XYW> for XYZ {
 	type Output = Zero;
 	fn wedge(self, _rhs: XYW) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl Wedge<ZYX> for ZYX {
+impl Wedge<XYZ> for XYZ {
 	type Output = Zero;
-	fn wedge(self, _rhs: ZYX) -> Self::Output {
+	fn wedge(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl Wedge<XYZW> for ZYX {
+impl Wedge<XYZW> for XYZ {
 	type Output = Zero;
 	fn wedge(self, _rhs: XYZW) -> Self::Output {
 		Zero {}
@@ -7784,9 +7784,9 @@ impl Wedge<XYW> for XYZW {
 	}
 }
 
-impl Wedge<ZYX> for XYZW {
+impl Wedge<XYZ> for XYZW {
 	type Output = Zero;
-	fn wedge(self, _rhs: ZYX) -> Self::Output {
+	fn wedge(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -7899,9 +7899,9 @@ impl AntiWedge<XYW> for S {
 	}
 }
 
-impl AntiWedge<ZYX> for S {
+impl AntiWedge<XYZ> for S {
 	type Output = Zero;
-	fn anti_wedge(self, _rhs: ZYX) -> Self::Output {
+	fn anti_wedge(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -8011,9 +8011,9 @@ impl AntiWedge<XYW> for X {
 	}
 }
 
-impl AntiWedge<ZYX> for X {
+impl AntiWedge<XYZ> for X {
 	type Output = Zero;
-	fn anti_wedge(self, _rhs: ZYX) -> Self::Output {
+	fn anti_wedge(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -8123,9 +8123,9 @@ impl AntiWedge<XYW> for Y {
 	}
 }
 
-impl AntiWedge<ZYX> for Y {
+impl AntiWedge<XYZ> for Y {
 	type Output = Zero;
-	fn anti_wedge(self, _rhs: ZYX) -> Self::Output {
+	fn anti_wedge(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -8235,9 +8235,9 @@ impl AntiWedge<XYW> for Z {
 	}
 }
 
-impl AntiWedge<ZYX> for Z {
+impl AntiWedge<XYZ> for Z {
 	type Output = Zero;
-	fn anti_wedge(self, _rhs: ZYX) -> Self::Output {
+	fn anti_wedge(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -8347,10 +8347,10 @@ impl AntiWedge<XYW> for W {
 	}
 }
 
-impl AntiWedge<ZYX> for W {
+impl AntiWedge<XYZ> for W {
 	type Output = S;
-	fn anti_wedge(self, rhs: ZYX) -> Self::Output {
-		S(self.0 * rhs.0)
+	fn anti_wedge(self, rhs: XYZ) -> Self::Output {
+		S(-self.0 * rhs.0)
 	}
 }
 
@@ -8459,10 +8459,10 @@ impl AntiWedge<XYW> for WX {
 	}
 }
 
-impl AntiWedge<ZYX> for WX {
+impl AntiWedge<XYZ> for WX {
 	type Output = X;
-	fn anti_wedge(self, rhs: ZYX) -> Self::Output {
-		X(self.0 * rhs.0)
+	fn anti_wedge(self, rhs: XYZ) -> Self::Output {
+		X(-self.0 * rhs.0)
 	}
 }
 
@@ -8571,10 +8571,10 @@ impl AntiWedge<XYW> for WY {
 	}
 }
 
-impl AntiWedge<ZYX> for WY {
+impl AntiWedge<XYZ> for WY {
 	type Output = Y;
-	fn anti_wedge(self, rhs: ZYX) -> Self::Output {
-		Y(self.0 * rhs.0)
+	fn anti_wedge(self, rhs: XYZ) -> Self::Output {
+		Y(-self.0 * rhs.0)
 	}
 }
 
@@ -8683,10 +8683,10 @@ impl AntiWedge<XYW> for WZ {
 	}
 }
 
-impl AntiWedge<ZYX> for WZ {
+impl AntiWedge<XYZ> for WZ {
 	type Output = Z;
-	fn anti_wedge(self, rhs: ZYX) -> Self::Output {
-		Z(self.0 * rhs.0)
+	fn anti_wedge(self, rhs: XYZ) -> Self::Output {
+		Z(-self.0 * rhs.0)
 	}
 }
 
@@ -8795,9 +8795,9 @@ impl AntiWedge<XYW> for YZ {
 	}
 }
 
-impl AntiWedge<ZYX> for YZ {
+impl AntiWedge<XYZ> for YZ {
 	type Output = Zero;
-	fn anti_wedge(self, _rhs: ZYX) -> Self::Output {
+	fn anti_wedge(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -8907,9 +8907,9 @@ impl AntiWedge<XYW> for ZX {
 	}
 }
 
-impl AntiWedge<ZYX> for ZX {
+impl AntiWedge<XYZ> for ZX {
 	type Output = Zero;
-	fn anti_wedge(self, _rhs: ZYX) -> Self::Output {
+	fn anti_wedge(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -9019,9 +9019,9 @@ impl AntiWedge<XYW> for XY {
 	}
 }
 
-impl AntiWedge<ZYX> for XY {
+impl AntiWedge<XYZ> for XY {
 	type Output = Zero;
-	fn anti_wedge(self, _rhs: ZYX) -> Self::Output {
+	fn anti_wedge(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
@@ -9131,10 +9131,10 @@ impl AntiWedge<XYW> for YZW {
 	}
 }
 
-impl AntiWedge<ZYX> for YZW {
+impl AntiWedge<XYZ> for YZW {
 	type Output = YZ;
-	fn anti_wedge(self, rhs: ZYX) -> Self::Output {
-		YZ(self.0 * rhs.0)
+	fn anti_wedge(self, rhs: XYZ) -> Self::Output {
+		YZ(-self.0 * rhs.0)
 	}
 }
 
@@ -9243,10 +9243,10 @@ impl AntiWedge<XYW> for ZXW {
 	}
 }
 
-impl AntiWedge<ZYX> for ZXW {
+impl AntiWedge<XYZ> for ZXW {
 	type Output = ZX;
-	fn anti_wedge(self, rhs: ZYX) -> Self::Output {
-		ZX(self.0 * rhs.0)
+	fn anti_wedge(self, rhs: XYZ) -> Self::Output {
+		ZX(-self.0 * rhs.0)
 	}
 }
 
@@ -9355,10 +9355,10 @@ impl AntiWedge<XYW> for XYW {
 	}
 }
 
-impl AntiWedge<ZYX> for XYW {
+impl AntiWedge<XYZ> for XYW {
 	type Output = XY;
-	fn anti_wedge(self, rhs: ZYX) -> Self::Output {
-		XY(self.0 * rhs.0)
+	fn anti_wedge(self, rhs: XYZ) -> Self::Output {
+		XY(-self.0 * rhs.0)
 	}
 }
 
@@ -9369,115 +9369,115 @@ impl AntiWedge<XYZW> for XYW {
 	}
 }
 
-impl AntiWedge<S> for ZYX {
+impl AntiWedge<S> for XYZ {
 	type Output = Zero;
 	fn anti_wedge(self, _rhs: S) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl AntiWedge<X> for ZYX {
+impl AntiWedge<X> for XYZ {
 	type Output = Zero;
 	fn anti_wedge(self, _rhs: X) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl AntiWedge<Y> for ZYX {
+impl AntiWedge<Y> for XYZ {
 	type Output = Zero;
 	fn anti_wedge(self, _rhs: Y) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl AntiWedge<Z> for ZYX {
+impl AntiWedge<Z> for XYZ {
 	type Output = Zero;
 	fn anti_wedge(self, _rhs: Z) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl AntiWedge<W> for ZYX {
+impl AntiWedge<W> for XYZ {
 	type Output = S;
 	fn anti_wedge(self, rhs: W) -> Self::Output {
-		S(-self.0 * rhs.0)
+		S(self.0 * rhs.0)
 	}
 }
 
-impl AntiWedge<WX> for ZYX {
+impl AntiWedge<WX> for XYZ {
 	type Output = X;
 	fn anti_wedge(self, rhs: WX) -> Self::Output {
-		X(self.0 * rhs.0)
+		X(-self.0 * rhs.0)
 	}
 }
 
-impl AntiWedge<WY> for ZYX {
+impl AntiWedge<WY> for XYZ {
 	type Output = Y;
 	fn anti_wedge(self, rhs: WY) -> Self::Output {
-		Y(self.0 * rhs.0)
+		Y(-self.0 * rhs.0)
 	}
 }
 
-impl AntiWedge<WZ> for ZYX {
+impl AntiWedge<WZ> for XYZ {
 	type Output = Z;
 	fn anti_wedge(self, rhs: WZ) -> Self::Output {
-		Z(self.0 * rhs.0)
+		Z(-self.0 * rhs.0)
 	}
 }
 
-impl AntiWedge<YZ> for ZYX {
+impl AntiWedge<YZ> for XYZ {
 	type Output = Zero;
 	fn anti_wedge(self, _rhs: YZ) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl AntiWedge<ZX> for ZYX {
+impl AntiWedge<ZX> for XYZ {
 	type Output = Zero;
 	fn anti_wedge(self, _rhs: ZX) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl AntiWedge<XY> for ZYX {
+impl AntiWedge<XY> for XYZ {
 	type Output = Zero;
 	fn anti_wedge(self, _rhs: XY) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl AntiWedge<YZW> for ZYX {
+impl AntiWedge<YZW> for XYZ {
 	type Output = YZ;
 	fn anti_wedge(self, rhs: YZW) -> Self::Output {
-		YZ(-self.0 * rhs.0)
+		YZ(self.0 * rhs.0)
 	}
 }
 
-impl AntiWedge<ZXW> for ZYX {
+impl AntiWedge<ZXW> for XYZ {
 	type Output = ZX;
 	fn anti_wedge(self, rhs: ZXW) -> Self::Output {
-		ZX(-self.0 * rhs.0)
+		ZX(self.0 * rhs.0)
 	}
 }
 
-impl AntiWedge<XYW> for ZYX {
+impl AntiWedge<XYW> for XYZ {
 	type Output = XY;
 	fn anti_wedge(self, rhs: XYW) -> Self::Output {
-		XY(-self.0 * rhs.0)
+		XY(self.0 * rhs.0)
 	}
 }
 
-impl AntiWedge<ZYX> for ZYX {
+impl AntiWedge<XYZ> for XYZ {
 	type Output = Zero;
-	fn anti_wedge(self, _rhs: ZYX) -> Self::Output {
+	fn anti_wedge(self, _rhs: XYZ) -> Self::Output {
 		Zero {}
 	}
 }
 
-impl AntiWedge<XYZW> for ZYX {
-	type Output = ZYX;
+impl AntiWedge<XYZW> for XYZ {
+	type Output = XYZ;
 	fn anti_wedge(self, rhs: XYZW) -> Self::Output {
-		ZYX(self.0 * rhs.0)
+		XYZ(self.0 * rhs.0)
 	}
 }
 
@@ -9579,10 +9579,10 @@ impl AntiWedge<XYW> for XYZW {
 	}
 }
 
-impl AntiWedge<ZYX> for XYZW {
-	type Output = ZYX;
-	fn anti_wedge(self, rhs: ZYX) -> Self::Output {
-		ZYX(self.0 * rhs.0)
+impl AntiWedge<XYZ> for XYZW {
+	type Output = XYZ;
+	fn anti_wedge(self, rhs: XYZ) -> Self::Output {
+		XYZ(self.0 * rhs.0)
 	}
 }
 

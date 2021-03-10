@@ -133,13 +133,13 @@ impl Wedge<Vec3> for Line3 {
 		//     nx: YZW(self.vy.0 * rhs.z.0) + YZW(self.vz.0 * rhs.y.0),
 		//     ny: ZXW(self.vx.0 * rhs.z.0) + ZXW(self.vz.0 * rhs.x.0),
 		//     nz: XYW(self.vx.0 * rhs.y.0) + XYW(self.vy.0 * rhs.x.0),
-		//     d : ZYX(self.mx.0 * rhs.x.0) + ZYX(self.my.0 * rhs.y.0) + ZYX(self.mz.0 * rhs.z.0),
+		//     d : XYZ(self.mx.0 * rhs.x.0) + XYZ(self.my.0 * rhs.y.0) + XYZ(self.mz.0 * rhs.z.0),
 		// }
 		Plane {
 			nx: self.vy.wedge(rhs.z) - self.vz.wedge(rhs.y),
 			ny: -self.vx.wedge(rhs.z) + self.vz.wedge(rhs.x),
 			nz: self.vx.wedge(rhs.y) - self.vy.wedge(rhs.x),
-			d: -self.mx.wedge(rhs.x) - self.my.wedge(rhs.y) - self.mz.wedge(rhs.z),
+			d: self.mx.wedge(rhs.x) + self.my.wedge(rhs.y) + self.mz.wedge(rhs.z),
 		}
 	}
 }
@@ -179,13 +179,13 @@ impl Wedge<Vec4> for Line3 {
 		//     nx: YZW(self.mx.0 * rhs.w.0) + YZW(self.vy.0 * rhs.z.0) + YZW(self.vz.0 * rhs.y.0),
 		//     ny: ZXW(self.my.0 * rhs.w.0) + ZXW(self.vx.0 * rhs.z.0) + ZXW(self.vz.0 * rhs.x.0),
 		//     nz: XYW(self.mz.0 * rhs.w.0) + XYW(self.vx.0 * rhs.y.0) + XYW(self.vy.0 * rhs.x.0),
-		//     d : ZYX(self.mx.0 * rhs.x.0) + ZYX(self.my.0 * rhs.y.0) + ZYX(self.mz.0 * rhs.z.0),
+		//     d : XYZ(self.mx.0 * rhs.x.0) + XYZ(self.my.0 * rhs.y.0) + XYZ(self.mz.0 * rhs.z.0),
 		// }
 		Plane {
 			nx: self.mx.wedge(rhs.w) + self.vy.wedge(rhs.z) - self.vz.wedge(rhs.y),
 			ny: self.my.wedge(rhs.w) - self.vx.wedge(rhs.z) + self.vz.wedge(rhs.x),
 			nz: self.mz.wedge(rhs.w) + self.vx.wedge(rhs.y) - self.vy.wedge(rhs.x),
-			d: -self.mx.wedge(rhs.x) - self.my.wedge(rhs.y) - self.mz.wedge(rhs.z),
+			d: self.mx.wedge(rhs.x) + self.my.wedge(rhs.y) + self.mz.wedge(rhs.z),
 		}
 	}
 }
@@ -285,9 +285,9 @@ impl Dot<Plane> for Line3 {
 		//     w: W(self.mx.0 * rhs.nx.0) + W(self.my.0 * rhs.ny.0) + W(self.mz.0 * rhs.nz.0),
 		// }
 		Vec4 {
-			x: self.mx.dot(rhs.d),
-			y: self.my.dot(rhs.d),
-			z: self.mz.dot(rhs.d),
+			x: -self.mx.dot(rhs.d),
+			y: -self.my.dot(rhs.d),
+			z: -self.mz.dot(rhs.d),
 			w: -self.mx.dot(rhs.nx) - self.my.dot(rhs.ny) - self.mz.dot(rhs.nz),
 		}
 	}
@@ -306,9 +306,9 @@ impl AntiWedge<Plane> for Line3 {
 		//     w: W(self.vx.0 * rhs.nx.0) + W(self.vy.0 * rhs.ny.0) + W(self.vz.0 * rhs.nz.0),
 		// }
 		Vec4 {
-			x: self.my.anti_wedge(rhs.nz) - self.mz.anti_wedge(rhs.ny) + self.vx.anti_wedge(rhs.d),
-			y: -self.mx.anti_wedge(rhs.nz) + self.mz.anti_wedge(rhs.nx) + self.vy.anti_wedge(rhs.d),
-			z: self.mx.anti_wedge(rhs.ny) - self.my.anti_wedge(rhs.nx) + self.vz.anti_wedge(rhs.d),
+			x: self.my.anti_wedge(rhs.nz) - self.mz.anti_wedge(rhs.ny) - self.vx.anti_wedge(rhs.d),
+			y: -self.mx.anti_wedge(rhs.nz) + self.mz.anti_wedge(rhs.nx) - self.vy.anti_wedge(rhs.d),
+			z: self.mx.anti_wedge(rhs.ny) - self.my.anti_wedge(rhs.nx) - self.vz.anti_wedge(rhs.d),
 			w: -self.vx.anti_wedge(rhs.nx) - self.vy.anti_wedge(rhs.ny) - self.vz.anti_wedge(rhs.nz),
 		}
 	}

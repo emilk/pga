@@ -5,8 +5,8 @@
 //! Moment3.dot(Moment3) -> S
 //! Moment3.dot(Vec3) -> Vec3
 //! Vec3.dot(Moment3) -> Vec3
-//! Moment3.wedge(Vec3) -> ZYX
-//! Vec3.wedge(Moment3) -> ZYX
+//! Moment3.wedge(Vec3) -> XYZ
+//! Vec3.wedge(Moment3) -> XYZ
 //! Moment3.anti_geometric(Vec4) -> Vec3
 //! Vec4.anti_geometric(Moment3) -> Vec3
 //! Moment3.dot(Vec4) -> Vec3
@@ -114,11 +114,11 @@ impl Dot<Vec3> for Moment3 {
 	}
 }
 
-// Moment3.wedge(Vec3) -> ZYX
+// Moment3.wedge(Vec3) -> XYZ
 impl Wedge<Vec3> for Moment3 {
-	type Output = ZYX;
+	type Output = XYZ;
 	fn wedge(self, rhs: Vec3) -> Self::Output {
-		// -ZYX(self.mx.0 * rhs.x.0) - ZYX(self.my.0 * rhs.y.0) - ZYX(self.mz.0 * rhs.z.0)
+		// XYZ(self.mx.0 * rhs.x.0) + XYZ(self.my.0 * rhs.y.0) + XYZ(self.mz.0 * rhs.z.0)
 		self.mx.wedge(rhs.x) + self.my.wedge(rhs.y) + self.mz.wedge(rhs.z)
 	}
 }
@@ -172,13 +172,13 @@ impl Wedge<Vec4> for Moment3 {
 		//     nx: YZW(self.mx.0 * rhs.w.0),
 		//     ny: ZXW(self.my.0 * rhs.w.0),
 		//     nz: XYW(self.mz.0 * rhs.w.0),
-		//     d : ZYX(self.mx.0 * rhs.x.0) + ZYX(self.my.0 * rhs.y.0) + ZYX(self.mz.0 * rhs.z.0),
+		//     d : XYZ(self.mx.0 * rhs.x.0) + XYZ(self.my.0 * rhs.y.0) + XYZ(self.mz.0 * rhs.z.0),
 		// }
 		Plane {
 			nx: self.mx.wedge(rhs.w),
 			ny: self.my.wedge(rhs.w),
 			nz: self.mz.wedge(rhs.w),
-			d: -self.mx.wedge(rhs.x) - self.my.wedge(rhs.y) - self.mz.wedge(rhs.z),
+			d: self.mx.wedge(rhs.x) + self.my.wedge(rhs.y) + self.mz.wedge(rhs.z),
 		}
 	}
 }
@@ -253,9 +253,9 @@ impl Dot<Plane> for Moment3 {
 		//     w: W(self.mx.0 * rhs.nx.0) + W(self.my.0 * rhs.ny.0) + W(self.mz.0 * rhs.nz.0),
 		// }
 		Vec4 {
-			x: self.mx.dot(rhs.d),
-			y: self.my.dot(rhs.d),
-			z: self.mz.dot(rhs.d),
+			x: -self.mx.dot(rhs.d),
+			y: -self.my.dot(rhs.d),
+			z: -self.mz.dot(rhs.d),
 			w: -self.mx.dot(rhs.nx) - self.my.dot(rhs.ny) - self.mz.dot(rhs.nz),
 		}
 	}

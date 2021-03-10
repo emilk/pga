@@ -118,7 +118,7 @@ impl Wedge<Plane> for Motor3 {
 		//     nx: YZW(self.uw.0 * rhs.nx.0),
 		//     ny: ZXW(self.uw.0 * rhs.ny.0),
 		//     nz: XYW(self.uw.0 * rhs.nz.0),
-		//     d : ZYX(self.uw.0 * rhs.d.0),
+		//     d : XYZ(self.uw.0 * rhs.d.0),
 		// }
 		Plane {
 			nx: self.uw.wedge(rhs.nx),

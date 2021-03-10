@@ -13,10 +13,6 @@
 //! Vec3.anti_wedge(Plane) -> S
 //! Plane.dot(Vec4) -> Line3
 //! Vec4.dot(Plane) -> Line3
-//! Plane.wedge(Vec4) -> XYZW
-//! Vec4.wedge(Plane) -> XYZW
-//! Plane.anti_wedge(Vec4) -> S
-//! Vec4.anti_wedge(Plane) -> S
 //! Plane.dot(Moment3) -> Vec4
 //! Moment3.dot(Plane) -> Vec4
 //! Plane.anti_wedge(Moment3) -> Vec3
@@ -38,7 +34,7 @@ pub struct Plane {
 	pub nx: YZW,
 	pub ny: ZXW,
 	pub nz: XYW,
-	pub d: ZYX,
+	pub d: XYZ,
 }
 
 // ---------------------------------------------------------------------
@@ -50,7 +46,7 @@ impl RCompl for Plane {
 			x: -self.nx.rcompl(),
 			y: -self.ny.rcompl(),
 			z: -self.nz.rcompl(),
-			w: -self.d.rcompl(),
+			w: self.d.rcompl(),
 		}
 	}
 }
@@ -62,7 +58,7 @@ impl LCompl for Plane {
 			x: self.nx.lcompl(),
 			y: self.ny.lcompl(),
 			z: self.nz.lcompl(),
-			w: self.d.lcompl(),
+			w: -self.d.lcompl(),
 		}
 	}
 }
@@ -111,9 +107,9 @@ impl Dot<Vec3> for Plane {
 			vx: -self.ny.dot(rhs.z) + self.nz.dot(rhs.y),
 			vy: self.nx.dot(rhs.z) - self.nz.dot(rhs.x),
 			vz: -self.nx.dot(rhs.y) + self.ny.dot(rhs.x),
-			mx: -self.d.dot(rhs.x),
-			my: -self.d.dot(rhs.y),
-			mz: -self.d.dot(rhs.z),
+			mx: self.d.dot(rhs.x),
+			my: self.d.dot(rhs.y),
+			mz: self.d.dot(rhs.z),
 		}
 	}
 }
@@ -158,30 +154,15 @@ impl Dot<Vec4> for Plane {
 			vx: -self.ny.dot(rhs.z) + self.nz.dot(rhs.y),
 			vy: self.nx.dot(rhs.z) - self.nz.dot(rhs.x),
 			vz: -self.nx.dot(rhs.y) + self.ny.dot(rhs.x),
-			mx: -self.d.dot(rhs.x),
-			my: -self.d.dot(rhs.y),
-			mz: -self.d.dot(rhs.z),
+			mx: self.d.dot(rhs.x),
+			my: self.d.dot(rhs.y),
+			mz: self.d.dot(rhs.z),
 		}
 	}
 }
 
-// Plane.wedge(Vec4) -> XYZW
-impl Wedge<Vec4> for Plane {
-	type Output = XYZW;
-	fn wedge(self, rhs: Vec4) -> Self::Output {
-		// -XYZW(self.d.0 * rhs.w.0) - XYZW(self.nx.0 * rhs.x.0) - XYZW(self.ny.0 * rhs.y.0) - XYZW(self.nz.0 * rhs.z.0)
-		self.d.wedge(rhs.w) + self.nx.wedge(rhs.x) + self.ny.wedge(rhs.y) + self.nz.wedge(rhs.z)
-	}
-}
-
-// Plane.anti_wedge(Vec4) -> S
-impl AntiWedge<Vec4> for Plane {
-	type Output = S;
-	fn anti_wedge(self, rhs: Vec4) -> Self::Output {
-		// -S(self.d.0 * rhs.w.0) - S(self.nx.0 * rhs.x.0) - S(self.ny.0 * rhs.y.0) - S(self.nz.0 * rhs.z.0)
-		self.d.anti_wedge(rhs.w) + self.nx.anti_wedge(rhs.x) + self.ny.anti_wedge(rhs.y) + self.nz.anti_wedge(rhs.z)
-	}
-}
+// Omitted: Plane wedge Vec4 = self.d ^ rhs.w + self.nx ^ rhs.x + self.ny ^ rhs.y + self.nz ^ rhs.z  (unnamed type)
+// Omitted: Plane anti_wedge Vec4 = self.d & rhs.w + self.nx & rhs.x + self.ny & rhs.y + self.nz & rhs.z  (unnamed type)
 
 // ---------------------------------------------------------------------
 // Plane OP Moment3:
@@ -200,9 +181,9 @@ impl Dot<Moment3> for Plane {
 		//     w: W(self.nx.0 * rhs.mx.0) + W(self.ny.0 * rhs.my.0) + W(self.nz.0 * rhs.mz.0),
 		// }
 		Vec4 {
-			x: self.d.dot(rhs.mx),
-			y: self.d.dot(rhs.my),
-			z: self.d.dot(rhs.mz),
+			x: -self.d.dot(rhs.mx),
+			y: -self.d.dot(rhs.my),
+			z: -self.d.dot(rhs.mz),
 			w: -self.nx.dot(rhs.mx) - self.ny.dot(rhs.my) - self.nz.dot(rhs.mz),
 		}
 	}
@@ -244,9 +225,9 @@ impl Dot<Line3> for Plane {
 		//     w: W(self.nx.0 * rhs.mx.0) + W(self.ny.0 * rhs.my.0) + W(self.nz.0 * rhs.mz.0),
 		// }
 		Vec4 {
-			x: self.d.dot(rhs.mx),
-			y: self.d.dot(rhs.my),
-			z: self.d.dot(rhs.mz),
+			x: -self.d.dot(rhs.mx),
+			y: -self.d.dot(rhs.my),
+			z: -self.d.dot(rhs.mz),
 			w: -self.nx.dot(rhs.mx) - self.ny.dot(rhs.my) - self.nz.dot(rhs.mz),
 		}
 	}
@@ -265,9 +246,9 @@ impl AntiWedge<Line3> for Plane {
 		//     w: W(self.nx.0 * rhs.vx.0) + W(self.ny.0 * rhs.vy.0) + W(self.nz.0 * rhs.vz.0),
 		// }
 		Vec4 {
-			x: self.d.anti_wedge(rhs.vx) - self.ny.anti_wedge(rhs.mz) + self.nz.anti_wedge(rhs.my),
-			y: self.d.anti_wedge(rhs.vy) + self.nx.anti_wedge(rhs.mz) - self.nz.anti_wedge(rhs.mx),
-			z: self.d.anti_wedge(rhs.vz) - self.nx.anti_wedge(rhs.my) + self.ny.anti_wedge(rhs.mx),
+			x: -self.d.anti_wedge(rhs.vx) - self.ny.anti_wedge(rhs.mz) + self.nz.anti_wedge(rhs.my),
+			y: -self.d.anti_wedge(rhs.vy) + self.nx.anti_wedge(rhs.mz) - self.nz.anti_wedge(rhs.mx),
+			z: -self.d.anti_wedge(rhs.vz) - self.nx.anti_wedge(rhs.my) + self.ny.anti_wedge(rhs.mx),
 			w: -self.nx.anti_wedge(rhs.vx) - self.ny.anti_wedge(rhs.vy) - self.nz.anti_wedge(rhs.vz),
 		}
 	}
@@ -276,7 +257,7 @@ impl AntiWedge<Line3> for Plane {
 // ---------------------------------------------------------------------
 // Plane OP Plane:
 
-// Omitted: Plane geometric Plane = Motor3 {     rx: -self.d * rhs.nx + self.nx * rhs.d,     ry: -self.d * rhs.ny + self.ny * rhs.d,     rz: -self.d * rhs.nz + self.nz * rhs.d,     rw: 0,     ux: 0,     uy: 0,     uz: 0,     uw: -self.d * rhs.d, }  (too many zeros)
+// Omitted: Plane geometric Plane = Motor3 {     rx: self.d * rhs.nx - self.nx * rhs.d,     ry: self.d * rhs.ny - self.ny * rhs.d,     rz: self.d * rhs.nz - self.nz * rhs.d,     rw: 0,     ux: 0,     uy: 0,     uz: 0,     uw: -self.d * rhs.d, }  (too many zeros)
 // Omitted: Plane anti_geometric Plane = self.d !* rhs.nx + self.d !* rhs.ny + self.d !* rhs.nz + self.nx !* rhs.d + self.nx !* rhs.nx + self.nx !* rhs.ny + self.nx !* rhs.nz + self.ny !* rhs.d + self.ny !* rhs.nx + self.ny !* rhs.ny + self.ny !* rhs.nz + self.nz !* rhs.d + self.nz !* rhs.nx + self.nz !* rhs.ny + self.nz !* rhs.nz  (unnamed type)
 
 // Plane.dot(Plane) -> S
@@ -306,9 +287,9 @@ impl AntiWedge<Plane> for Plane {
 			vx: -self.ny.anti_wedge(rhs.nz) + self.nz.anti_wedge(rhs.ny),
 			vy: self.nx.anti_wedge(rhs.nz) - self.nz.anti_wedge(rhs.nx),
 			vz: -self.nx.anti_wedge(rhs.ny) + self.ny.anti_wedge(rhs.nx),
-			mx: -self.d.anti_wedge(rhs.nx) + self.nx.anti_wedge(rhs.d),
-			my: -self.d.anti_wedge(rhs.ny) + self.ny.anti_wedge(rhs.d),
-			mz: -self.d.anti_wedge(rhs.nz) + self.nz.anti_wedge(rhs.d),
+			mx: self.d.anti_wedge(rhs.nx) - self.nx.anti_wedge(rhs.d),
+			my: self.d.anti_wedge(rhs.ny) - self.ny.anti_wedge(rhs.d),
+			mz: self.d.anti_wedge(rhs.nz) - self.nz.anti_wedge(rhs.d),
 		}
 	}
 }
@@ -323,7 +304,7 @@ impl AntiWedge<Plane> for Plane {
 impl Dot<Rotor3> for Plane {
 	type Output = W;
 	fn dot(self, rhs: Rotor3) -> Self::Output {
-		// W(self.d.0 * rhs.w.0)
+		// -W(self.d.0 * rhs.w.0)
 		self.d.dot(rhs.w)
 	}
 }
@@ -346,7 +327,7 @@ impl Wedge<Motor3> for Plane {
 		//     nx: YZW(self.nx.0 * rhs.uw.0),
 		//     ny: ZXW(self.ny.0 * rhs.uw.0),
 		//     nz: XYW(self.nz.0 * rhs.uw.0),
-		//     d : ZYX(self.d.0 * rhs.uw.0),
+		//     d : XYZ(self.d.0 * rhs.uw.0),
 		// }
 		Plane {
 			nx: self.nx.wedge(rhs.uw),

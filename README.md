@@ -15,22 +15,24 @@ http://terathon.com/blog/projective-geometric-algebra-done-right/
 http://terathon.com/pga_lengyel.pdf
 
 
-## 3D example
+## 3D example - projective
 
 **Vector names**: `X Y Z W`
 
-**Grammar**: `X²=1 Y²=1 Z²=1 W²=0`
+**Grammar**: `X²=1  Y²=1  Z²=1  W²=0`
 
 **Types**:
 
-* Vec3:        `X Y Z`                       (direction)
-* Vec4:        `X Y Z W`                     (homogenous point)
-* Point3:      `X Y Z W=1`                   (normalized point)
-* Line3:       `WX WY WZ  YZ ZX XY`          (direction + moment of a Plücker line)
-* Plane        `YZW ZXW XYW  ZYX`            (normal + offset)
-* Translator3  `YZ ZX XY XYZW`               (translation primitive)
-* Rotor3       `WX WY WZ XYZW`               (rotation primitive, a.k.a. quaternion)
-* Motor3       `WX WY WZ XYZW YZW ZXW XYW S` (translator + rotor, a.k.a. dual quaternion)
+| Name         | Blades                          | Alternative | Interpretation                           |
+| ------------ | ----------------------------- | ----------- | ---------------------------------------- |
+| Vec3         | `X Y Z`                       |             |  direction
+| Vec4         | `X Y Z W`                     |             |  homogenous point
+| Point3       | `X Y Z W=1`                   |             |  normalized point
+| Line3        | `WX WY WZ  YZ ZX XY`          |             |  direction + moment of a Plücker line
+| Plane        | `YZW ZXW XYW  ZYX`            | !(X Y Z  W) |  normal + offset
+| Translator3  | `YZ ZX XY XYZW`               |             |  translation primitive
+| Rotor3       | `WX WY WZ XYZW`               |             |  rotation primitive, a.k.a. quaternion
+| Motor3       | `WX WY WZ XYZW YZW ZXW XYW S` |             |  translator + rotor, a.k.a. dual quaternion
 
 From the above definition, this library generates all the operations that can be done on these types. For instance, it will autmatically realize that `Point3 ^ Point3 -> Line3` (wedging two points gives the line that goes through those points) and `Plane V Line3 -> Vec4` (the antiwedge of a plane and a line is the point where the plane and line interesect).
 
@@ -64,16 +66,14 @@ In textbook geometric algebra, the base vectors are given the names `e1/e2/e3/e4
 
 So, I use this notations:
 
-```
 2D PGA:
 
-| Class     | Blades    | Description |
-| --------- | --------- | ----------- |
-| Scalar    | S         | The set of real numbers
-| Vectors   | X  Y  W   | Orthogonal dimensions in projective space
-| Bivectors | YW WX XY  | Orthogonal planes with normals `X Y W`
-| Trivector | XYW       | Represents a volume
-```
+| Class     | Blades    | Description | |
+| --------- | --------- | ----------- | -- |
+| Scalar    | S         | Numbers     | The set of real numbers
+| Vectors   | X  Y  W   | Directions  | Orthogonal dimensions in projective space
+| Bivectors | YW WX XY  | Lines       | Orthogonal planes with normals `X Y W`
+| Trivector | XYW       | Area        |
 
 I will use lower case letters for `x,y,z,w` for values (e.g. `3.14`) and upper case letters `X,Y,Z,W` for the basis vectors, which can be thought of as the *type* of the value.
 
